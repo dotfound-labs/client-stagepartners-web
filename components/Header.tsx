@@ -23,7 +23,7 @@ const NAV_ITEMS: NavItem[] = [
     href: "/business",
     children: [
       { label: "不動産ソリューション（仲介・管理）", href: "/business/real-estate" },
-      { label: "建設ソリューション（リフォーム）", href: "/business/architecture" },
+      { label: "建築ソリューション（リフォーム）", href: "/business/architecture" },
     ],
   },
   { label: "施工実績", href: "/works" },

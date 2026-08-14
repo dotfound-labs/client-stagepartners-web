@@ -19,11 +19,6 @@ const STRENGTHS = [
     title: "買って終わりにしない",
     body: "売買や改修の後も、維持管理で長く伴走。資産の価値を、その先まで守り続けます。",
   },
-  {
-    index: "04",
-    title: "グループ基盤と許認可",
-    body: "宅地建物取引業・建設業の許認可に裏打ちされた体制で、安心してお任せいただけます。",
-  },
 ];
 
 export default function Strengths() {
@@ -73,7 +68,7 @@ export default function Strengths() {
           >
             選ばれる、
             <br />
-            4つの理由。
+            3つの理由。
           </h2>
           <p
             data-strength-fade
@@ -88,7 +83,7 @@ export default function Strengths() {
             <li
               key={item.index}
               data-strength-item
-              className="grid grid-cols-[auto_1fr] gap-6 border-t border-on-dark/10 py-8 last:border-b sm:gap-10 sm:py-10"
+              className="grid grid-cols-[auto_1fr] gap-6 border-t border-on-dark/10 py-10 last:border-b sm:gap-10 sm:py-12"
             >
               <span className="font-latin text-[11px] tracking-[0.3em] text-on-dark/40">
                 {item.index}

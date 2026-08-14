@@ -5,22 +5,38 @@ import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
 
 // 会社概要ページ(/company)本体のコンテンツ。
-// 数値・許認可番号は正式決定まで仮の値。決まり次第差し替える。
-const PROFILE = [
+// 代表者名は正式決定まで仮の値。許認可番号は確定後に各行へ追記する。
+type ProfileRow = {
+  label: string;
+  value?: string | string[];
+  links?: { name: string; href: string }[];
+};
+
+const PROFILE: ProfileRow[] = [
   { label: "会社名", value: "株式会社STAGE PARTNERS" },
   { label: "代表者", value: "代表取締役　○○　○○" },
-  { label: "設立", value: "20XX年○月" },
-  { label: "所在地", value: "〒410-0055　静岡県沼津市高島本町16-16 高島本町ビル2F" },
+  { label: "設立", value: "2026年6月15日" },
+  { label: "資本金", value: "800万円" },
+  { label: "本社", value: "〒410-0055　静岡県沼津市高島本町16-16" },
+  { label: "沼津オフィス", value: "静岡県沼津市米山町1-5" },
+  { label: "東京オフィス", value: "東京都港区浜松町2-7-13 Biz Feel浜松町3F" },
   {
     label: "事業内容",
-    value: "不動産ソリューション（仲介・管理・買取再販）／ 建設ソリューション（リフォーム）",
+    value: "不動産ソリューション（仲介・管理・買取再販）／ 建築ソリューション（リフォーム）",
   },
   {
     label: "許認可",
-    value: [
-      "宅地建物取引業免許　静岡県知事（1）第14684号",
-      "一般建設業登録　静岡県知事許可（般-6）第39891号",
-      "一級建築士事務所　静岡県知事登録（2）第7830号",
+    value: ["宅地建物取引業免許", "一般建設業登録", "一級建築士事務所"],
+  },
+  {
+    label: "グループ会社",
+    links: [
+      { name: "サンプラホールディングス株式会社", href: "https://www.sunpla-hd.co.jp/" },
+      { name: "株式会社サン・プランナー", href: "https://www.sunpla.info/" },
+      { name: "株式会社ソレイユ", href: "https://www.soleil-fuji.co.jp/" },
+      { name: "株式会社サンプラダイニング", href: "https://sunpladining.com/" },
+      { name: "株式会社sunpla style", href: "https://sunpla-style.co.jp/" },
+      { name: "株式会社ドットファウンド", href: "https://www.dotfound.co.jp/" },
     ],
   },
 ];
@@ -92,17 +108,34 @@ export default function Company() {
                 key={row.label}
                 className="flex flex-col gap-1 border-b border-line py-5 sm:flex-row sm:gap-8"
               >
-                <dt className="font-latin text-[11px] tracking-[0.15em] text-ink-muted sm:w-28 sm:shrink-0 sm:pt-1">
+                <dt className="font-latin text-[11px] tracking-[0.15em] text-ink-muted sm:w-36 sm:shrink-0 sm:pt-1">
                   {row.label}
                 </dt>
                 <dd className="text-sm font-normal leading-relaxed text-ink sm:text-base">
-                  {Array.isArray(row.value)
-                    ? row.value.map((line) => (
-                      <span key={line} className="block">
-                        {line}
+                  {row.links
+                    ? row.links.map((link) => (
+                      <span key={link.href} className="block">
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 underline-offset-4 transition-colors hover:text-navy-mid hover:underline"
+                        >
+                          {link.name}
+                          <span aria-hidden className="text-[0.85em] text-ink-muted">
+                            ↗
+                          </span>
+                          <span className="sr-only">（外部サイト・新しいタブで開きます）</span>
+                        </a>
                       </span>
                     ))
-                    : row.value}
+                    : Array.isArray(row.value)
+                      ? row.value.map((line) => (
+                        <span key={line} className="block">
+                          {line}
+                        </span>
+                      ))
+                      : row.value}
                 </dd>
               </div>
             ))}

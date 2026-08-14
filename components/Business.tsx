@@ -6,7 +6,7 @@ import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
 
 // 事業は優先度順に構成する。
-// 1. 不動産事業(仲介・管理)  2. 建設事業(リフォーム)
+// 1. 不動産事業(仲介・管理)  2. 建築事業(リフォーム)
 // 画像パスは実写が用意でき次第そのまま差し替えれば反映される。
 const DIVISIONS = [
   {
@@ -28,7 +28,7 @@ const DIVISIONS = [
   {
     index: "02",
     en: "RENOVATION",
-    title: "建設ソリューション",
+    title: "建築ソリューション",
     lead: "リフォーム・リノベーション",
     description:
       "空室・老朽化・資産価値の低下といった課題を、建物への手入れで解決します。",
@@ -37,7 +37,7 @@ const DIVISIONS = [
       "費用対効果を見据えた、無理のない改修プラン",
       "自社で不動産まで見通すからこそ描ける、活かす前提の設計",
     ],
-    image: "/constructimage1.jpg",
+    image: "/issekisanncho.jpeg",
     imagePosition: "object-center",
     href: "/business/architecture",
   },
@@ -141,19 +141,11 @@ export default function Business() {
                 >
                   {division.index}　{division.lead}
                 </span>
-                <h3 data-business-text className="mt-5">
-                  <Link
-                    href={division.href}
-                    className="t-heading-tight group inline-flex items-baseline gap-3 font-display font-normal text-ink transition-colors hover:text-navy-mid"
-                  >
-                    {division.title}
-                    <span
-                      aria-hidden
-                      className="text-lg transition-transform duration-300 group-hover:translate-x-1 sm:text-xl"
-                    >
-                      →
-                    </span>
-                  </Link>
+                <h3
+                  data-business-text
+                  className="t-heading-tight mt-5 font-display font-normal text-ink"
+                >
+                  {division.title}
                 </h3>
                 <p
                   data-business-text
@@ -176,6 +168,21 @@ export default function Business() {
                     </li>
                   ))}
                 </ul>
+
+                <div data-business-text className="mt-9">
+                  <Link
+                    href={division.href}
+                    className="group inline-flex items-center gap-3 bg-ink px-8 py-4 text-xs font-medium tracking-[0.2em] text-paper transition-opacity hover:opacity-80"
+                  >
+                    詳細を見る
+                    <span
+                      aria-hidden
+                      className="transition-transform duration-300 group-hover:translate-x-1"
+                    >
+                      →
+                    </span>
+                  </Link>
+                </div>
               </div>
             </div>
           ))}
