@@ -106,7 +106,7 @@ export default function Hero() {
       <div data-hero-image className="absolute inset-0">
         {[
           { src: "/stagepartners-hero.jpg", position: "object-center" },
-          { src: "/issekisanncho.jpeg", position: "object-center" },
+          { src: "/issekisancho.jpg", position: "object-center" },
           { src: "/real-estateimage1.png", position: "object-[60%_center]" },
         ].map((slide, index) => (
           <div key={slide.src} data-hero-slide className={`absolute inset-0 ${index === 0 ? "opacity-100" : "opacity-0"}`}>

@@ -19,7 +19,7 @@ const WORKS = [
     category: "REAL ESTATE",
     title: "戸建て 買取・再販リフォーム",
     place: "静岡県東部",
-    image: "/issekisanncho.jpeg",
+    image: "/issekisancho.jpg",
     position: "object-center",
   },
   {
