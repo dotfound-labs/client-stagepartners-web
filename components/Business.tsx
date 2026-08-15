@@ -172,7 +172,7 @@ export default function Business() {
                 <div data-business-text className="mt-9">
                   <Link
                     href={division.href}
-                    className="group inline-flex items-center gap-3 bg-ink px-8 py-4 text-xs font-medium tracking-[0.2em] text-paper transition-opacity hover:opacity-80"
+                    className="group inline-flex items-center gap-3 bg-navy px-8 py-4 text-xs font-medium tracking-[0.2em] text-on-dark transition-opacity hover:opacity-80"
                   >
                     詳細を見る
                     <span

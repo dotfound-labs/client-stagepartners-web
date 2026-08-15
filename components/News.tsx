@@ -83,7 +83,7 @@ export default function News() {
           <div data-news-fade className="mt-8">
             <Link
               href="/news"
-              className="inline-flex items-center gap-3 bg-ink px-8 py-4 text-xs font-medium tracking-[0.2em] text-paper transition-opacity hover:opacity-80"
+              className="inline-flex items-center gap-3 bg-navy px-8 py-4 text-xs font-medium tracking-[0.2em] text-on-dark transition-opacity hover:opacity-80"
             >
               お知らせ一覧を見る
               <span aria-hidden>→</span>

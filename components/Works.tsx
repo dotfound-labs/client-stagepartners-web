@@ -132,7 +132,7 @@ export default function Works() {
         <div data-works-cta className="mt-14 flex justify-center lg:mt-16">
           <Link
             href="/works"
-            className="inline-flex items-center gap-3 bg-ink px-8 py-4 text-xs font-medium tracking-[0.2em] text-paper transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-3 bg-navy px-8 py-4 text-xs font-medium tracking-[0.2em] text-on-dark transition-opacity hover:opacity-80"
           >
             実績一覧を見る
             <span aria-hidden>→</span>
