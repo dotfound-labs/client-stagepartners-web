@@ -37,7 +37,7 @@ const DIVISIONS = [
       "費用対効果を見据えた、無理のない改修プラン",
       "自社で不動産まで見通すからこそ描ける、活かす前提の設計",
     ],
-    image: "/issekisancho.jpg",
+    image: "/issekisancho.png",
     imagePosition: "object-center",
     href: "/business/architecture",
   },
