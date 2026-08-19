@@ -14,7 +14,6 @@ type ProfileRow = {
 
 const PROFILE: ProfileRow[] = [
   { label: "会社名", value: "株式会社STAGE PARTNERS" },
-  { label: "代表者", value: "代表取締役　○○　○○" },
   { label: "設立", value: "2026年6月15日" },
   { label: "資本金", value: "800万円" },
   { label: "本社", value: "〒410-0055　静岡県沼津市高島本町16-16" },
