@@ -1,24 +1,28 @@
 import type { Metadata } from "next";
 import Header from "@/components/Header";
-import ComingSoon from "@/components/ComingSoon";
+import ArchitectureSolution from "@/components/ArchitectureSolution";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "建築ソリューション | STAGE PARTNERS",
+  title: "建築ソリューション｜店舗の内装工事・リノベーション・施設営繕 | STAGE PARTNERS",
   description:
-    "STAGE PARTNERSの建築ソリューションについて。住まいから商業施設まで、企画・設計・監理を一貫して手がけます。",
+    "飲食店・美容室・クリニックなどの店舗デザイン施工から、住まいのリノベーション、建物の点検・補修・メンテナンスまで。静岡県沼津市のSTAGE PARTNERSが、設計から引き渡し後の維持管理まで一社で担います。空き店舗の改修とテナント募集もご相談ください。",
+  alternates: { canonical: "/business/architecture" },
+  openGraph: {
+    title: "建築ソリューション | STAGE PARTNERS",
+    description:
+      "店舗の内装工事からリノベーション、施設営繕まで。設計から引き渡し後の維持管理まで一社で担います。",
+    type: "article",
+    locale: "ja_JP",
+  },
 };
 
-export default function ConstructionPage() {
+export default function ArchitecturePage() {
   return (
     <>
       <Header />
       <main id="main" className="flex flex-1 flex-col">
-        <ComingSoon
-          eyebrow="CONSTRUCTION SOLUTIONS"
-          title="建築ソリューション"
-          description="住まいから商業施設まで、企画・設計・監理を一貫して手がけ、お客様の期待と想いを形にします。"
-        />
+        <ArchitectureSolution />
       </main>
       <Footer />
     </>
