@@ -57,7 +57,7 @@ export default function Message() {
         trigger: scope.current,
         start: "top top",
         end: "bottom bottom",
-        scrub: 0.9,
+        scrub: 1.8,
       },
     });
 
@@ -82,7 +82,7 @@ export default function Message() {
       ref={sectionRef}
       id="message"
       aria-label="メッセージ"
-      className="h-[260vh] w-full bg-navy motion-reduce:h-auto"
+      className="h-[320vh] w-full bg-navy motion-reduce:h-auto"
     >
       <div
         data-msg-stage
@@ -162,13 +162,15 @@ export default function Message() {
             <Link
               data-msg-link
               href="/company"
-              className="group mt-8 inline-flex items-center gap-4 text-xs tracking-[0.18em] text-on-dark/80 transition-colors hover:text-on-dark"
+              className="group mt-9 inline-flex items-center gap-3 bg-on-dark px-8 py-4 text-xs font-medium tracking-[0.2em] text-navy transition-colors duration-300 hover:bg-navy-mid hover:text-on-dark"
             >
               私たちについて
               <span
                 aria-hidden
-                className="inline-block h-px w-10 bg-on-dark/50 transition-all duration-300 group-hover:w-14 group-hover:bg-on-dark"
-              />
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              >
+                →
+              </span>
             </Link>
           </div>
         </div>
