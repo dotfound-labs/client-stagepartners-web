@@ -1,0 +1,730 @@
+[
+  {
+    "slug": "kanogawa",
+    "title": "狩野川店舗",
+    "type": "店舗 / 内外装改修",
+    "category": "store",
+    "cover": "after-02.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "shofuku",
+    "title": "松福 焼津店",
+    "type": "飲食店 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "tanakatei",
+    "title": "田中亭 三島スカイウォーク店",
+    "type": "飲食店 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "tokuzomaru",
+    "title": "徳造丸 沼津港店",
+    "type": "飲食店 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg"
+    ]
+  },
+  {
+    "slug": "tokuzomaru-kakoujou",
+    "title": "徳造丸 沼津港店 加工場",
+    "type": "加工場 / 新設",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "tokuzomaru-omiyage",
+    "title": "徳造丸 沼津港店 御土産店",
+    "type": "物販店 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "tokuzomaru-hiroba",
+    "title": "徳造丸 沼津港店 広場",
+    "type": "外構 / 整備",
+    "category": "store",
+    "cover": "after-03.jpg",
+    "before": [
+      "before-01.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg"
+    ]
+  },
+  {
+    "slug": "kizawakogyo",
+    "title": "木澤工業",
+    "type": "事務所 / リノベーション",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "zentoku",
+    "title": "ゼントクコーポレーション",
+    "type": "オフィス / 改装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "level",
+    "title": "Level sis",
+    "type": "店舗 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "issekisancho",
+    "title": "厳選焼鳥 一石三鳥",
+    "type": "飲食店 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "toshin-mishima",
+    "title": "東進衛星予備校 三島校",
+    "type": "学習塾 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "toshin-shimizu",
+    "title": "東進衛星予備校 清水校",
+    "type": "学習塾 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "baseball-studio",
+    "title": "室内野球練習場",
+    "type": "スポーツ施設 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "memorial-garden",
+    "title": "メモリアルガーデン 管理棟",
+    "type": "管理棟 / 新築",
+    "category": "store",
+    "cover": "after-02.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "karumen-susono",
+    "title": "黄金トマトのカル麺 裾野店",
+    "type": "飲食店 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "karumen-numazu",
+    "title": "黄金トマトのカル麺 沼津店",
+    "type": "飲食店 / 居抜き改装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "karumen-mishima",
+    "title": "黄金トマトのカル麺 三島スカイウォーク店",
+    "type": "飲食店 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "laseed",
+    "title": "La.seed",
+    "type": "美容室 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "laviola",
+    "title": "Laviola",
+    "type": "店舗 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "okaeru",
+    "title": "Lounge Bar THE OKAERU",
+    "type": "飲食店 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "ph-komazawa",
+    "title": "ピタットハウス 駒澤大学店",
+    "type": "事務所 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "whitening-shop",
+    "title": "ホワイトニングショップ",
+    "type": "クリニック / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "mobile-shop",
+    "title": "携帯ショップ",
+    "type": "物販店 / 改装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "koryoriya",
+    "title": "小料理屋",
+    "type": "飲食店 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg"
+    ]
+  },
+  {
+    "slug": "shibuya-daidokoroya",
+    "title": "渋谷 台所屋",
+    "type": "飲食店 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "pachinko-renewal",
+    "title": "パチンコ店 改装",
+    "type": "遊技場 / 改装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "sports-lounge",
+    "title": "スポーツ施設ラウンジ",
+    "type": "スポーツ施設 / 改装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "atami-mansion",
+    "title": "熱海マンション",
+    "type": "住宅 / リノベーション",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "mansion-renovation",
+    "title": "マンションリノベーション",
+    "type": "住宅 / リノベーション",
+    "category": "store",
+    "cover": "after-04.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "deltaring-gym",
+    "title": "DELTARING GYM",
+    "type": "スポーツ施設 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "yokohama-kohoku",
+    "title": "横浜港北区 住宅リノベーション",
+    "type": "住宅 / リノベーション",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "yokohama-tachinomi",
+    "title": "横浜 立ち飲み屋",
+    "type": "飲食店 / 新装",
+    "category": "store",
+    "cover": "after-01.jpg",
+    "before": [],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "memorial-garden-site",
+    "title": "メモリアルガーデン",
+    "type": "霊園 / 整備",
+    "category": "store",
+    "cover": "after-04.jpg",
+    "before": [],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "roppongi-kaitai",
+    "title": "六本木飲食店 解体工事",
+    "type": "飲食店 / 解体",
+    "category": "facility",
+    "cover": "after-01.jpg",
+    "before": [
+      "before-01.jpg",
+      "before-02.jpg",
+      "before-03.jpg",
+      "before-04.jpg",
+      "before-05.jpg"
+    ],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "pachinko-kaitai",
+    "title": "パチンコ店 解体工事",
+    "type": "遊技場 / 解体",
+    "category": "facility",
+    "cover": "after-01.jpg",
+    "before": [],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "namakon-kaitai",
+    "title": "静岡生コン 解体工事",
+    "type": "プラント / 解体",
+    "category": "facility",
+    "cover": "after-01.jpg",
+    "before": [],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  },
+  {
+    "slug": "viva-genjokaifuku",
+    "title": "ビバモール甲斐敷島 テナント原状回復工事",
+    "type": "商業施設 / 原状回復",
+    "category": "facility",
+    "cover": "after-01.jpg",
+    "before": [],
+    "after": [
+      "after-01.jpg",
+      "after-02.jpg",
+      "after-03.jpg",
+      "after-04.jpg",
+      "after-05.jpg"
+    ]
+  }
+]

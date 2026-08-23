@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import Header from "@/components/Header";
-import ComingSoon from "@/components/ComingSoon";
 import Footer from "@/components/Footer";
+import WorksIndex from "@/components/WorksIndex";
+import { WORKS } from "@/lib/works";
 
 export const metadata: Metadata = {
-  title: "施工実績 | STAGE PARTNERS",
-  description:
-    "STAGE PARTNERSの施工実績一覧です。リノベーション・原状回復・買取再販まで、土地と建物に価値を加えてきた仕事をご紹介します。",
+  title: "施工実績｜店舗の内装工事・リノベーション・解体 | STAGE PARTNERS",
+  description: `飲食店・美容室・クリニック・学習塾などの店舗新装から、住まいのリノベーション、施設の営繕と解体まで。STAGE PARTNERSが手がけた${WORKS.length}件の施工実績を、施工前後の写真とあわせてご紹介します。`,
+  alternates: { canonical: "/works" },
+  openGraph: {
+    title: "施工実績 | STAGE PARTNERS",
+    description: "店舗の新装から住まいの改修、施設の営繕と解体まで。施工前後の写真とあわせてご紹介します。",
+    type: "website",
+    locale: "ja_JP",
+  },
 };
 
 export default function WorksPage() {
@@ -14,11 +21,7 @@ export default function WorksPage() {
     <>
       <Header />
       <main id="main" className="flex flex-1 flex-col">
-        <ComingSoon
-          eyebrow="WORKS"
-          title="施工実績"
-          description="リノベーション・原状回復から買取再販まで、土地と建物に価値を加えてきた私たちの仕事をご紹介します。"
-        />
+        <WorksIndex />
       </main>
       <Footer />
     </>

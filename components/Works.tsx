@@ -4,32 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
+import { CATEGORY_LABEL, WORKS as ALL_WORKS, workImage } from "@/lib/works";
 
-// 注目の施工実績。管理画面で手動選択する想定のため、当面はモックの3件を掲載する。
-// 実写・実績が用意でき次第、image と各テキストを差し替える。
-const WORKS = [
-  {
-    category: "RENOVATION",
-    title: "賃貸マンション 全面リノベーション",
-    place: "静岡県沼津市",
-    image: "/real-estateimage1.png",
-    position: "object-[60%_70%]",
-  },
-  {
-    category: "REAL ESTATE",
-    title: "戸建て 買取・再販リフォーム",
-    place: "静岡県東部",
-    image: "/issekisancho.png",
-    position: "object-center",
-  },
-  {
-    category: "RENOVATION",
-    title: "収益物件 原状回復・改修",
-    place: "静岡県沼津市",
-    image: "/companyimage1.png",
-    position: "object-[30%_center]",
-  },
-];
+// 注目の施工実績。lib/works.ts の先頭3件を出す。
+// 実績が増えたらそちらを並べ替えれば、このセクションも追随する。
+const FEATURED = ALL_WORKS.slice(0, 3);
 
 export default function Works() {
   const sectionRef = useScopedGsap<HTMLElement>(() => {
@@ -105,26 +84,29 @@ export default function Works() {
           data-works-grid
           className="mt-14 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3"
         >
-          {WORKS.map((work) => (
-            <article key={work.title} data-works-card>
-              <div className="media relative aspect-[4/3] w-full overflow-hidden bg-[#161513]">
-                <Image
-                  src={work.image}
-                  alt={`${work.title}の施工実績`}
-                  fill
-                  sizes="(min-width: 1024px) 32vw, (min-width: 640px) 48vw, 100vw"
-                  className={`object-cover ${work.position}`}
-                />
-              </div>
-              <span className="mt-6 block font-latin text-[11px] tracking-[0.25em] text-ink-muted">
-                {work.category}
-              </span>
-              <h3 className="t-body mt-3 font-display font-normal text-ink">
-                {work.title}
-              </h3>
-              <p className="mt-2 font-latin text-[11px] tracking-[0.12em] text-ink-muted">
-                {work.place}
-              </p>
+          {FEATURED.map((work) => (
+            <article key={work.slug} data-works-card>
+              <Link href={`/works/${work.slug}`} className="group block">
+                {/* 一覧ページと同じ3:2。サイト内で実績カードの比率をそろえる */}
+                <div className="media relative aspect-[3/2] w-full overflow-hidden bg-[#161513]">
+                  <Image
+                    src={workImage(work, work.cover)}
+                    alt={`${work.title}の施工実績`}
+                    fill
+                    sizes="(min-width: 1024px) 32vw, (min-width: 640px) 48vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+                <span className="mt-6 block font-latin text-[11px] tracking-[0.25em] text-ink-muted">
+                  {work.type}
+                </span>
+                <h3 className="t-body mt-3 font-display font-normal text-ink transition-colors duration-300 group-hover:text-navy-mid line-clamp-2 min-h-[2.8em]">
+                  {work.title}
+                </h3>
+                <p className="mt-2 text-xs tracking-[0.12em] text-ink-muted">
+                  {CATEGORY_LABEL[work.category]}
+                </p>
+              </Link>
             </article>
           ))}
         </div>

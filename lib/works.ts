@@ -1,0 +1,448 @@
+/**
+ * 施工実績のデータ。一覧(/works)・詳細(/works/[slug])・TOPの実績セクションが
+ * 共有する唯一の情報源。
+ *
+ * 写真は scripts/build-works-images.mjs が public/works/<slug>/ に書き出したもの。
+ * ファイル名だけを持ち、パスの組み立ては workImage() に寄せている。
+ */
+export type WorkCategory = "store" | "facility";
+
+export type Work = {
+  slug: string;
+  title: string;
+  category: WorkCategory;
+  /** "飲食店 / 新装" のような業種と工事種別 */
+  type: string;
+  summary: string;
+  /** 一覧のカバー画像(ファイル名) */
+  cover: string;
+  /**
+   * 比較スライダーに使う施工前後の組。
+   * 構図が揃っている案件にだけ持たせる。揃っていない写真で使うと
+   * 比較ではなく別々の写真の切り替えになり、かえって伝わらない。
+   */
+  compare?: { before: string; after: string };
+  beforeShots: string[];
+  afterShots: string[];
+};
+
+export const CATEGORY_LABEL: Record<WorkCategory, string> = {
+  "store": "店舗・住宅施工",
+  "facility": "施設営繕・解体"
+};
+
+export const WORKS: Work[] = [
+  {
+    slug: "kanogawa",
+    title: "狩野川店舗",
+    category: "store",
+    type: "店舗 / 内外装改修",
+    summary: "外壁と内装をあわせて改修した店舗です。石張りのファサードに変え、外階段まわりも作り直しました。",
+    cover: "after-02.jpg",
+    compare: { before: "before-04.jpg", after: "after-03.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "shofuku",
+    title: "松福 焼津店",
+    category: "store",
+    type: "飲食店 / 新装",
+    summary: "ラーメン店の新装工事です。道路から見える正面の看板と駐車場の導線をあわせて整えました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "tanakatei",
+    title: "田中亭 三島スカイウォーク店",
+    category: "store",
+    type: "飲食店 / 新装",
+    summary: "三島スカイウォークの飲食店です。木を見せた内装と、厨房から客席までの動線をつくりました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "tokuzomaru",
+    title: "徳造丸 沼津港店",
+    category: "store",
+    type: "飲食店 / 新装",
+    summary: "沼津港の海鮮料理店です。躯体の状態から、客席と厨房を一から起こしました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg"],
+  },
+  {
+    slug: "tokuzomaru-kakoujou",
+    title: "徳造丸 沼津港店 加工場",
+    category: "store",
+    type: "加工場 / 新設",
+    summary: "沼津港店の加工場です。ステンレスの什器と洗い場を入れ、衛生管理のとれる配置にしました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "tokuzomaru-omiyage",
+    title: "徳造丸 沼津港店 御土産店",
+    category: "store",
+    type: "物販店 / 新装",
+    summary: "沼津港店の御土産店です。冷蔵ケースの位置から決め、商品が見やすい売場にしました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "tokuzomaru-hiroba",
+    title: "徳造丸 沼津港店 広場",
+    category: "store",
+    type: "外構 / 整備",
+    summary: "沼津港店の広場です。人工芝を敷き、シンボルのオブジェを据えて滞在できる場所にしました。",
+    cover: "after-03.jpg",
+    compare: { before: "before-01.jpg", after: "after-01.jpg" },
+    beforeShots: ["before-01.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg"],
+  },
+  {
+    slug: "kizawakogyo",
+    title: "木澤工業",
+    category: "store",
+    type: "事務所 / リノベーション",
+    summary: "工業会社の事務所をリノベーションしました。屋根の葺き替えから内部の間取りまで手を入れています。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "zentoku",
+    title: "ゼントクコーポレーション",
+    category: "store",
+    type: "オフィス / 改装",
+    summary: "オフィスの改装です。会議室と執務スペースを引き直し、什器まで含めて入れ替えました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "level",
+    title: "Level sis",
+    category: "store",
+    type: "店舗 / 新装",
+    summary: "店舗の新装工事です。照明の色を落とし込んだカウンターまわりが中心になっています。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "issekisancho",
+    title: "厳選焼鳥 一石三鳥",
+    category: "store",
+    type: "飲食店 / 新装",
+    summary: "厳選焼鳥の店舗です。炉端を囲むカウンターを軸に、和の設えで組み立てました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "toshin-mishima",
+    title: "東進衛星予備校 三島校",
+    category: "store",
+    type: "学習塾 / 新装",
+    summary: "予備校の新装工事です。自習席と講義室、水まわりまでを一度に整備しました。",
+    cover: "after-01.jpg",
+    compare: { before: "before-02.jpg", after: "after-05.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "toshin-shimizu",
+    title: "東進衛星予備校 清水校",
+    category: "store",
+    type: "学習塾 / 新装",
+    summary: "予備校の新装工事です。既存の事務所空間を、個別に区切った自習ブースに作り替えました。",
+    cover: "after-01.jpg",
+    compare: { before: "before-04.jpg", after: "after-03.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "baseball-studio",
+    title: "室内野球練習場",
+    category: "store",
+    type: "スポーツ施設 / 新装",
+    summary: "倉庫を室内野球練習場に転用しました。人工芝とネットを張り、打席がとれる高さを確保しています。",
+    cover: "after-01.jpg",
+    compare: { before: "before-02.jpg", after: "after-04.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "memorial-garden",
+    title: "メモリアルガーデン 管理棟",
+    category: "store",
+    type: "管理棟 / 新築",
+    summary: "霊園の管理棟です。造成から基礎まで、建物を建てる土台をつくりました。",
+    cover: "after-02.jpg",
+    compare: { before: "before-05.jpg", after: "after-02.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "karumen-susono",
+    title: "黄金トマトのカル麺 裾野店",
+    category: "store",
+    type: "飲食店 / 新装",
+    summary: "ラーメン店の新装工事です。既存の建物を店舗に変え、道路からの見え方を作り直しました。",
+    cover: "after-01.jpg",
+    compare: { before: "before-02.jpg", after: "after-01.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "karumen-numazu",
+    title: "黄金トマトのカル麺 沼津店",
+    category: "store",
+    type: "飲食店 / 居抜き改装",
+    summary: "居抜きの物件を使ったラーメン店です。前のテナントの設備を活かしつつ、厨房を組み直しました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "karumen-mishima",
+    title: "黄金トマトのカル麺 三島スカイウォーク店",
+    category: "store",
+    type: "飲食店 / 新装",
+    summary: "三島スカイウォークの店舗です。植栽を吊った開放的な売場に仕上げました。",
+    cover: "after-01.jpg",
+    compare: { before: "before-01.jpg", after: "after-05.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "laseed",
+    title: "La.seed",
+    category: "store",
+    type: "美容室 / 新装",
+    summary: "美容室の新装工事です。解体後の躯体から、シャンプー台とセット面の配置を決めました。",
+    cover: "after-01.jpg",
+    compare: { before: "before-03.jpg", after: "after-05.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "laviola",
+    title: "Laviola",
+    category: "store",
+    type: "店舗 / 新装",
+    summary: "店舗の新装工事です。暗さを基調にした照明計画で、落ち着いた客席をつくりました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "okaeru",
+    title: "Lounge Bar THE OKAERU",
+    category: "store",
+    type: "飲食店 / 新装",
+    summary: "ラウンジバーの新装工事です。石を張ったバックバーとカウンターが中心になっています。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "ph-komazawa",
+    title: "ピタットハウス 駒澤大学店",
+    category: "store",
+    type: "事務所 / 新装",
+    summary: "不動産店舗の新装工事です。靴修理店だった区画を、通りから中が見える明るい店構えに変えました。",
+    cover: "after-01.jpg",
+    compare: { before: "before-05.jpg", after: "after-01.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "whitening-shop",
+    title: "ホワイトニングショップ",
+    category: "store",
+    type: "クリニック / 新装",
+    summary: "ホワイトニング専門店です。給排水の位置から決め、施術チェアを並べられる配置にしました。",
+    cover: "after-01.jpg",
+    compare: { before: "before-05.jpg", after: "after-02.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "mobile-shop",
+    title: "携帯ショップ",
+    category: "store",
+    type: "物販店 / 改装",
+    summary: "携帯ショップの改装です。什器のレールを組み、商品と接客カウンターを見通せるようにしました。",
+    cover: "after-01.jpg",
+    compare: { before: "before-03.jpg", after: "after-01.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "koryoriya",
+    title: "小料理屋",
+    category: "store",
+    type: "飲食店 / 新装",
+    summary: "小料理屋の新装工事です。一枚板のカウンターを主役に、酒の見せ方まで含めて設えました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg"],
+  },
+  {
+    slug: "shibuya-daidokoroya",
+    title: "渋谷 台所屋",
+    category: "store",
+    type: "飲食店 / 新装",
+    summary: "渋谷の飲食店です。解体した状態から、餃子と寿司を出す二層の店舗に組み直しました。",
+    cover: "after-01.jpg",
+    compare: { before: "before-01.jpg", after: "after-03.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "pachinko-renewal",
+    title: "パチンコ店 改装",
+    category: "store",
+    type: "遊技場 / 改装",
+    summary: "遊技場の改装です。営業を止める期間を区切り、内装と什器を入れ替えました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "sports-lounge",
+    title: "スポーツ施設ラウンジ",
+    category: "store",
+    type: "スポーツ施設 / 改装",
+    summary: "スポーツ施設のラウンジです。コートと一体で使える休憩スペースに整えました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "atami-mansion",
+    title: "熱海マンション",
+    category: "store",
+    type: "住宅 / リノベーション",
+    summary: "熱海のマンションの一室をリノベーションしました。水まわりと床を全面的にやり替えています。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "mansion-renovation",
+    title: "マンションリノベーション",
+    category: "store",
+    type: "住宅 / リノベーション",
+    summary: "マンションの住戸リノベーションです。建具と壁の色を決め直し、キッチンを入れ替えました。",
+    cover: "after-04.jpg",
+    compare: { before: "before-04.jpg", after: "after-02.jpg" },
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "deltaring-gym",
+    title: "DELTARING GYM",
+    category: "store",
+    type: "スポーツ施設 / 新装",
+    summary: "ジムの新装工事です。マシンの配置と天井の高さを見ながら内装を組み立てました。",
+    cover: "after-01.jpg",
+    beforeShots: [],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "yokohama-kohoku",
+    title: "横浜港北区 住宅リノベーション",
+    category: "store",
+    type: "住宅 / リノベーション",
+    summary: "横浜市港北区の住宅リノベーションです。間取りから見直し、生活の動線を引き直しました。",
+    cover: "after-01.jpg",
+    beforeShots: [],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "yokohama-tachinomi",
+    title: "横浜 立ち飲み屋",
+    category: "store",
+    type: "飲食店 / 新装",
+    summary: "横浜の立ち飲み店です。狭い区画のなかで、立ったまま滞在できる寸法を詰めました。",
+    cover: "after-01.jpg",
+    beforeShots: [],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "memorial-garden-site",
+    title: "メモリアルガーデン",
+    category: "store",
+    type: "霊園 / 整備",
+    summary: "霊園の整備工事です。木造の建方から屋根まで、現場の進行に合わせて進めました。",
+    cover: "after-04.jpg",
+    beforeShots: [],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "roppongi-kaitai",
+    title: "六本木飲食店 解体工事",
+    category: "facility",
+    type: "飲食店 / 解体",
+    summary: "六本木の飲食店の解体工事です。天井と設備を撤去し、次のテナントに引き渡せる状態まで戻しました。",
+    cover: "after-01.jpg",
+    beforeShots: ["before-01.jpg","before-02.jpg","before-03.jpg","before-04.jpg","before-05.jpg"],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "pachinko-kaitai",
+    title: "パチンコ店 解体工事",
+    category: "facility",
+    type: "遊技場 / 解体",
+    summary: "遊技場の解体工事です。什器と内装を撤去し、躯体の状態まで戻しました。",
+    cover: "after-01.jpg",
+    beforeShots: [],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "namakon-kaitai",
+    title: "静岡生コン 解体工事",
+    category: "facility",
+    type: "プラント / 解体",
+    summary: "生コン工場の解体工事です。プラント設備を撤去し、更地まで戻しました。",
+    cover: "after-01.jpg",
+    beforeShots: [],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+  {
+    slug: "viva-genjokaifuku",
+    title: "ビバモール甲斐敷島 テナント原状回復工事",
+    category: "facility",
+    type: "商業施設 / 原状回復",
+    summary: "商業施設のテナント原状回復工事です。区画を貸し出せる状態に整えました。",
+    cover: "after-01.jpg",
+    beforeShots: [],
+    afterShots: ["after-01.jpg","after-02.jpg","after-03.jpg","after-04.jpg","after-05.jpg"],
+  },
+];
+
+/** public/works 配下の画像パスを組み立てる。 */
+export function workImage(work: Pick<Work, "slug">, file: string): string {
+  return `/works/${work.slug}/${file}`;
+}
+
+export function getWork(slug: string): Work | undefined {
+  return WORKS.find((w) => w.slug === slug);
+}
+
+/** 前後の実績。一覧へ戻らずに見て回れるようにするための導線。 */
+export function getSiblings(slug: string): { prev: Work; next: Work } | null {
+  const i = WORKS.findIndex((w) => w.slug === slug);
+  if (i < 0) return null;
+  return {
+    prev: WORKS[(i - 1 + WORKS.length) % WORKS.length],
+    next: WORKS[(i + 1) % WORKS.length],
+  };
+}

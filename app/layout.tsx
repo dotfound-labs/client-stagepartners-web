@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_JP, Shippori_Mincho, Inter } from "next/font/google";
 import PageLoader from "@/components/PageLoader";
+import SmoothScroll from "@/components/SmoothScroll";
 import "./globals.css";
 
 // 本文・UI。可読性重視のゴシック。
@@ -55,6 +56,7 @@ export default function RootLayout({
       className={`${notoSansJP.variable} ${shippori.variable} ${inter.variable}`}
     >
       <body className="min-h-full flex flex-col bg-paper text-ink">
+        <SmoothScroll />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-navy focus:px-5 focus:py-3 focus:text-xs focus:tracking-[0.15em] focus:text-on-dark"
