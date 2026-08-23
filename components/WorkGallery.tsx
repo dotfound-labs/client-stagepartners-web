@@ -3,67 +3,68 @@
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { A11y, FreeMode, Keyboard, Mousewheel } from "swiper/modules";
+import { STATE_LABEL, type Shot } from "@/lib/works";
 import "swiper/css";
 import "swiper/css/free-mode";
 
 type Props = {
-  images: string[];
-  label: string;
+  shots: (Shot & { src: string })[];
   alt: string;
-  tone?: "light" | "dark";
 };
 
 /**
- * 施工写真の横並びギャラリー。
+ * 施工の記録。1案件につきこの1本だけを出す。
  *
- * 縦に積むと1案件で画面数が伸びて読み飛ばされるため、横に流して
- * 高さを一定に抑えている。慣性とタッチの効きは自前で書くと粗くなるのでSwiperに任せる。
+ * 施工前と施工後で列を分けると、写真の揃い方が案件ごとに違うせいで
+ * ページの構成そのものが1件ずつ変わってしまう。1本に統一したうえで、
+ *   - 同じ場所の前後を隣り合わせに並べる(データ側で並べ替え済み)
+ *   - 施工前は彩度を落とす
+ *   - 各写真に「施工前」「施工後」を出す
+ * の3つで、どれが前でどれが後かを写真の上だけで分かるようにしている。
+ * 彩度を落とす扱いは比較スライダーと同じなので、見え方の語彙も揃う。
  */
-export default function WorkGallery({ images, label, alt, tone = "light" }: Props) {
-  if (images.length === 0) return null;
-  const dark = tone === "dark";
+export default function WorkGallery({ shots, alt }: Props) {
+  if (shots.length === 0) return null;
 
   return (
-    <div>
-      <p
-        className={`flex items-center gap-4 font-latin text-[10px] tracking-[0.3em] sm:text-[11px] ${dark ? "text-on-dark/50" : "text-ink-muted"
-          }`}
-      >
-        <span
-          aria-hidden
-          className={`inline-block h-px w-10 ${dark ? "bg-on-dark/25" : "bg-ink/25"}`}
-        />
-        {label}
-      </p>
-
-      <Swiper
-        modules={[FreeMode, Mousewheel, Keyboard, A11y]}
-        freeMode={{ enabled: true, momentum: true, momentumRatio: 0.6 }}
-        slidesPerView={1.15}
-        spaceBetween={16}
-        keyboard={{ enabled: true }}
-        mousewheel={{ forceToAxis: true }}
-        breakpoints={{
-          640: { slidesPerView: 2.1, spaceBetween: 20 },
-          1024: { slidesPerView: 3.1, spaceBetween: 24 },
-        }}
-        className="mt-7 !overflow-visible"
-        a11y={{ containerMessage: `${alt}の${label}の写真` }}
-      >
-        {images.map((src, i) => (
-          <SwiperSlide key={src}>
+    <Swiper
+      modules={[FreeMode, Mousewheel, Keyboard, A11y]}
+      freeMode={{ enabled: true, momentum: true, momentumRatio: 0.6 }}
+      slidesPerView={1.15}
+      spaceBetween={16}
+      keyboard={{ enabled: true }}
+      mousewheel={{ forceToAxis: true }}
+      breakpoints={{
+        640: { slidesPerView: 2.1, spaceBetween: 20 },
+        1024: { slidesPerView: 3.1, spaceBetween: 24 },
+      }}
+      className="!overflow-visible"
+      a11y={{ containerMessage: `${alt}の施工写真` }}
+    >
+      {shots.map((shot, i) => (
+        <SwiperSlide key={shot.file}>
+          <figure>
             <div className="media relative aspect-[3/2] w-full overflow-hidden bg-[#161513]">
               <Image
-                src={src}
-                alt={`${alt} ${label} ${i + 1}枚目`}
+                src={shot.src}
+                alt={`${alt} ${STATE_LABEL[shot.state]} ${i + 1}枚目`}
                 fill
                 sizes="(min-width: 1024px) 32vw, (min-width: 640px) 48vw, 88vw"
-                className="object-cover"
+                className={`object-cover ${shot.state === "before" ? "[filter:grayscale(0.85)_brightness(0.92)]" : ""
+                  }`}
               />
+              <span
+                className={`absolute left-4 top-4 px-3 py-1.5 text-[11px] tracking-[0.18em] backdrop-blur-sm ${shot.state === "before"
+                  ? "bg-navy/70 text-on-dark/90"
+                  : "bg-on-dark/85 text-navy"
+                  }`}
+              >
+                {STATE_LABEL[shot.state]}
+              </span>
             </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </div>
+          </figure>
+        </SwiperSlide>
+      ))}
+    </Swiper>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "@/hooks/useGsap";
 import { Draggable } from "gsap/Draggable";
 import { prefersReducedMotion } from "@/lib/animations";
@@ -29,7 +29,8 @@ export default function BeforeAfter({ before, after, alt }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<HTMLDivElement>(null);
   const clipRef = useRef<HTMLDivElement>(null);
-  const [value, setValue] = useState(50);
+  const beforeLabelRef = useRef<HTMLDivElement>(null);
+  const afterLabelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const root = rootRef.current;
     const handle = handleRef.current;
@@ -40,9 +41,14 @@ export default function BeforeAfter({ before, after, alt }: Props) {
     const apply = (percent: number) => {
       const p = gsap.utils.clamp(0, 100, percent);
       current = p;
-      setValue(Math.round(p));
+      const rounded = Math.round(p);
+      handle.setAttribute("aria-valuenow", String(rounded));
+      handle.setAttribute("aria-valuetext", `施工後を${rounded}パーセント表示`);
       gsap.set(clipRef.current, { clipPath: `inset(0 0 0 ${p}%)` });
       gsap.set(handle, { left: `${p}%` });
+      // ラベルはそれぞれ自分の領域の内側に収める
+      gsap.set(beforeLabelRef.current, { width: `${p}%`, opacity: p < 16 ? 0 : 1 });
+      gsap.set(afterLabelRef.current, { width: `${100 - p}%`, opacity: p > 84 ? 0 : 1 });
     };
     apply(50);
 
@@ -144,12 +150,26 @@ export default function BeforeAfter({ before, after, alt }: Props) {
         />
       </div>
 
-      <span className="pointer-events-none absolute left-5 top-5 font-latin text-[10px] tracking-[0.3em] text-on-dark/85">
-        BEFORE
-      </span>
-      <span className="pointer-events-none absolute right-5 top-5 font-latin text-[10px] tracking-[0.3em] text-on-dark/85">
-        AFTER
-      </span>
+      {/* ラベルは境界に張り付いて動く。角に固定すると、つまみを寄せたときに
+          ラベルと写真が食い違って読めなくなる。 */}
+      <div
+        ref={beforeLabelRef}
+        aria-hidden
+        className="pointer-events-none absolute left-0 top-5 flex items-center gap-2 pl-5 pr-4 text-on-dark"
+      >
+        <span className="bg-navy/70 px-3 py-1.5 text-[11px] tracking-[0.18em] backdrop-blur-sm">
+          施工前
+        </span>
+      </div>
+      <div
+        ref={afterLabelRef}
+        aria-hidden
+        className="pointer-events-none absolute right-0 top-5 flex items-center justify-end gap-2 pl-4 pr-5 text-on-dark"
+      >
+        <span className="bg-navy/70 px-3 py-1.5 text-[11px] tracking-[0.18em] backdrop-blur-sm">
+          施工後
+        </span>
+      </div>
 
       {/* ハンドル */}
       <div
@@ -159,8 +179,7 @@ export default function BeforeAfter({ before, after, alt }: Props) {
         aria-label={`${alt}の施工前後を比べる`}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-valuenow={value}
-        aria-valuetext={`施工後を${value}パーセント表示`}
+        aria-valuenow={50}
         className="absolute top-0 z-10 -ml-6 flex h-full w-12 cursor-ew-resize items-center justify-center focus:outline-none"
       >
         {/* 境界の光 */}

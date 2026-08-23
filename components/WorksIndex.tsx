@@ -2,12 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { Flip } from "gsap/Flip";
 import { scrollTriggerDefaults, prefersReducedMotion, drawLine } from "@/lib/animations";
 import { CATEGORY_LABEL, WORKS, workImage, type WorkCategory } from "@/lib/works";
-import type { HoverGl } from "@/lib/hover-gl";
 
 if (typeof window !== "undefined") gsap.registerPlugin(Flip);
 
@@ -22,7 +21,6 @@ const TABS: { value: Filter; label: string }[] = [
 export default function WorksIndex() {
   const [filter, setFilter] = useState<Filter>("all");
   const gridRef = useRef<HTMLUListElement>(null);
-  const glRef = useRef<HoverGl | null>(null);
 
   const rootRef = useScopedGsap<HTMLDivElement>(({ scope }) => {
     const q = gsap.utils.selector(scope);
@@ -47,20 +45,6 @@ export default function WorksIndex() {
       stagger: 0.07,
       scrollTrigger: { trigger: gridRef.current, ...scrollTriggerDefaults },
     });
-  }, []);
-
-  // WebGLのホバー演出。非対応・タッチ・動きの低減時はCSSのズームだけで見せる。
-  useEffect(() => {
-    let cancelled = false;
-    import("@/lib/hover-gl").then(({ HoverGl }) => {
-      if (cancelled || !HoverGl.isSupported()) return;
-      glRef.current = new HoverGl();
-    });
-    return () => {
-      cancelled = true;
-      glRef.current?.destroy();
-      glRef.current = null;
-    };
   }, []);
 
   const changeFilter = (next: Filter) => {
@@ -164,18 +148,6 @@ export default function WorksIndex() {
               <Link
                 href={`/works/${work.slug}`}
                 className="group block focus:outline-none"
-                onMouseEnter={(event) => {
-                  const media = event.currentTarget.querySelector<HTMLElement>("[data-media]");
-                  const before = work.beforeShots[0];
-                  if (media && before) {
-                    glRef.current?.enter(
-                      media,
-                      workImage(work, work.cover),
-                      workImage(work, before),
-                    );
-                  }
-                }}
-                onMouseLeave={() => glRef.current?.leave()}
               >
                 {/* 全案件で同じ比率にそろえる。写真の縦横がばらついていても行の高さが動かない */}
                 <div

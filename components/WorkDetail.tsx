@@ -38,7 +38,8 @@ export default function WorkDetail({ work, prev, next }: Props) {
   }, [work.slug]);
 
   const hasCompare = Boolean(work.compare);
-  const isDemolition = work.category === "facility";
+  // 前後が対応づいた写真が含まれているか(説明文を出すかの判定)
+  const hasPairs = work.shots.some((s) => s.state === "before");
 
   return (
     <div ref={rootRef}>
@@ -102,24 +103,31 @@ export default function WorkDetail({ work, prev, next }: Props) {
         </div>
       </section>
 
-      {/* 施工前後の比較 */}
-      {hasCompare && (
-        <section
-          data-section
-          className="on-dark w-full bg-navy px-6 py-20 text-on-dark sm:px-10 lg:px-16 lg:py-24 xl:px-24"
-        >
-          <div className="mx-auto max-w-[1520px]">
-            <p className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-on-dark/50 sm:text-[11px]">
-              <span data-rule aria-hidden className="inline-block h-px w-10 bg-on-dark/25" />
-              BEFORE / AFTER
-            </p>
-            <h2 data-fade className="t-heading-tight mt-7 font-display font-normal">
-              施工前と施工後
-            </h2>
-            <p data-fade className="t-note mt-5 max-w-lg text-on-dark/60">
-              中央のつまみを左右に動かすと、同じ場所の施工前と施工後を見比べられます。
-            </p>
+      {/* 施工の記録。全案件で同じ見出し・同じ並びにする。
+          比較スライダーは独立したセクションにせずこの中に置く。
+          セクションごと出し入れすると、写真の揃い方の違いがそのまま
+          ページの骨格の違いになってしまうため。 */}
+      <section
+        data-section
+        className="w-full overflow-hidden bg-paper px-6 py-20 sm:px-10 lg:px-16 lg:py-24 xl:px-24"
+      >
+        <div className="mx-auto max-w-[1520px]">
+          <p className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-ink-muted sm:text-[11px]">
+            <span data-rule aria-hidden className="inline-block h-px w-10 bg-ink/25" />
+            PHOTOS
+          </p>
+          <h2 data-fade className="t-heading-tight mt-7 font-display font-normal text-ink">
+            施工の記録
+          </h2>
+          <p data-fade className="t-note mt-5 max-w-lg text-ink-muted">
+            {hasCompare
+              ? "上のつまみを左右に動かすと、同じ場所の施工前と施工後を見比べられます。下の写真は、色の落ちているものが施工前です。"
+              : hasPairs
+                ? "同じ場所の施工前と施工後を、隣り合わせに並べています。色の落ちている写真が施工前です。"
+                : "施工後の様子です。"}
+          </p>
 
+          {hasCompare && (
             <div data-fade className="mt-12 max-w-4xl">
               <BeforeAfter
                 before={workImage(work, work.compare!.before)}
@@ -127,29 +135,11 @@ export default function WorkDetail({ work, prev, next }: Props) {
                 alt={work.title}
               />
             </div>
-          </div>
-        </section>
-      )}
-
-      {/* 写真 */}
-      <section
-        data-section
-        className="w-full overflow-hidden bg-paper px-6 py-20 sm:px-10 lg:px-16 lg:py-24 xl:px-24"
-      >
-        <div className="mx-auto max-w-[1520px] space-y-16">
-          {work.beforeShots.length > 0 && (
-            <div data-fade>
-              <WorkGallery
-                images={work.beforeShots.map((f) => workImage(work, f))}
-                label={isDemolition ? "解体前" : "BEFORE"}
-                alt={work.title}
-              />
-            </div>
           )}
-          <div data-fade>
+
+          <div data-fade className="mt-12">
             <WorkGallery
-              images={work.afterShots.map((f) => workImage(work, f))}
-              label={isDemolition && work.beforeShots.length > 0 ? "解体後" : "AFTER"}
+              shots={work.shots.map((shot) => ({ ...shot, src: workImage(work, shot.file) }))}
               alt={work.title}
             />
           </div>
