@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { STATE_LABEL, workImage, type Shot, type Work } from "@/lib/works";
+import WorkPhotoSequence from "@/components/WorkPhotoSequence";
 
 /**
  * 施工の記録。/works/[slug] の写真セクション本体。
@@ -24,6 +25,10 @@ import { STATE_LABEL, workImage, type Shot, type Work } from "@/lib/works";
  * 対象に動かす。ここではDOMとdata属性の用意だけを担う。
  */
 type Props = { work: Work };
+
+// スクロールで1組ずつ見せる新しい方式を、まずこの案件だけで試す。
+// 確認が取れ次第、この出し分けを消して全案件を WorkPhotoSequence に寄せる。
+const SEQUENCE_ROLLOUT = new Set(["issekisancho"]);
 
 function PhotoStack({ shots, tone }: { shots: Shot[]; tone: "before" | "after" | "flat" }) {
   return (
@@ -50,6 +55,10 @@ function PhotoStack({ shots, tone }: { shots: Shot[]; tone: "before" | "after" |
 }
 
 export default function WorkPhotos({ work }: Props) {
+  if (SEQUENCE_ROLLOUT.has(work.slug)) {
+    return <WorkPhotoSequence work={work} />;
+  }
+
   const isFacility = work.category === "facility";
   const before = work.shots.filter((s) => s.state === "before");
   const after = work.shots.filter((s) => s.state === "after");

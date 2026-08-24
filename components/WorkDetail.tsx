@@ -205,7 +205,7 @@ export default function WorkDetail({ work, prev, next }: Props) {
           </h2>
           <p data-fade className="t-note mt-5 max-w-lg text-ink-muted">
             {hasSplit
-              ? "左が施工前、右が施工後です。同じ現場の変化を見比べられます。"
+              ? "スクロールに合わせて、施工前から施工後へ1組ずつご覧いただけます。"
               : isFacility
                 ? "現場の記録です。"
                 : "施工後の様子です。"}
