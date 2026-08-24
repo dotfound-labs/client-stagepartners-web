@@ -35,18 +35,23 @@ export default function WorkDetail({ work, prev, next }: Props) {
       if (fades.length) staggerFadeUp(fades, { duration: 0.85, scrollTrigger: trigger });
     });
 
-    // 施工の記録: 左右に分かれている案件は、両方が向き合うように寄せて出す。
-    // 単カラムの案件(施設営繕・解体、または施工後しかない店舗)は通常のfadeUpにする。
+    // 施工の記録: 施工前は最初から見えている状態から軽くfadeUpするだけにし、
+    // 「これが元の状態」であることをまず見せる。施工後は逆に、スクロールに
+    // 連動してclip-pathが開き、施工前の上から現れるように見せる。
+    // ドラッグで操作するスライダーをやめた代わりに、スクロールという
+    // 誰もが必ず行う操作そのものを「めくる」動作に変える。
     const photoWrap = q("[data-photo-wrap]")[0];
     if (photoWrap) {
       const trigger = { trigger: photoWrap, ...scrollTriggerDefaults };
       const beforePhotos = photoWrap.querySelectorAll('[data-photo-col="before"] [data-photo]');
-      const afterPhotos = photoWrap.querySelectorAll('[data-photo-col="after"] [data-photo]');
+      const revealBox = photoWrap.querySelector("[data-photo-reveal]");
+      const afterPhotos = revealBox ? revealBox.querySelectorAll("[data-photo]") : [];
       const heads = photoWrap.querySelectorAll("[data-photo-head]");
       const arrow = photoWrap.querySelectorAll("[data-photo-arrow]");
+      const divider = photoWrap.querySelectorAll("[data-photo-divider]");
       const flatPhotos = photoWrap.querySelectorAll('[data-photo-col="flat"] [data-photo]');
 
-      if (beforePhotos.length || afterPhotos.length) {
+      if (revealBox) {
         gsap.from(heads, {
           opacity: 0,
           y: 14,
@@ -55,32 +60,62 @@ export default function WorkDetail({ work, prev, next }: Props) {
           ease: "power2.out",
           scrollTrigger: trigger,
         });
-        gsap.from(beforePhotos, {
-          opacity: 0,
-          x: -40,
-          duration: 0.85,
-          stagger: 0.09,
-          ease: "power2.out",
-          scrollTrigger: trigger,
-        });
-        gsap.from(afterPhotos, {
-          opacity: 0,
-          x: 40,
-          duration: 0.85,
-          stagger: 0.09,
-          ease: "power2.out",
-          scrollTrigger: trigger,
-        });
+        staggerFadeUp(beforePhotos, { duration: 0.8, stagger: 0.08, scrollTrigger: trigger });
         if (arrow.length) {
           gsap.from(arrow, {
             opacity: 0,
             scale: 0.4,
             duration: 0.6,
-            delay: 0.35,
+            delay: 0.25,
             ease: "back.out(2.4)",
             scrollTrigger: trigger,
           });
         }
+        if (divider.length) {
+          gsap.from(divider, {
+            scaleY: 0,
+            transformOrigin: "top center",
+            duration: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: photoWrap,
+              start: "top 70%",
+              end: "bottom 65%",
+              scrub: 0.6,
+            },
+          });
+        }
+
+        // 施工後: 上から覆いを外すように、スクロールに合わせて開く。
+        // clip-pathなので画像自体は動かさず、見える範囲だけが変わる。
+        gsap.fromTo(
+          revealBox,
+          { clipPath: "inset(0% 0% 100% 0%)" },
+          {
+            clipPath: "inset(0% 0% 0% 0%)",
+            ease: "none",
+            scrollTrigger: {
+              trigger: photoWrap,
+              start: "top 65%",
+              end: "bottom 55%",
+              scrub: 0.6,
+            },
+          },
+        );
+        gsap.fromTo(
+          afterPhotos,
+          { scale: 1.06 },
+          {
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: photoWrap,
+              start: "top 65%",
+              end: "bottom 55%",
+              scrub: 0.6,
+            },
+          },
+        );
       } else if (flatPhotos.length) {
         staggerFadeUp(flatPhotos, { duration: 0.85, scrollTrigger: trigger });
       }

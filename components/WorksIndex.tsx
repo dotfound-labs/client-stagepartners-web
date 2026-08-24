@@ -6,11 +6,16 @@ import { useRef, useState } from "react";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { Flip } from "gsap/Flip";
 import { scrollTriggerDefaults, prefersReducedMotion, drawLine } from "@/lib/animations";
-import { CATEGORY_LABEL, WORKS, workImage, type WorkCategory } from "@/lib/works";
+import { CATEGORY_LABEL, WORKS, getWork, workImage, type WorkCategory } from "@/lib/works";
 
 if (typeof window !== "undefined") gsap.registerPlugin(Flip);
 
 type Filter = "all" | WorkCategory;
+
+// このページのヒーロー写真。並び順が変わっても差し替わらないよう、
+// 案件の並びとは切り離して専用に指定する。
+const HERO_WORK = getWork("karumen-mishima")!;
+const HERO_WORK_IMAGE = "after-02.jpg";
 
 const TABS: { value: Filter; label: string }[] = [
   { value: "all", label: "すべて" },
@@ -78,7 +83,7 @@ export default function WorksIndex() {
       <section className="on-dark relative flex min-h-[58svh] w-full items-end overflow-hidden bg-navy pb-14 pt-32 text-on-dark sm:pb-16 lg:min-h-[62svh]">
         <div data-hero-media aria-hidden className="absolute inset-0">
           <Image
-            src={workImage(WORKS[0], WORKS[0].cover)}
+            src={workImage(HERO_WORK, HERO_WORK_IMAGE)}
             alt=""
             fill
             sizes="100vw"
