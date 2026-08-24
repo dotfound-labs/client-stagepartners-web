@@ -12,12 +12,10 @@ const FOOTER_LINKS = [
   { label: "お問い合わせ", href: "/contact" },
 ];
 
-// TODO: サイトポリシー・特定商取引法に基づく表記は、決定版のIA(2026-07-27レビュー)
-// には含まれていないため、公開URLが決まるまでリンク先を仮のまま(#)にしている。
 const LEGAL_LINKS = [
   { label: "プライバシーポリシー", href: "/privacy" },
-  { label: "サイトポリシー", href: "#" },
-  { label: "特定商取引法に基づく表記", href: "#" },
+  { label: "サイトポリシー", href: "/site-policy" },
+  { label: "特定商取引法に基づく表記", href: "/tokushoho" },
 ];
 
 export default function Footer() {
@@ -59,12 +57,12 @@ export default function Footer() {
           <ul className="flex flex-nowrap gap-x-4 gap-y-2 sm:flex-wrap sm:gap-x-8">
             {LEGAL_LINKS.map((link) => (
               <li key={link.label}>
-                <a
+                <Link
                   href={link.href}
                   className="whitespace-nowrap text-[9.5px] font-normal tracking-[0.05em] text-ink-muted transition-colors hover:text-ink"
                 >
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
