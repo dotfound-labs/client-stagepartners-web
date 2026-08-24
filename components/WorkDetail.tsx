@@ -10,8 +10,7 @@ import {
   staggerFadeUp,
 } from "@/lib/animations";
 import { CATEGORY_LABEL, workImage, type Work } from "@/lib/works";
-import BeforeAfter from "@/components/BeforeAfter";
-import WorkGallery from "@/components/WorkGallery";
+import WorkPhotos from "@/components/WorkPhotos";
 
 type Props = { work: Work; prev: Work; next: Work };
 
@@ -35,11 +34,62 @@ export default function WorkDetail({ work, prev, next }: Props) {
       const fades = inSection("[data-fade]");
       if (fades.length) staggerFadeUp(fades, { duration: 0.85, scrollTrigger: trigger });
     });
+
+    // 施工の記録: 左右に分かれている案件は、両方が向き合うように寄せて出す。
+    // 単カラムの案件(施設営繕・解体、または施工後しかない店舗)は通常のfadeUpにする。
+    const photoWrap = q("[data-photo-wrap]")[0];
+    if (photoWrap) {
+      const trigger = { trigger: photoWrap, ...scrollTriggerDefaults };
+      const beforePhotos = photoWrap.querySelectorAll('[data-photo-col="before"] [data-photo]');
+      const afterPhotos = photoWrap.querySelectorAll('[data-photo-col="after"] [data-photo]');
+      const heads = photoWrap.querySelectorAll("[data-photo-head]");
+      const arrow = photoWrap.querySelectorAll("[data-photo-arrow]");
+      const flatPhotos = photoWrap.querySelectorAll('[data-photo-col="flat"] [data-photo]');
+
+      if (beforePhotos.length || afterPhotos.length) {
+        gsap.from(heads, {
+          opacity: 0,
+          y: 14,
+          duration: 0.7,
+          stagger: 0.15,
+          ease: "power2.out",
+          scrollTrigger: trigger,
+        });
+        gsap.from(beforePhotos, {
+          opacity: 0,
+          x: -40,
+          duration: 0.85,
+          stagger: 0.09,
+          ease: "power2.out",
+          scrollTrigger: trigger,
+        });
+        gsap.from(afterPhotos, {
+          opacity: 0,
+          x: 40,
+          duration: 0.85,
+          stagger: 0.09,
+          ease: "power2.out",
+          scrollTrigger: trigger,
+        });
+        if (arrow.length) {
+          gsap.from(arrow, {
+            opacity: 0,
+            scale: 0.4,
+            duration: 0.6,
+            delay: 0.35,
+            ease: "back.out(2.4)",
+            scrollTrigger: trigger,
+          });
+        }
+      } else if (flatPhotos.length) {
+        staggerFadeUp(flatPhotos, { duration: 0.85, scrollTrigger: trigger });
+      }
+    }
   }, [work.slug]);
 
-  const hasCompare = Boolean(work.compare);
-  // 前後が対応づいた写真が含まれているか(説明文を出すかの判定)
-  const hasPairs = work.shots.some((s) => s.state === "before");
+  const isFacility = work.category === "facility";
+  const hasBefore = work.shots.some((s) => s.state === "before");
+  const hasSplit = !isFacility && hasBefore;
 
   return (
     <div ref={rootRef}>
@@ -103,10 +153,9 @@ export default function WorkDetail({ work, prev, next }: Props) {
         </div>
       </section>
 
-      {/* 施工の記録。全案件で同じ見出し・同じ並びにする。
-          比較スライダーは独立したセクションにせずこの中に置く。
-          セクションごと出し入れすると、写真の揃い方の違いがそのまま
-          ページの骨格の違いになってしまうため。 */}
+      {/* 施工の記録。全案件で同じ見出し・同じ骨格にする。
+          店舗案件で施工前の写真がある場合だけ、左に施工前・右に施工後を並べる。
+          施設営繕・解体、または施工後しかない案件は単カラムにする。 */}
       <section
         data-section
         className="w-full overflow-hidden bg-paper px-6 py-20 sm:px-10 lg:px-16 lg:py-24 xl:px-24"
@@ -120,29 +169,16 @@ export default function WorkDetail({ work, prev, next }: Props) {
             施工の記録
           </h2>
           <p data-fade className="t-note mt-5 max-w-lg text-ink-muted">
-            {hasCompare
-              ? "上のつまみを左右に動かすと、同じ場所の施工前と施工後を見比べられます。下の写真は、色の落ちているものが施工前です。"
-              : hasPairs
-                ? "同じ場所の施工前と施工後を、隣り合わせに並べています。色の落ちている写真が施工前です。"
+            {hasSplit
+              ? "左が施工前、右が施工後です。同じ現場の変化を見比べられます。"
+              : isFacility
+                ? "現場の記録です。"
                 : "施工後の様子です。"}
           </p>
+        </div>
 
-          {hasCompare && (
-            <div data-fade className="mt-12 max-w-4xl">
-              <BeforeAfter
-                before={workImage(work, work.compare!.before)}
-                after={workImage(work, work.compare!.after)}
-                alt={work.title}
-              />
-            </div>
-          )}
-
-          <div data-fade className="mt-12">
-            <WorkGallery
-              shots={work.shots.map((shot) => ({ ...shot, src: workImage(work, shot.file) }))}
-              alt={work.title}
-            />
-          </div>
+        <div data-photo-wrap className="mx-auto mt-12 max-w-[1520px]">
+          <WorkPhotos work={work} />
         </div>
       </section>
 
