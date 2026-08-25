@@ -6,18 +6,14 @@ import { prefersReducedMotion } from "@/lib/animations";
 import { STATE_LABEL, workImage, type Shot, type Work } from "@/lib/works";
 
 /**
- * 施工前・施工後を、それぞれ1つのセクションとして見せるスクロール連動の写真展開。
+ * 施工前・施工後を、左右2カラムでそれぞれ1つのセクションとして見せる。
  *
  * 以前は写真を1枚ずつ「組」にして施工前→矢印→施工後の順に出していたが、
  * 撮影アングルが揃っていない案件では組ませた前後が同じ場所を指しておらず、
  * 見比べる意味を持たない組み合わせになってしまっていた。
- * そのため組み合わせをやめ、施工前は施工前でまとめて、施工後は施工後でまとめて
- * それぞれ順にめくっていく構成にし、「前から後へ」の合図は両セクションの間に
- * 置く1つの区切りだけが担う。
- *
- *   - 施工前セクション: 彩度を落とした写真が、スクロールに合わせて1枚ずつ現れる
- *   - 区切り        : 縦の線が伸びて矢印が現れる。ここだけが前後の切り替わり
- *   - 施工後セクション: フルカラーの写真が、同じ調子で1枚ずつ現れる
+ * そのため組み合わせをやめ、左に施工前・右に施工後をそれぞれまとめて置き、
+ * 各カラムの中で写真がスクロールに合わせて1枚ずつ現れる構成にした。
+ * 前後の対応は中央の縦線と矢印だけが示す(モバイルは縦積みになるため隠す)。
  */
 type Props = { work: Work };
 
@@ -125,79 +121,69 @@ export default function WorkPhotoSequence({ work }: Props) {
       }
     });
 
-    // 区切り: 縦の線が伸びきると同時に矢印が現れる。前後セクションを跨ぐ、唯一の合図。
-    const divider = scope.current!.querySelector("[data-seq-divider]");
+    // 中央の縦線と矢印。PCで左右に分かれた瞬間、一度だけ現れれば十分なので
+    // 組ごとのスクラブはせず、セクション全体が視界に入った時に一度だけ動かす。
+    const divider = scope.current!.querySelector("[data-seq-divider-line]");
+    const arrow = scope.current!.querySelector("[data-seq-divider-arrow]");
     if (divider) {
-      const line = divider.querySelector("[data-seq-divider-line]");
-      const arrow = divider.querySelector("[data-seq-divider-arrow]");
-      const labels = divider.querySelectorAll("[data-seq-divider-label]");
-      gsap
-        .timeline({
-          scrollTrigger: { trigger: divider, start: "top 85%", end: "bottom 35%", scrub: 0.8 },
-        })
-        .fromTo(line, { scaleY: 0 }, { scaleY: 1, duration: 1, ease: "none" })
-        .fromTo(
-          arrow,
-          { opacity: 0, scale: 0.5, rotate: -20 },
-          { opacity: 1, scale: 1, rotate: 0, duration: 0.4, ease: "back.out(2.2)" },
-          ">-0.15",
-        )
-        .fromTo(
-          labels,
-          { opacity: 0.35 },
-          { opacity: 1, duration: 0.5, ease: "power1.out", stagger: 0.15 },
-          "<",
-        );
+      gsap.fromTo(
+        divider,
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          duration: 1,
+          ease: "none",
+          transformOrigin: "top center",
+          scrollTrigger: { trigger: scope.current, start: "top 75%", end: "bottom 70%", scrub: 0.6 },
+        },
+      );
+    }
+    if (arrow) {
+      gsap.fromTo(
+        arrow,
+        { opacity: 0, scale: 0.5 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.6,
+          ease: "back.out(2.2)",
+          scrollTrigger: { trigger: scope.current, start: "top 70%", end: "top 40%", scrub: false },
+        },
+      );
     }
   }, [work.slug]);
 
   return (
-    <div ref={rootRef} className="flex flex-col gap-20 lg:gap-28">
+    <div ref={rootRef} className="relative grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-x-14">
+      {/* 中央の区切り。左右に分かれるPCだけで見せる。モバイルは縦積みで
+          BEFORE→AFTERの順そのものが対応を示すので、線・矢印とも不要。 */}
+      <div
+        data-seq-divider-line
+        aria-hidden
+        className="absolute inset-y-0 left-1/2 hidden w-px -translate-x-1/2 bg-line lg:block"
+      />
+      <div
+        data-seq-divider-arrow
+        aria-hidden
+        className="absolute left-1/2 top-0 z-10 hidden -translate-x-1/2 lg:flex"
+      >
+        <span className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-paper text-sm text-navy-mid shadow-[0_4px_16px_rgba(26,22,19,0.12)]">
+          →
+        </span>
+      </div>
+
       <section data-seq-section="before" className="flex flex-col gap-12 lg:gap-14">
         <SectionHead tone="before" count={before.length} />
-        <div className="flex flex-col gap-16 lg:gap-20">
+        <div className="flex flex-col gap-14">
           {before.map((shot, i) => (
             <Photo key={shot.file} work={work} shot={shot} tone="before" index={i} priority={i === 0} />
           ))}
         </div>
       </section>
 
-      {/* 施工前→施工後の切り替わりを示す、唯一の区切り。縦の線は上下どちらの
-          画面幅でも同じ向き(下向き)で正しい。 */}
-      <div
-        data-seq-divider
-        aria-hidden
-        className="relative mx-auto flex flex-col items-center gap-4 py-2"
-      >
-        <span
-          data-seq-divider-label
-          className="font-latin text-[10px] tracking-[0.3em] text-ink-muted"
-        >
-          BEFORE
-        </span>
-        <div className="relative h-20 w-px overflow-hidden">
-          <span
-            data-seq-divider-line
-            className="absolute inset-0 origin-top bg-gradient-to-b from-ink/35 to-navy-mid"
-          />
-        </div>
-        <span
-          data-seq-divider-arrow
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-paper text-base text-navy-mid shadow-[0_4px_16px_rgba(26,22,19,0.12)]"
-        >
-          ↓
-        </span>
-        <span
-          data-seq-divider-label
-          className="font-latin text-[10px] tracking-[0.3em] text-navy-mid"
-        >
-          AFTER
-        </span>
-      </div>
-
       <section data-seq-section="after" className="flex flex-col gap-12 lg:gap-14">
         <SectionHead tone="after" count={after.length} />
-        <div className="flex flex-col gap-16 lg:gap-20">
+        <div className="flex flex-col gap-14">
           {after.map((shot, i) => (
             <Photo key={shot.file} work={work} shot={shot} tone="after" index={i} />
           ))}
