@@ -139,7 +139,16 @@ export default function WorkPhotoSequence({ work }: Props) {
 
       // 2. 矢印が伸びる。伸びきる動きに合わせて施工前が一段退く。
       if (arrow.length) {
-        tl.fromTo(arrowLine, { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "none" }, ">-0.05")
+        // 線はモバイルでは縦(h-14/w-px)、PCでは横(lg:w-14/lg:h-px)に
+        // 向きが変わる。伸ばす軸をJSで出し分けず、両軸を同時に0→1にすれば
+        // 実際に長さのある方の軸だけが見た目上伸び、もう一方(1px)は
+        // 変化してもほぼ見えないため、どちらの向きでも正しく伸びて見える。
+        tl.fromTo(
+          arrowLine,
+          { scaleX: 0, scaleY: 0 },
+          { scaleX: 1, scaleY: 1, duration: 0.8, ease: "none" },
+          ">-0.05",
+        )
           .fromTo(
             arrowHead,
             { opacity: 0, scale: 0.4 },
@@ -199,11 +208,13 @@ export default function WorkPhotoSequence({ work }: Props) {
             )}
           </div>
 
-          {/* 前と後をつなぐ矢印。線が伸びてから頭が出て、番号が留め具になる */}
+          {/* 前と後をつなぐ矢印。線が伸びてから頭が出て、番号が留め具になる。
+              モバイルは施工前→施工後が縦に並ぶので矢印は下向き、
+              PC(lg)は横に並ぶので矢印は右向きにする。 */}
           <div
             data-pair-arrow
             aria-hidden
-            className="flex items-center justify-center gap-3 lg:h-full lg:flex-col lg:pt-28"
+            className="flex flex-col items-center justify-center gap-3 lg:h-full lg:flex-row lg:pt-28"
           >
             <span
               data-pair-badge
@@ -213,11 +224,11 @@ export default function WorkPhotoSequence({ work }: Props) {
             </span>
             <span
               data-pair-arrow-line
-              className="block h-px w-14 origin-left bg-ink/30 lg:h-14 lg:w-px lg:origin-top"
+              className="block h-14 w-px origin-top bg-ink/30 lg:h-px lg:w-14 lg:origin-left"
             />
             <span
               data-pair-arrow-head
-              className="font-latin text-sm text-ink lg:rotate-90"
+              className="rotate-90 font-latin text-sm text-ink lg:rotate-0"
             >
               →
             </span>
