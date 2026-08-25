@@ -78,11 +78,11 @@ export default function Company() {
           className="media relative aspect-[4/3] overflow-hidden bg-[#161513] lg:aspect-[4/5]"
         >
           <Image
-            src="/companyimage1.png"
+            src="/company-hero.jpg"
             alt="STAGE PARTNERSの拠点と街並み"
             fill
             sizes="(min-width: 1024px) 52vw, 100vw"
-            className="object-cover object-[25%_center]"
+            className="object-cover object-center"
           />
         </div>
 

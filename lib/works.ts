@@ -157,6 +157,7 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
+    heroCompare: { before: "before-05.jpg", after: "after-02.jpg" },
   },
   {
     slug: "tokuzomaru-omiyage",
@@ -225,6 +226,7 @@ export const WORKS: Work[] = [
       { file: "after-03.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
+    heroCompare: { before: "before-05.jpg", after: "after-04.jpg" },
   },
   {
     slug: "okaeru",
@@ -285,6 +287,7 @@ export const WORKS: Work[] = [
       { file: "after-02.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
+    heroCompare: { before: "before-05.jpg", after: "after-04.jpg" },
   },
   {
     slug: "tanakatei",
@@ -342,6 +345,7 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
+    heroCompare: { before: "before-02.jpg", after: "after-05.jpg" },
   },
   {
     slug: "shibuya-daidokoroya",
@@ -402,6 +406,7 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
+    heroCompare: { before: "before-05.jpg", after: "after-03.jpg" },
   },
   {
     slug: "mobile-shop",
@@ -462,6 +467,7 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
+    heroCompare: { before: "before-03.jpg", after: "after-05.jpg" },
   },
   {
     slug: "pachinko-renewal",
@@ -522,6 +528,7 @@ export const WORKS: Work[] = [
       { file: "before-04.jpg", state: "before" },
       { file: "after-03.jpg", state: "after" },
     ],
+    heroCompare: { before: "before-04.jpg", after: "after-05.jpg" },
   },
   {
     slug: "level",
@@ -656,6 +663,7 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
+    heroCompare: { before: "before-02.jpg", after: "after-03.jpg" },
   },
   {
     slug: "kanogawa",
@@ -676,6 +684,7 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
+    heroCompare: { before: "before-03.jpg", after: "after-03.jpg" },
   },
   {
     slug: "roppongi-kaitai",
