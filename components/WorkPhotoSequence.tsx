@@ -6,243 +6,203 @@ import { prefersReducedMotion } from "@/lib/animations";
 import { STATE_LABEL, workImage, type Shot, type Work } from "@/lib/works";
 
 /**
- * 施工前後を1組ずつ見せていく、スクロール連動の写真セクション。
+ * 施工前・施工後を、それぞれ1つのセクションとして見せるスクロール連動の写真展開。
  *
- * スクロールに合わせて
- *   施工前が出る → 矢印が伸びる → 施工後が出る → 次の組の施工前が出る …
- * の順で1段ずつ進む。全部を最初から並べると「前と後を見比べる」読み方に
- * ならないため、1組ずつに区切って順番を作っている。
+ * 以前は写真を1枚ずつ「組」にして施工前→矢印→施工後の順に出していたが、
+ * 撮影アングルが揃っていない案件では組ませた前後が同じ場所を指しておらず、
+ * 見比べる意味を持たない組み合わせになってしまっていた。
+ * そのため組み合わせをやめ、施工前は施工前でまとめて、施工後は施工後でまとめて
+ * それぞれ順にめくっていく構成にし、「前から後へ」の合図は両セクションの間に
+ * 置く1つの区切りだけが担う。
  *
- * ただ現れるだけでは変化が伝わらないので、施工前と施工後で見え方に
- * はっきり差をつけている。
- *   - 施工前: 彩度を落とし、少し縮んだ状態で置かれる。過去の記録の見え方。
- *   - 矢印  : 線が伸びきると同時に、施工前が退き(彩度と明度が落ちる)、
- *             番号が回って施工後側へ主役が移る。
- *   - 施工後: マスクが下から上がって画が現れ、同時に中の写真が
- *             わずかに引き(scale)ながら定位置に収まる。カラーで、影も濃い。
- * 「退く」「現れる」を同じ時間軸に重ねることで、単なる2枚の表示ではなく
- * 入れ替わりとして読める。
- *
- * 組ごとにトリガーを分けているので、スクロール速度に関わらず必ず
- * 前→矢印→後 の順で現れる。
+ *   - 施工前セクション: 彩度を落とした写真が、スクロールに合わせて1枚ずつ現れる
+ *   - 区切り        : 縦の線が伸びて矢印が現れる。ここだけが前後の切り替わり
+ *   - 施工後セクション: フルカラーの写真が、同じ調子で1枚ずつ現れる
  */
 type Props = { work: Work };
-
-/** shots を [施工前, 施工後] の組に畳む。対応が取れない余りは片側だけの組にする。 */
-function toPairs(shots: Shot[]): { before?: Shot; after?: Shot }[] {
-  const pairs: { before?: Shot; after?: Shot }[] = [];
-  let pending: Shot | null = null;
-
-  for (const shot of shots) {
-    if (shot.state === "before") {
-      if (pending) pairs.push({ before: pending });
-      pending = shot;
-    } else if (pending) {
-      pairs.push({ before: pending, after: shot });
-      pending = null;
-    } else {
-      pairs.push({ after: shot });
-    }
-  }
-  if (pending) pairs.push({ before: pending });
-  return pairs;
-}
 
 function Photo({
   work,
   shot,
   tone,
+  index,
+  priority,
 }: {
   work: Work;
   shot: Shot;
   tone: "before" | "after";
+  index: number;
+  priority?: boolean;
 }) {
   const isBefore = tone === "before";
   return (
-    <figure>
-      <figcaption className="flex items-center gap-3">
-        <span
-          data-photo-label
-          className={`font-latin text-[10px] tracking-[0.3em] ${isBefore ? "text-ink-muted" : "text-navy-mid"
+    <figure
+      data-seq-photo
+      className="media relative aspect-[3/2] w-full overflow-hidden bg-[#161513]"
+    >
+      <div data-seq-photo-inner className="absolute inset-0">
+        <Image
+          src={workImage(work, shot.file)}
+          alt=""
+          fill
+          sizes="(min-width: 1024px) 46vw, 100vw"
+          className={`object-cover ${isBefore ? "[filter:grayscale(0.65)_brightness(0.94)]" : ""
             }`}
-        >
-          {isBefore ? "BEFORE" : "AFTER"}
-        </span>
-        <span className={`h-px flex-1 ${isBefore ? "bg-ink/20" : "bg-navy-mid/30"}`} />
-      </figcaption>
-      <p className="mt-2 font-display text-base font-normal text-ink">
-        {STATE_LABEL[shot.state]}
-      </p>
-
-      {/* data-photo-mask: 施工後だけ、下から上がる覆いで画を現す */}
-      <div
-        data-photo-mask={isBefore ? undefined : ""}
-        className="media relative mt-5 aspect-[3/2] w-full overflow-hidden bg-[#161513]"
-      >
-        <div data-photo-inner className="absolute inset-0">
-          <Image
-            src={workImage(work, shot.file)}
-            alt=""
-            fill
-            sizes="(min-width: 1024px) 46vw, 100vw"
-            className="object-cover"
-          />
-        </div>
+          priority={priority}
+        />
       </div>
+      <span
+        aria-hidden
+        className="absolute left-5 top-5 font-latin text-[10px] tracking-[0.25em] text-on-dark/85"
+      >
+        {String(index + 1).padStart(2, "0")}
+      </span>
     </figure>
   );
 }
 
+function SectionHead({ tone, count }: { tone: "before" | "after"; count: number }) {
+  const isBefore = tone === "before";
+  return (
+    <div
+      data-seq-head
+      className={`flex items-end justify-between gap-6 border-b pb-5 ${isBefore ? "border-line" : "border-navy-mid/30"
+        }`}
+    >
+      <div>
+        <span
+          className={`font-latin text-[11px] tracking-[0.35em] ${isBefore ? "text-ink-muted" : "text-navy-mid"
+            }`}
+        >
+          {isBefore ? "BEFORE" : "AFTER"}
+        </span>
+        <h3 className="mt-3 font-display text-2xl font-normal text-ink">
+          {STATE_LABEL[tone]}
+        </h3>
+      </div>
+      <span
+        className={`font-latin text-xs tracking-[0.2em] ${isBefore ? "text-ink-muted" : "text-navy-mid"
+          }`}
+      >
+        {String(count).padStart(2, "0")}
+      </span>
+    </div>
+  );
+}
+
 export default function WorkPhotoSequence({ work }: Props) {
-  const pairs = toPairs(work.shots);
+  const before = work.shots.filter((s) => s.state === "before");
+  const after = work.shots.filter((s) => s.state === "after");
 
   const rootRef = useScopedGsap<HTMLDivElement>(({ scope }) => {
     if (prefersReducedMotion()) return;
 
-    gsap.utils.toArray<HTMLElement>(scope.current!.querySelectorAll("[data-pair]")).forEach((pair) => {
-      const inPair = gsap.utils.selector(pair);
-      const before = inPair("[data-pair-before]");
-      const beforeInner = inPair("[data-pair-before] [data-photo-inner]");
-      const arrow = inPair("[data-pair-arrow]");
-      const arrowLine = inPair("[data-pair-arrow-line]");
-      const arrowHead = inPair("[data-pair-arrow-head]");
-      const badge = inPair("[data-pair-badge]");
-      const after = inPair("[data-pair-after]");
-      const afterMask = inPair("[data-pair-after] [data-photo-mask]");
-      const afterInner = inPair("[data-pair-after] [data-photo-inner]");
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: pair,
-          // この組が画面の下から入ってきたら始め、抜けきる手前で終わる。
-          // 組の高さぶんの距離を使うので、前→矢印→後 の3段が
-          // それぞれ十分なスクロール量を持ち、1段ずつ進んで見える。
-          start: "top 88%",
-          end: "bottom 45%",
-          scrub: 0.8,
+    // 各写真: 下から現れながら、少し引いた状態(scale)から等倍に収まる。
+    gsap.utils.toArray<HTMLElement>(scope.current!.querySelectorAll("[data-seq-photo]")).forEach((photo) => {
+      const inner = photo.querySelector("[data-seq-photo-inner]");
+      gsap.fromTo(
+        photo,
+        { opacity: 0, y: 56 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: "power2.out",
+          scrollTrigger: { trigger: photo, start: "top 88%", end: "top 55%", scrub: 0.8 },
         },
-      });
-
-      // 1. 施工前が置かれる。彩度を落とし、少し縮んだ状態から等倍へ。
-      if (before.length) {
-        tl.fromTo(
-          before,
-          { opacity: 0, y: 44 },
-          { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
-        ).fromTo(
-          beforeInner,
-          { scale: 1.12, filter: "grayscale(0.85) brightness(0.9)" },
-          { scale: 1, filter: "grayscale(0.7) brightness(0.94)", duration: 1, ease: "power2.out" },
-          "<",
+      );
+      if (inner) {
+        gsap.fromTo(
+          inner,
+          { scale: 1.16 },
+          {
+            scale: 1,
+            duration: 1.2,
+            ease: "power2.out",
+            scrollTrigger: { trigger: photo, start: "top 88%", end: "top 40%", scrub: 0.8 },
+          },
         );
       }
-
-      // 2. 矢印が伸びる。伸びきる動きに合わせて施工前が一段退く。
-      if (arrow.length) {
-        // 線はモバイルでは縦(h-14/w-px)、PCでは横(lg:w-14/lg:h-px)に
-        // 向きが変わる。伸ばす軸をJSで出し分けず、両軸を同時に0→1にすれば
-        // 実際に長さのある方の軸だけが見た目上伸び、もう一方(1px)は
-        // 変化してもほぼ見えないため、どちらの向きでも正しく伸びて見える。
-        tl.fromTo(
-          arrowLine,
-          { scaleX: 0, scaleY: 0 },
-          { scaleX: 1, scaleY: 1, duration: 0.8, ease: "none" },
-          ">-0.05",
-        )
-          .fromTo(
-            arrowHead,
-            { opacity: 0, scale: 0.4 },
-            { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2.4)" },
-            ">-0.12",
-          );
-        if (badge.length) {
-          tl.fromTo(
-            badge,
-            { opacity: 0, rotate: -25, scale: 0.7 },
-            { opacity: 1, rotate: 0, scale: 1, duration: 0.4, ease: "back.out(2)" },
-            "<",
-          );
-        }
-        // 主役が右へ移るので、施工前は色と明るさを一段落とす
-        if (beforeInner.length) {
-          tl.to(
-            beforeInner,
-            { filter: "grayscale(0.85) brightness(0.82)", duration: 0.6, ease: "power1.inOut" },
-            "<-0.2",
-          );
-        }
-      }
-
-      // 3. 施工後が現れる。覆いが下から上がり、中の写真は引きながら収まる。
-      if (after.length) {
-        tl.fromTo(after, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "none" }, ">-0.1")
-          .fromTo(
-            afterMask,
-            { clipPath: "inset(100% 0% 0% 0%)" },
-            { clipPath: "inset(0% 0% 0% 0%)", duration: 1.1, ease: "power3.out" },
-            "<",
-          )
-          .fromTo(
-            afterInner,
-            { scale: 1.18 },
-            { scale: 1, duration: 1.3, ease: "power2.out" },
-            "<",
-          );
-      }
     });
+
+    // 区切り: 縦の線が伸びきると同時に矢印が現れる。前後セクションを跨ぐ、唯一の合図。
+    const divider = scope.current!.querySelector("[data-seq-divider]");
+    if (divider) {
+      const line = divider.querySelector("[data-seq-divider-line]");
+      const arrow = divider.querySelector("[data-seq-divider-arrow]");
+      const labels = divider.querySelectorAll("[data-seq-divider-label]");
+      gsap
+        .timeline({
+          scrollTrigger: { trigger: divider, start: "top 85%", end: "bottom 35%", scrub: 0.8 },
+        })
+        .fromTo(line, { scaleY: 0 }, { scaleY: 1, duration: 1, ease: "none" })
+        .fromTo(
+          arrow,
+          { opacity: 0, scale: 0.5, rotate: -20 },
+          { opacity: 1, scale: 1, rotate: 0, duration: 0.4, ease: "back.out(2.2)" },
+          ">-0.15",
+        )
+        .fromTo(
+          labels,
+          { opacity: 0.35 },
+          { opacity: 1, duration: 0.5, ease: "power1.out", stagger: 0.15 },
+          "<",
+        );
+    }
   }, [work.slug]);
 
   return (
-    <div ref={rootRef} className="flex flex-col gap-24 lg:gap-32">
-      {pairs.map((pair, i) => (
-        <div
-          key={i}
-          data-pair
-          className="relative grid grid-cols-1 items-start gap-10 lg:grid-cols-[1fr_auto_1fr] lg:gap-8"
-        >
-          <div data-pair-before>
-            {pair.before ? (
-              <Photo work={work} shot={pair.before} tone="before" />
-            ) : (
-              <div aria-hidden className="hidden lg:block" />
-            )}
-          </div>
-
-          {/* 前と後をつなぐ矢印。線が伸びてから頭が出て、番号が留め具になる。
-              モバイルは施工前→施工後が縦に並ぶので矢印は下向き、
-              PC(lg)は横に並ぶので矢印は右向きにする。 */}
-          <div
-            data-pair-arrow
-            aria-hidden
-            className="flex flex-col items-center justify-center gap-3 lg:h-full lg:flex-row lg:pt-28"
-          >
-            <span
-              data-pair-badge
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-paper font-latin text-[10px] tracking-[0.05em] text-ink-muted"
-            >
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <span
-              data-pair-arrow-line
-              className="block h-14 w-px origin-top bg-ink/30 lg:h-px lg:w-14 lg:origin-left"
-            />
-            <span
-              data-pair-arrow-head
-              className="rotate-90 font-latin text-sm text-ink lg:rotate-0"
-            >
-              →
-            </span>
-          </div>
-
-          <div data-pair-after>
-            {pair.after ? (
-              <Photo work={work} shot={pair.after} tone="after" />
-            ) : (
-              <div aria-hidden className="hidden lg:block" />
-            )}
-          </div>
+    <div ref={rootRef} className="flex flex-col gap-20 lg:gap-28">
+      <section data-seq-section="before" className="flex flex-col gap-12 lg:gap-14">
+        <SectionHead tone="before" count={before.length} />
+        <div className="flex flex-col gap-16 lg:gap-20">
+          {before.map((shot, i) => (
+            <Photo key={shot.file} work={work} shot={shot} tone="before" index={i} priority={i === 0} />
+          ))}
         </div>
-      ))}
+      </section>
+
+      {/* 施工前→施工後の切り替わりを示す、唯一の区切り。縦の線は上下どちらの
+          画面幅でも同じ向き(下向き)で正しい。 */}
+      <div
+        data-seq-divider
+        aria-hidden
+        className="relative mx-auto flex flex-col items-center gap-4 py-2"
+      >
+        <span
+          data-seq-divider-label
+          className="font-latin text-[10px] tracking-[0.3em] text-ink-muted"
+        >
+          BEFORE
+        </span>
+        <div className="relative h-20 w-px overflow-hidden">
+          <span
+            data-seq-divider-line
+            className="absolute inset-0 origin-top bg-gradient-to-b from-ink/35 to-navy-mid"
+          />
+        </div>
+        <span
+          data-seq-divider-arrow
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-paper text-base text-navy-mid shadow-[0_4px_16px_rgba(26,22,19,0.12)]"
+        >
+          ↓
+        </span>
+        <span
+          data-seq-divider-label
+          className="font-latin text-[10px] tracking-[0.3em] text-navy-mid"
+        >
+          AFTER
+        </span>
+      </div>
+
+      <section data-seq-section="after" className="flex flex-col gap-12 lg:gap-14">
+        <SectionHead tone="after" count={after.length} />
+        <div className="flex flex-col gap-16 lg:gap-20">
+          {after.map((shot, i) => (
+            <Photo key={shot.file} work={work} shot={shot} tone="after" index={i} />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

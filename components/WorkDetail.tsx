@@ -10,7 +10,7 @@ import {
   staggerFadeUp,
 } from "@/lib/animations";
 import { CATEGORY_LABEL, workImage, type Work } from "@/lib/works";
-import WorkPhotos from "@/components/WorkPhotos";
+import WorkPhotos, { usesPhotoSequence } from "@/components/WorkPhotos";
 
 type Props = { work: Work; prev: Work; next: Work };
 
@@ -204,11 +204,13 @@ export default function WorkDetail({ work, prev, next }: Props) {
             施工の記録
           </h2>
           <p data-fade className="t-note mt-5 max-w-lg text-ink-muted">
-            {hasSplit
-              ? "スクロールに合わせて、施工前から施工後へ1組ずつご覧いただけます。"
-              : isFacility
-                ? "現場の記録です。"
-                : "施工後の様子です。"}
+            {usesPhotoSequence(work.slug)
+              ? "施工前、施工後の順に、スクロールに合わせてご覧いただけます。"
+              : hasSplit
+                ? "スクロールに合わせて、施工前から施工後へ1組ずつご覧いただけます。"
+                : isFacility
+                  ? "現場の記録です。"
+                  : "施工後の様子です。"}
           </p>
         </div>
 

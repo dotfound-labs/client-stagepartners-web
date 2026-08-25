@@ -26,9 +26,14 @@ import WorkPhotoSequence from "@/components/WorkPhotoSequence";
  */
 type Props = { work: Work };
 
-// スクロールで1組ずつ見せる新しい方式を、まずこの案件だけで試す。
-// 確認が取れ次第、この出し分けを消して全案件を WorkPhotoSequence に寄せる。
+// 施工前・施工後をそれぞれ1セクションとしてめくっていく新しい方式を、
+// まずこの案件だけで試す。確認が取れ次第、この出し分けを消して
+// 全案件を WorkPhotoSequence に寄せる。
 const SEQUENCE_ROLLOUT = new Set(["issekisancho"]);
+
+export function usesPhotoSequence(slug: string) {
+  return SEQUENCE_ROLLOUT.has(slug);
+}
 
 function PhotoStack({ shots, tone }: { shots: Shot[]; tone: "before" | "after" | "flat" }) {
   return (
