@@ -10,7 +10,7 @@ import {
   staggerFadeUp,
 } from "@/lib/animations";
 import { CATEGORY_LABEL, workImage, type Work } from "@/lib/works";
-import WorkPhotos, { usesPhotoSequence } from "@/components/WorkPhotos";
+import WorkPhotos, { hasPhotoSplit } from "@/components/WorkPhotos";
 
 type Props = { work: Work; prev: Work; next: Work };
 
@@ -35,96 +35,23 @@ export default function WorkDetail({ work, prev, next }: Props) {
       if (fades.length) staggerFadeUp(fades, { duration: 0.85, scrollTrigger: trigger });
     });
 
-    // 施工の記録: 施工前は最初から見えている状態から軽くfadeUpするだけにし、
-    // 「これが元の状態」であることをまず見せる。施工後は逆に、スクロールに
-    // 連動してclip-pathが開き、施工前の上から現れるように見せる。
-    // ドラッグで操作するスライダーをやめた代わりに、スクロールという
-    // 誰もが必ず行う操作そのものを「めくる」動作に変える。
+    // 施工前後がある案件は WorkPhotoSequence が自前のuseScopedGsapで
+    // アニメーションを持つため、ここでは単カラム(施工後のみ・施設営繕/解体)の
+    // フェードインだけを担う。
     const photoWrap = q("[data-photo-wrap]")[0];
     if (photoWrap) {
-      const trigger = { trigger: photoWrap, ...scrollTriggerDefaults };
-      const beforePhotos = photoWrap.querySelectorAll('[data-photo-col="before"] [data-photo]');
-      const revealBox = photoWrap.querySelector("[data-photo-reveal]");
-      const afterPhotos = revealBox ? revealBox.querySelectorAll("[data-photo]") : [];
-      const heads = photoWrap.querySelectorAll("[data-photo-head]");
-      const arrow = photoWrap.querySelectorAll("[data-photo-arrow]");
-      const divider = photoWrap.querySelectorAll("[data-photo-divider]");
       const flatPhotos = photoWrap.querySelectorAll('[data-photo-col="flat"] [data-photo]');
-
-      if (revealBox) {
-        gsap.from(heads, {
-          opacity: 0,
-          y: 14,
-          duration: 0.7,
-          stagger: 0.15,
-          ease: "power2.out",
-          scrollTrigger: trigger,
+      if (flatPhotos.length) {
+        staggerFadeUp(flatPhotos, {
+          duration: 0.85,
+          scrollTrigger: { trigger: photoWrap, ...scrollTriggerDefaults },
         });
-        staggerFadeUp(beforePhotos, { duration: 0.8, stagger: 0.08, scrollTrigger: trigger });
-        if (arrow.length) {
-          gsap.from(arrow, {
-            opacity: 0,
-            scale: 0.4,
-            duration: 0.6,
-            delay: 0.25,
-            ease: "back.out(2.4)",
-            scrollTrigger: trigger,
-          });
-        }
-        if (divider.length) {
-          gsap.from(divider, {
-            scaleY: 0,
-            transformOrigin: "top center",
-            duration: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: photoWrap,
-              start: "top 70%",
-              end: "bottom 65%",
-              scrub: 0.6,
-            },
-          });
-        }
-
-        // 施工後: 上から覆いを外すように、スクロールに合わせて開く。
-        // clip-pathなので画像自体は動かさず、見える範囲だけが変わる。
-        gsap.fromTo(
-          revealBox,
-          { clipPath: "inset(0% 0% 100% 0%)" },
-          {
-            clipPath: "inset(0% 0% 0% 0%)",
-            ease: "none",
-            scrollTrigger: {
-              trigger: photoWrap,
-              start: "top 65%",
-              end: "bottom 55%",
-              scrub: 0.6,
-            },
-          },
-        );
-        gsap.fromTo(
-          afterPhotos,
-          { scale: 1.06 },
-          {
-            scale: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: photoWrap,
-              start: "top 65%",
-              end: "bottom 55%",
-              scrub: 0.6,
-            },
-          },
-        );
-      } else if (flatPhotos.length) {
-        staggerFadeUp(flatPhotos, { duration: 0.85, scrollTrigger: trigger });
       }
     }
   }, [work.slug]);
 
   const isFacility = work.category === "facility";
-  const hasBefore = work.shots.some((s) => s.state === "before");
-  const hasSplit = !isFacility && hasBefore;
+  const hasSplit = hasPhotoSplit(work);
 
   return (
     <div ref={rootRef}>
@@ -204,13 +131,11 @@ export default function WorkDetail({ work, prev, next }: Props) {
             施工の記録
           </h2>
           <p data-fade className="t-note mt-5 max-w-lg text-ink-muted">
-            {usesPhotoSequence(work.slug)
+            {hasSplit
               ? "施工前、施工後の順に、スクロールに合わせてご覧いただけます。"
-              : hasSplit
-                ? "スクロールに合わせて、施工前から施工後へ1組ずつご覧いただけます。"
-                : isFacility
-                  ? "現場の記録です。"
-                  : "施工後の様子です。"}
+              : isFacility
+                ? "現場の記録です。"
+                : "施工後の様子です。"}
           </p>
         </div>
 
