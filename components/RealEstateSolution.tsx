@@ -409,7 +409,7 @@ export default function RealEstateSolution() {
             className="media relative aspect-[4/3] w-full overflow-hidden bg-[#161513] lg:sticky lg:top-28 lg:aspect-[5/4]"
           >
             <Image
-              src="/heroimage2.jpg"
+              src="/room.PNG"
               alt="沼津の街並みと建ち並ぶ住宅"
               fill
               sizes="(min-width: 1024px) 48vw, 100vw"
