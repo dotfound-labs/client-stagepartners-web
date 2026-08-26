@@ -3,31 +3,30 @@
 import Link from "next/link";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
+import {
+  NEWS_CATEGORY_LABEL,
+  formatNewsDate,
+  getLatestNews,
+  type NewsPost,
+} from "@/lib/news";
 
-// 最新のお知らせ3件。Instagram由来・手動記事を区別せず同じデザインで表示する想定。
-// 実運用では管理画面/連携から取得する。当面はモックデータ。
-const NEWS = [
-  {
-    date: "2026.07.01",
-    category: "お知らせ",
-    title: "夏季休業期間のお知らせ",
-    href: "/news",
-  },
-  {
-    date: "2026.06.15",
-    category: "施工実績",
-    title: "賃貸マンションのリノベーション事例を公開しました",
-    href: "/news",
-  },
-  {
-    date: "2026.05.28",
-    category: "Instagram",
-    title: "現場の様子を更新しました",
-    href: "/news",
-  },
-];
+/**
+ * TOPのお知らせセクション。最新3件を出す。
+ *
+ * データは lib/news.ts を唯一の情報源にしているため、記事を追加すれば
+ * 一覧(/news)とこのセクションは常に同じ内容を指す(TOP用の別配列は持たない)。
+ *
+ * バックエンド接続時: getLatestNews() を async にすると client component の
+ * このファイルからは呼べなくなるため、app/page.tsx 側で
+ * `const posts = await getLatestNews(3)` して `<News posts={posts} />` と
+ * 渡す形にする。props は既に受け取れるようにしてあるので、その際
+ * このファイルで直すのは「props が無ければ getLatestNews() を使う」
+ * フォールバックの1行を消すだけでよい。
+ */
+type Props = { posts?: NewsPost[] };
 
-export default function News() {
+export default function News({ posts }: Props) {
+  const items = posts ?? getLatestNews(3);
   const sectionRef = useScopedGsap<HTMLElement>(({ scope }) => {
     // 左カラム([data-news-head])は高さが小さく、end("bottom 20%")を
     // すぐ通過してreverseが走り、閲覧中にボタンが消えてしまう。
@@ -92,17 +91,20 @@ export default function News() {
         </div>
 
         <ul data-news-list className="flex flex-col">
-          {NEWS.map((item) => (
-            <li key={item.title} data-news-row className="border-t border-line last:border-b">
+          {items.map((item) => (
+            <li key={item.slug} data-news-row className="border-t border-line last:border-b">
               <Link
-                href={item.href}
+                href={`/news/${item.slug}`}
                 className="group flex flex-col gap-2 py-7 transition-opacity hover:opacity-60 sm:flex-row sm:items-center sm:gap-8"
               >
-                <time className="font-latin text-[11px] tracking-[0.14em] text-ink-muted sm:w-24 sm:shrink-0">
-                  {item.date}
+                <time
+                  dateTime={item.date}
+                  className="font-latin text-[11px] tracking-[0.14em] text-ink-muted sm:w-24 sm:shrink-0"
+                >
+                  {formatNewsDate(item.date)}
                 </time>
                 <span className="w-fit border border-line px-3 py-1 font-latin text-[10px] tracking-[0.15em] text-ink-muted sm:shrink-0">
-                  {item.category}
+                  {NEWS_CATEGORY_LABEL[item.category]}
                 </span>
                 <span className="text-sm font-normal leading-relaxed text-ink sm:text-base">
                   {item.title}
