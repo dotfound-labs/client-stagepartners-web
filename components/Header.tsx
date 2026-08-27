@@ -91,7 +91,7 @@ export default function Header({ transparent = false }: HeaderProps) {
           onClick={scrollTopIfHome}
         >
           <Image
-            src="/logo-mono-white.png"
+            src="/logo-color-header.png"
             alt="STAGE PARTNERS"
             width={400}
             height={97}
@@ -116,19 +116,25 @@ export default function Header({ transparent = false }: HeaderProps) {
               </Link>
             ) : (
               <div key={item.label} className="group relative">
-                <Link
-                  href={item.href}
-                  onClick={item.href === "/" ? scrollTopIfHome : undefined}
-                  className="inline-flex items-center gap-1.5 py-6 text-xs font-normal tracking-[0.12em] text-on-dark/80 transition-colors hover:text-on-dark"
-                >
-                  {item.label}
-                  {item.children && (
+                {item.children ? (
+                  // 子を持つ項目(事業内容)は自身のページを持たないため、リンクにせず
+                  // ホバー/フォーカスでドロップダウンを開くだけの見出しにする。
+                  <span className="inline-flex cursor-default items-center gap-1.5 py-6 text-xs font-normal tracking-[0.12em] text-on-dark/80 transition-colors group-hover:text-on-dark">
+                    {item.label}
                     <span
                       aria-hidden
                       className="mt-px inline-block h-1 w-1 rotate-45 border-b border-r border-on-dark/50 transition-colors group-hover:border-on-dark"
                     />
-                  )}
-                </Link>
+                  </span>
+                ) : (
+                  <Link
+                    href={item.href}
+                    onClick={item.href === "/" ? scrollTopIfHome : undefined}
+                    className="inline-flex items-center gap-1.5 py-6 text-xs font-normal tracking-[0.12em] text-on-dark/80 transition-colors hover:text-on-dark"
+                  >
+                    {item.label}
+                  </Link>
+                )}
 
                 {item.children && (
                   <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-1 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
@@ -193,16 +199,30 @@ export default function Header({ transparent = false }: HeaderProps) {
             ) : (
               <li key={item.label} className="border-b border-on-dark/5">
                 <div className="flex items-center justify-between">
-                  <Link
-                    href={item.href}
-                    onClick={(e) => {
-                      if (item.href === "/") scrollTopIfHome(e);
-                      setIsMenuOpen(false);
-                    }}
-                    className="block flex-1 py-4 text-sm font-normal tracking-[0.08em] text-on-dark/85"
-                  >
-                    {item.label}
-                  </Link>
+                  {item.children ? (
+                    // 子を持つ項目(事業内容)は自身のページを持たないため、
+                    // タップでアコーディオンを開閉するだけにする。
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenMobile((v) => (v === item.label ? null : item.label))
+                      }
+                      className="block flex-1 py-4 text-left text-sm font-normal tracking-[0.08em] text-on-dark/85"
+                    >
+                      {item.label}
+                    </button>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      onClick={(e) => {
+                        if (item.href === "/") scrollTopIfHome(e);
+                        setIsMenuOpen(false);
+                      }}
+                      className="block flex-1 py-4 text-sm font-normal tracking-[0.08em] text-on-dark/85"
+                    >
+                      {item.label}
+                    </Link>
+                  )}
                   {item.children && (
                     <button
                       type="button"
