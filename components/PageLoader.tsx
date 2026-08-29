@@ -1,23 +1,22 @@
 "use client";
 
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useLayoutEffect, useRef } from "react";
 import { gsap } from "@/hooks/useGsap";
 import { markStageRevealed, prefersReducedMotion } from "@/lib/animations";
 
 /**
- * ローディング/ページ遷移の幕(仕様書4.2の「舞台」モチーフ)。
+ * ローディング/ページ遷移の幕。ブラウン管テレビの電源を切ったときの動きを模す。
  *
- * 初回ロードと、ページ遷移(次階層への移動・下層からTOPへの復帰)のたびに、
- * ネイビーの幕がロゴを見せてから上へ引き上がり、下のページを現す。
- * 社名の STAGE に合わせ「緞帳が上がる」動きにしつつ、
- * 水平の基準線(地平線・基礎)と製図のような枠で不動産・建築らしさを出す。
+ * 幕(ネイビー)は画面いっぱいの状態から、縦方向に潰れて一本の水平線になり、
+ * その線が横に縮んで消える。線になった瞬間に社名を出し、
+ * 「-----STAGE PARTNERS-----」のように線と文字が一体で見えるようにしている。
  *
  * 実装上の要点:
  * - 初期状態(SSR)から幕は閉じているため、JS適用前に中身が見えてしまうことがない。
  * - 遷移時は useLayoutEffect(描画前)で幕を閉じ直すので、新ページが一瞬見える現象を防ぐ。
  * - 幕が出ている間は背面をスクロールさせない。終了後は pointer-events を切って操作を妨げない。
+ * - scaleY/scaleX は transform なので合成のみで動き、clip-path より滑らかに出る。
  */
 export default function PageLoader() {
   const pathname = usePathname();
@@ -32,22 +31,24 @@ export default function PageLoader() {
     isFirstLoad.current = false;
 
     const q = gsap.utils.selector(panel);
+    const screen = q("[data-crt-screen]")[0];
+    // 走査線は社名の左右に1本ずつ。まとめて同じ動きをさせる。
+    const line = q("[data-crt-line]");
+    const label = q("[data-crt-label]")[0];
+
     const unlock = () => {
       document.body.style.overflow = "";
       gsap.set(panel, { pointerEvents: "none", visibility: "hidden" });
     };
 
-    // 初回ロード・遷移とも、必ず「幕が閉じた状態」から始める
-    gsap.set(panel, {
-      clipPath: "inset(0% 0% 0% 0%)",
-      pointerEvents: "auto",
-      visibility: "visible",
-    });
+    // 初回ロード・遷移とも、必ず「画面が閉じた状態」から始める
+    gsap.set(panel, { pointerEvents: "auto", visibility: "visible" });
+    gsap.set(screen, { scaleY: 1, scaleX: 1, opacity: 1 });
+    gsap.set(line, { scaleX: 0, opacity: 0 });
+    gsap.set(label, { opacity: 0 });
     document.body.style.overflow = "hidden";
 
     if (prefersReducedMotion()) {
-      gsap.set(q("[data-loader-item]"), { opacity: 1, y: 0 });
-      gsap.set(q("[data-loader-rule]"), { scaleX: 1 });
       const tl = gsap.timeline({
         onComplete: () => {
           unlock();
@@ -66,46 +67,36 @@ export default function PageLoader() {
 
     const tl = gsap.timeline({ onComplete: unlock });
 
-    // 幕の中身: ロゴ → 基準線 → ラベル
-    tl.fromTo(
-      q("[data-loader-item]"),
-      { opacity: 0, y: 14 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: intro ? 0.8 : 0.5,
-        stagger: intro ? 0.12 : 0.07,
-        ease: "power2.out",
-      },
-    )
-      .fromTo(
-        q("[data-loader-rule]"),
-        { scaleX: 0 },
-        {
-          scaleX: 1,
-          duration: intro ? 1 : 0.6,
-          ease: "power3.inOut",
-        },
-        intro ? "-=0.55" : "-=0.35",
-      )
-      // 中身を先に消してから幕を上げる(文字が動きながら切れるのを避ける)
+    // 1. 画面が縦に潰れて一本の線になる(ブラウン管の電源を切る動き)
+    tl.to(screen, {
+      scaleY: 0.002,
+      duration: intro ? 0.75 : 0.6,
+      ease: "power3.inOut",
+      delay: intro ? 0.25 : 0,
+    })
+      // 2. 潰れきったところで、線と社名を重ねて出す
       .to(
-        q("[data-loader-content]"),
-        { opacity: 0, duration: 0.35, ease: "power2.in" },
-        intro ? "+=0.25" : "+=0.05",
+        line,
+        { scaleX: 1, opacity: 1, duration: intro ? 0.5 : 0.4, ease: "power2.out" },
+        "-=0.12",
       )
-      // 緞帳が上がる
+      .to(screen, { opacity: 0, duration: 0.2 }, "<")
       .to(
-        panel,
-        {
-          clipPath: "inset(0% 0% 100% 0%)",
-          duration: intro ? 1.1 : 0.9,
-          ease: "power4.inOut",
-        },
+        label,
+        { opacity: 1, duration: intro ? 0.45 : 0.35, ease: "power2.out" },
+        "-=0.25",
+      )
+      // 3. 線を残したまま少し見せる
+      .to({}, { duration: intro ? 0.5 : 0.25 })
+      // 4. 線が横に縮んで消える
+      .to(label, { opacity: 0, duration: 0.25, ease: "power2.in" })
+      .to(
+        line,
+        { scaleX: 0, duration: intro ? 0.6 : 0.5, ease: "power3.inOut" },
         "-=0.1",
       )
-      // 幕が上がり切る前に合図を出し、下のページの導入と重ねる
-      .add(markStageRevealed, "<0.3");
+      // 線が消えきる前に合図を出し、下のページの導入と重ねる
+      .add(markStageRevealed, "<0.15");
 
     return () => {
       tl.kill();
@@ -118,47 +109,40 @@ export default function PageLoader() {
     <div
       ref={panelRef}
       aria-hidden
-      className="page-loader fixed inset-0 z-[90] flex items-center justify-center bg-navy"
-      style={{ clipPath: "inset(0% 0% 0% 0%)" }}
+      className="page-loader pointer-events-auto fixed inset-0 z-[90] flex items-center justify-center"
     >
       {/* JSが無効な環境で幕が残り続けないようにする */}
       <noscript>
         <style>{`.page-loader{display:none !important}`}</style>
       </noscript>
 
-      {/* 製図のような内枠 */}
+      {/* ブラウン管の「画面」。縦に潰れて線になる */}
       <span
+        data-crt-screen
         aria-hidden
-        className="pointer-events-none absolute inset-4 border border-on-dark/15 sm:inset-6 lg:inset-8"
+        className="absolute inset-0 origin-center bg-navy"
       />
 
-      <div
-        data-loader-content
-        className="relative flex flex-col items-center gap-7 px-8"
-      >
-        <Image
-          data-loader-item
-          src="/logo-mono-white.png"
-          alt=""
-          width={400}
-          height={97}
-          priority
-          className="h-8 w-auto sm:h-10"
-        />
-
-        {/* 地平線/基礎を引くような水平線 */}
+      {/* 潰れきった瞬間に出る走査線と社名 */}
+      <div className="relative flex w-full items-center justify-center gap-4 px-6 sm:gap-6 sm:px-10">
+        {/* 左の線は右端(社名側)を起点に外へ伸ばす */}
         <span
-          data-loader-rule
+          data-crt-line
           aria-hidden
-          className="block h-px w-40 origin-center bg-on-dark/45 sm:w-56"
+          className="block h-px flex-1 origin-right bg-on-dark/70 shadow-[0_0_12px_rgba(243,244,245,0.55)]"
         />
-
         <span
-          data-loader-item
-          className="font-latin text-[9px] tracking-[0.4em] text-on-dark/55 sm:text-[10px]"
+          data-crt-label
+          className="shrink-0 whitespace-nowrap font-latin text-[10px] tracking-[0.4em] text-on-dark sm:text-xs"
         >
-          REAL ESTATE &amp; ARCHITECTURE
+          STAGE PARTNERS
         </span>
+        {/* 右の線は左端(社名側)を起点に外へ伸ばす */}
+        <span
+          data-crt-line
+          aria-hidden
+          className="block h-px flex-1 origin-left bg-on-dark/70 shadow-[0_0_12px_rgba(243,244,245,0.55)]"
+        />
       </div>
     </div>
   );
