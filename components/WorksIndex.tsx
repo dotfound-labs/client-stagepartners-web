@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { Flip } from "gsap/Flip";
 import { scrollTriggerDefaults, prefersReducedMotion, drawLine } from "@/lib/animations";
-import { CATEGORY_LABEL, WORKS, getWork, workImage, type WorkCategory } from "@/lib/works";
+import { CATEGORY_LABEL, WORKS, formatWorkDate, getWork, workImage, type WorkCategory } from "@/lib/works";
 
 if (typeof window !== "undefined") gsap.registerPlugin(Flip);
 
@@ -168,9 +168,16 @@ export default function WorksIndex() {
                   />
                 </div>
 
-                <span className="mt-6 block font-latin text-[11px] tracking-[0.25em] text-ink-muted">
-                  {work.type}
-                </span>
+                <div className="mt-6 flex items-baseline justify-between gap-3">
+                  <span className="font-latin text-[11px] tracking-[0.25em] text-ink-muted">
+                    {work.type}
+                  </span>
+                  {work.date && (
+                    <span className="shrink-0 font-latin text-[11px] tracking-[0.1em] text-ink-muted/70">
+                      {formatWorkDate(work.date)}
+                    </span>
+                  )}
+                </div>
                 <h2 className="t-body mt-3 font-display font-normal text-ink transition-colors duration-300 group-hover:text-navy-mid line-clamp-2 min-h-[2.8em]">
                   {work.title}
                 </h2>

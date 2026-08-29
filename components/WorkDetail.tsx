@@ -9,7 +9,7 @@ import {
   drawLine,
   staggerFadeUp,
 } from "@/lib/animations";
-import { CATEGORY_LABEL, workImage, type Work } from "@/lib/works";
+import { CATEGORY_LABEL, formatWorkDate, workImage, type Work } from "@/lib/works";
 import WorkPhotos, { hasPhotoSplit } from "@/components/WorkPhotos";
 import WorkCompareHero from "@/components/WorkCompareHero";
 
@@ -96,6 +96,12 @@ export default function WorkDetail({ work, prev, next }: Props) {
               <dt className="font-latin text-[10px] tracking-[0.3em] text-on-dark/45">CATEGORY</dt>
               <dd className="mt-2 text-sm text-on-dark/85">{CATEGORY_LABEL[work.category]}</dd>
             </div>
+            {work.date && (
+              <div data-hero-meta>
+                <dt className="font-latin text-[10px] tracking-[0.3em] text-on-dark/45">DATE</dt>
+                <dd className="mt-2 text-sm text-on-dark/85">{formatWorkDate(work.date)}</dd>
+              </div>
+            )}
           </dl>
         </div>
       </section>
