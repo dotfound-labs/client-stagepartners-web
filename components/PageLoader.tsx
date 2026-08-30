@@ -75,8 +75,8 @@ export default function PageLoader() {
       isClosingRef.current = false;
       onDone();
     };
-    // アニメーション想定0.4秒に対し、800msで打ち切る安全弁
-    const fallback = window.setTimeout(finish, 800);
+    // アニメーション想定0.7秒に対し、1100msで打ち切る安全弁
+    const fallback = window.setTimeout(finish, 1100);
 
     closeTlRef.current?.kill();
     const tl = gsap.timeline({
@@ -90,15 +90,15 @@ export default function PageLoader() {
     tl.fromTo(
       halves[0],
       { yPercent: -100 },
-      { yPercent: 0, duration: 0.32, ease: "power3.inOut" },
+      { yPercent: 0, duration: 0.6, ease: "power4.inOut" },
     )
       .fromTo(
         halves[1],
         { yPercent: 100 },
-        { yPercent: 0, duration: 0.32, ease: "power3.inOut" },
+        { yPercent: 0, duration: 0.6, ease: "power4.inOut" },
         "<",
       )
-      .to(seam, { opacity: 1, duration: 0.16, ease: "power2.out" }, "-=0.14");
+      .to(seam, { opacity: 1, duration: 0.3, ease: "power2.out" }, "-=0.18");
   }, []);
 
   // 内部リンクのクリックを横取りし、閉じ切ってから遷移する
@@ -259,20 +259,20 @@ export default function PageLoader() {
     unlockFallback = window.setTimeout(() => {
       unlock();
       markStageRevealed();
-    }, 1200);
+    }, 1900);
     const tl = gsap.timeline({ onComplete: unlock });
 
     // 合わせ目の社名を見せてから、上下へ割る
-    tl.to(seam, { opacity: 1, duration: 0.16, ease: "power2.out" })
-      .to(seam, { opacity: 0, duration: 0.14, ease: "power2.in" }, "+=0.08")
+    tl.to(seam, { opacity: 1, duration: 0.26, ease: "power2.out" })
+      .to(seam, { opacity: 0, duration: 0.22, ease: "power2.in" }, "+=0.16")
       .to(
         halves[0],
-        { yPercent: -100, duration: 0.45, ease: "power3.inOut" },
-        "-=0.06",
+        { yPercent: -100, duration: 0.85, ease: "power4.inOut" },
+        "-=0.1",
       )
       .to(
         halves[1],
-        { yPercent: 100, duration: 0.45, ease: "power3.inOut" },
+        { yPercent: 100, duration: 0.85, ease: "power4.inOut" },
         "<",
       )
       // 開き切る前に合図を出し、下のページの導入と重ねる
