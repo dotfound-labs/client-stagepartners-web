@@ -91,7 +91,7 @@ export default function Header({ transparent = false }: HeaderProps) {
           onClick={scrollTopIfHome}
         >
           <Image
-            src="/logo-color-header.png"
+            src="/logo-mono-white.png"
             alt="STAGE PARTNERS"
             width={400}
             height={97}
