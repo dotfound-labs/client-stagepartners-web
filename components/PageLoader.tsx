@@ -40,7 +40,16 @@ export default function PageLoader() {
   const closeTlRef = useRef<gsap.core.Timeline | null>(null);
   const isClosingRef = useRef(false);
 
-  /** 上下のパネルを閉じ切ってから onDone を呼ぶ。 */
+  /**
+   * 上下のパネルを閉じ切ってから onDone を呼ぶ。
+   *
+   * onDone は実際のページ遷移(router.push)を発火させる、待たせすぎては
+   * いけない処理。バックグラウンドタブなどで requestAnimationFrame が
+   * 止まるとGSAPのタイムラインも進まなくなるため、アニメーション完了を
+   * 待つだけだと遷移そのものが起きなくなる恐れがある。保険として、
+   * アニメーションの想定時間より長いタイムアウトで必ず1回だけ onDone を
+   * 呼ぶようにしている(アニメーションが先に終われば、そちらが先に呼ぶ)。
+   */
   const playClose = useCallback((onDone: () => void) => {
     const panel = panelRef.current;
     if (!panel || prefersReducedMotion()) {
@@ -59,11 +68,21 @@ export default function PageLoader() {
     gsap.set(seam, { opacity: 0 });
     document.body.style.overflow = "hidden";
 
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      isClosingRef.current = false;
+      onDone();
+    };
+    // アニメーション想定0.4秒に対し、800msで打ち切る安全弁
+    const fallback = window.setTimeout(finish, 800);
+
     closeTlRef.current?.kill();
     const tl = gsap.timeline({
       onComplete: () => {
-        isClosingRef.current = false;
-        onDone();
+        window.clearTimeout(fallback);
+        finish();
       },
     });
     closeTlRef.current = tl;
@@ -71,15 +90,15 @@ export default function PageLoader() {
     tl.fromTo(
       halves[0],
       { yPercent: -100 },
-      { yPercent: 0, duration: 0.6, ease: "power4.inOut" },
+      { yPercent: 0, duration: 0.32, ease: "power3.inOut" },
     )
       .fromTo(
         halves[1],
         { yPercent: 100 },
-        { yPercent: 0, duration: 0.6, ease: "power4.inOut" },
+        { yPercent: 0, duration: 0.32, ease: "power3.inOut" },
         "<",
       )
-      .to(seam, { opacity: 1, duration: 0.3, ease: "power2.out" }, "-=0.18");
+      .to(seam, { opacity: 1, duration: 0.16, ease: "power2.out" }, "-=0.14");
   }, []);
 
   // 内部リンクのクリックを横取りし、閉じ切ってから遷移する
@@ -141,7 +160,17 @@ export default function PageLoader() {
     closeTlRef.current = null;
     isClosingRef.current = false;
 
+    // requestAnimationFrame が止まる(バックグラウンドタブ等)とGSAPの
+    // タイムラインも進まなくなり、onComplete が来ないまま画面が閉じきり・
+    // スクロールロックしたままになりかねない。unlock 自体を「一度きり、
+    // 保険のタイムアウト付き」にして、アニメーションが完了しなくても
+    // 必ず後片付けされるようにする。
+    let unlocked = false;
+    let unlockFallback = 0;
     const unlock = () => {
+      if (unlocked) return;
+      unlocked = true;
+      window.clearTimeout(unlockFallback);
       document.body.style.overflow = "";
       gsap.set(panel, { pointerEvents: "none", visibility: "hidden" });
     };
@@ -155,6 +184,10 @@ export default function PageLoader() {
       gsap.set(q("[data-loader-item]"), { opacity: 1, y: 0 });
       gsap.set(q("[data-loader-rule]"), { scaleX: 1 });
       gsap.set(seam, { opacity: intro ? 0 : 1 });
+      unlockFallback = window.setTimeout(() => {
+        unlock();
+        markStageRevealed();
+      }, 900);
       const tl = gsap.timeline({
         onComplete: () => {
           unlock();
@@ -177,6 +210,10 @@ export default function PageLoader() {
       gsap.set(halves, { display: "none" });
       gsap.set(seam, { opacity: 0 });
 
+      unlockFallback = window.setTimeout(() => {
+        unlock();
+        markStageRevealed();
+      }, 3000);
       const tl = gsap.timeline({ onComplete: unlock });
 
       // 幕の中身: ロゴ → 基準線 → ラベル
@@ -219,19 +256,23 @@ export default function PageLoader() {
     gsap.set(curtain, { display: "none" });
     gsap.set(halves, { display: "block", yPercent: 0 });
 
+    unlockFallback = window.setTimeout(() => {
+      unlock();
+      markStageRevealed();
+    }, 1200);
     const tl = gsap.timeline({ onComplete: unlock });
 
     // 合わせ目の社名を見せてから、上下へ割る
-    tl.to(seam, { opacity: 1, duration: 0.26, ease: "power2.out" })
-      .to(seam, { opacity: 0, duration: 0.22, ease: "power2.in" }, "+=0.16")
+    tl.to(seam, { opacity: 1, duration: 0.16, ease: "power2.out" })
+      .to(seam, { opacity: 0, duration: 0.14, ease: "power2.in" }, "+=0.08")
       .to(
         halves[0],
-        { yPercent: -100, duration: 0.85, ease: "power4.inOut" },
-        "-=0.1",
+        { yPercent: -100, duration: 0.45, ease: "power3.inOut" },
+        "-=0.06",
       )
       .to(
         halves[1],
-        { yPercent: 100, duration: 0.85, ease: "power4.inOut" },
+        { yPercent: 100, duration: 0.45, ease: "power3.inOut" },
         "<",
       )
       // 開き切る前に合図を出し、下のページの導入と重ねる
