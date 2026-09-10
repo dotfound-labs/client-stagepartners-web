@@ -116,7 +116,7 @@ export const WORKS: Work[] = [
     title: "田中亭 三島スカイウォーク店",
     category: "store",
     type: "飲食店 / 新装",
-    summary: "三島スカイウォークの飲食店です。木を見せた内装と、厨房から客席までの動線をつくりました。",
+    summary: "三島スカイウォークの飲食店です。厨房から客席までの動線をつくりました。",
     cover: "after-01.jpg",
     date: "2026-05",
     shots: [
@@ -341,32 +341,11 @@ export const WORKS: Work[] = [
     ],
   },
   {
-    slug: "memorial-garden",
-    title: "メモリアルガーデン 管理棟",
-    category: "store",
-    type: "管理棟 / 新築",
-    summary: "霊園の管理棟です。造成から基礎まで、建物を建てる土台をつくりました。",
-    cover: "after-02.jpg",
-    date: "2024-02",
-    shots: [
-      { file: "before-05.jpg", state: "before" },
-      { file: "after-02.jpg", state: "after" },
-      { file: "before-01.jpg", state: "before" },
-      { file: "before-02.jpg", state: "before" },
-      { file: "before-03.jpg", state: "before" },
-      { file: "before-04.jpg", state: "before" },
-      { file: "after-01.jpg", state: "after" },
-      { file: "after-03.jpg", state: "after" },
-      { file: "after-04.jpg", state: "after" },
-      { file: "after-05.jpg", state: "after" },
-    ],
-  },
-  {
     slug: "memorial-garden-site",
-    title: "メモリアルガーデン",
+    title: "メモリアルガーデン様　管理棟",
     category: "store",
-    type: "霊園 / 整備",
-    summary: "霊園の整備工事です。木造の建方から屋根まで、現場の進行に合わせて進めました。",
+    type: "霊園管理棟 / 新築",
+    summary: "霊園の管理棟です。木造の建方から屋根まで、現場の進行に合わせて進めました。",
     cover: "after-04.jpg",
     date: "2024-02",
     shots: [
@@ -497,7 +476,8 @@ export const WORKS: Work[] = [
     slug: "laseed",
     title: "La.seed",
     category: "store",
-    type: "美容室 / 新装",
+    // カテゴリ変更(2026-09-10)。写真・summary は美容室時点のもの。差し替え要。
+    type: "スポーツバー / 改装",
     summary: "美容室の新装工事です。解体後の躯体から、シャンプー台とセット面の配置を決めました。",
     cover: "after-01.jpg",
     date: "2024-01",
@@ -698,11 +678,11 @@ export const WORKS: Work[] = [
   },
   {
     slug: "shibuya-daidokoroya",
-    title: "渋谷 台所屋",
+    title: "渋谷 台所家",
     category: "store",
     type: "飲食店 / 新装",
     summary: "渋谷の飲食店です。解体した状態から、餃子と寿司を出す二層の店舗に組み直しました。",
-    cover: "after-01.jpg",
+    cover: "after-02.jpg",
     shots: [
       { file: "before-01.jpg", state: "before" },
       { file: "after-03.jpg", state: "after" },
@@ -751,38 +731,6 @@ export const WORKS: Work[] = [
       { file: "after-05.jpg", state: "after" },
     ],
   },
-  {
-    slug: "yokohama-tachinomi",
-    title: "横浜 立ち飲み屋",
-    category: "store",
-    type: "飲食店 / 新装",
-    summary: "横浜の立ち飲み店です。狭い区画のなかで、立ったまま滞在できる寸法を詰めました。",
-    cover: "after-01.jpg",
-    shots: [
-      { file: "after-01.jpg", state: "after" },
-      { file: "after-02.jpg", state: "after" },
-      { file: "after-03.jpg", state: "after" },
-      { file: "after-04.jpg", state: "after" },
-      { file: "after-05.jpg", state: "after" },
-    ],
-  },
-  {
-    slug: "koryoriya",
-    title: "小料理屋",
-    category: "store",
-    type: "飲食店 / 新装",
-    summary: "小料理屋の新装工事です。一枚板のカウンターを主役に、酒の見せ方まで含めて設えました。",
-    cover: "after-01.jpg",
-    shots: [
-      { file: "before-01.jpg", state: "before" },
-      { file: "before-02.jpg", state: "before" },
-      { file: "before-03.jpg", state: "before" },
-      { file: "before-04.jpg", state: "before" },
-      { file: "after-01.jpg", state: "after" },
-      { file: "after-02.jpg", state: "after" },
-    ],
-  },
-
 ];
 
 /** public/works 配下の画像パスを組み立てる。 */

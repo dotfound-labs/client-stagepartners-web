@@ -9,7 +9,6 @@ export const SRC_ROOT = process.env.WORKS_SRC || `${process.env.HOME}/Desktop`;
 export const COVER_OVERRIDE = {
   "kanogawa": "after-02.jpg",
   "tokuzomaru-hiroba": "after-03.jpg",
-  "memorial-garden": "after-02.jpg",
   "memorial-garden-site": "after-04.jpg",
   "mansion-renovation": "after-04.jpg"
 };
@@ -44,15 +43,13 @@ export const PROJECTS = [
     before: "建築/東進衛生予備校清水校(施工前)", after: "建築/東進衛生予備校清水校" },
   { slug: "baseball-studio", title: "室内野球練習場", type: "スポーツ施設 / 新装", category: "store",
     before: "建築/室内野球練習場(施工前)", after: "建築/室内野球練習場" },
-  { slug: "memorial-garden", title: "メモリアルガーデン 管理棟", type: "管理棟 / 新築", category: "store",
-    before: "建築/メモリアルガーデン管理棟(施工前)", after: "建築/メモリアルガーデン管理棟" },
   { slug: "karumen-susono", title: "黄金トマトのカル麺 裾野店", type: "飲食店 / 新装", category: "store",
     before: "建築/黄金トマトのカル麺裾野店(施工前)", after: "建築/黄金トマトのカル麺裾野店" },
   { slug: "karumen-numazu", title: "黄金トマトのカル麺 沼津店", type: "飲食店 / 居抜き改装", category: "store",
     before: "建築/黄金トマトのカル麺沼津店(施工前居抜物件)", after: "建築/黄金トマトのカル麺沼津店" },
   { slug: "karumen-mishima", title: "黄金トマトのカル麺 三島スカイウォーク店", type: "飲食店 / 新装", category: "store",
     before: "建築/黄金トマトのカル麺三島スカイウォーク店(施工前)", after: "建築/黄金トマトのカル麺三島スカイウォーク店" },
-  { slug: "laseed", title: "La.seed", type: "美容室 / 新装", category: "store",
+  { slug: "laseed", title: "La.seed", type: "スポーツバー / 改装", category: "store",
     before: "建築/La.seed(施工前)", after: "建築/La.seed" },
   { slug: "laviola", title: "Laviola", type: "店舗 / 新装", category: "store",
     before: "建築/Laviola(施工前)", after: "建築/Laviola" },
@@ -64,9 +61,7 @@ export const PROJECTS = [
     before: "建築/ホワイトニングショップ(施工前)", after: "建築/ホワイトニングショップ" },
   { slug: "mobile-shop", title: "携帯ショップ", type: "物販店 / 改装", category: "store",
     before: "建築/携帯ショップ(施工前)", after: "建築/携帯ショップ" },
-  { slug: "koryoriya", title: "小料理屋", type: "飲食店 / 新装", category: "store",
-    before: "建築/小料理屋(施工前)", after: "建築/小料理屋" },
-  { slug: "shibuya-daidokoroya", title: "渋谷 台所屋", type: "飲食店 / 新装", category: "store",
+  { slug: "shibuya-daidokoroya", title: "渋谷 台所家", type: "飲食店 / 新装", category: "store",
     before: "建築/渋谷台所屋(施工前)", after: "建築/渋谷台所屋" },
   { slug: "pachinko-renewal", title: "パチンコ店 改装", type: "遊技場 / 改装", category: "store",
     before: "建築/パチンコ店改装前", after: "建築/パチンコ店改装後" },
@@ -82,9 +77,7 @@ export const PROJECTS = [
     after: "建築/DELTARING GYM/デルタリングジム" },
   { slug: "yokohama-kohoku", title: "横浜港北区 住宅リノベーション", type: "住宅 / リノベーション", category: "store",
     after: "建築/横浜港北区住宅リノベーション" },
-  { slug: "yokohama-tachinomi", title: "横浜 立ち飲み屋", type: "飲食店 / 新装", category: "store",
-    after: "建築/横浜立ち飲み屋店舗" },
-  { slug: "memorial-garden-site", title: "メモリアルガーデン", type: "霊園 / 整備", category: "store",
+  { slug: "memorial-garden-site", title: "メモリアルガーデン様　管理棟", type: "霊園管理棟 / 新築", category: "store",
     after: "建築/メモリアルガーデン(施工中)" },
 
   // --- 施設営繕・解体 ---

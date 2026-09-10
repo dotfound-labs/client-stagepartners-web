@@ -6,9 +6,11 @@ import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
 import { CATEGORY_LABEL, WORKS as ALL_WORKS, workImage } from "@/content/works";
 
-// 注目の施工実績。content/works.ts の先頭3件を出す。
-// 実績が増えたらそちらを並べ替えれば、このセクションも追随する。
-const FEATURED = ALL_WORKS.slice(0, 3);
+// トップに出す注目実績。スラッグで明示指定する(2026-09-10 議事録)。
+const FEATURED_SLUGS = ["zentoku", "issekisancho", "deltaring-gym"] as const;
+const FEATURED = FEATURED_SLUGS
+  .map((slug) => ALL_WORKS.find((w) => w.slug === slug))
+  .filter((w): w is NonNullable<typeof w> => Boolean(w));
 
 export default function Works() {
   const sectionRef = useScopedGsap<HTMLElement>(() => {
