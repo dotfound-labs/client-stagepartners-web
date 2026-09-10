@@ -35,12 +35,6 @@ export type Work = {
    * ページの構成が変わらないようにするため、施工前と施工後で列を分けない。
    */
   shots: Shot[];
-  /**
-   * トップ写真の前後比較(パイロット)。同じアングル・同じ画角で撮れた1組が
-   * ある案件だけ設定する。「施工の記録」冒頭で、スクロール連動のワイプ演出
-   * として見せる(WorkCompareHero)。未設定の案件は何も表示しない。
-   */
-  heroCompare?: { before: string; after: string };
 };
 
 export const CATEGORY_LABEL: Record<WorkCategory, string> = {
@@ -78,7 +72,6 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
-    heroCompare: { before: "before-02.jpg", after: "after-03.jpg" },
   },
   {
     slug: "kanogawa",
@@ -100,7 +93,6 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
-    heroCompare: { before: "before-03.jpg", after: "after-03.jpg" },
   },
   {
     slug: "shofuku",
@@ -226,7 +218,6 @@ export const WORKS: Work[] = [
       { file: "before-04.jpg", state: "before" },
       { file: "after-03.jpg", state: "after" },
     ],
-    heroCompare: { before: "before-04.jpg", after: "after-05.jpg" },
   },
   {
     slug: "viva-genjokaifuku",
@@ -285,7 +276,6 @@ export const WORKS: Work[] = [
       { file: "before-05.jpg", state: "before" },
       { file: "after-04.jpg", state: "after" },
     ],
-    heroCompare: { before: "before-05.jpg", after: "after-03.jpg" },
   },
   {
     slug: "toshin-shimizu",
@@ -307,7 +297,6 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
-    heroCompare: { before: "before-03.jpg", after: "after-05.jpg" },
   },
   {
     slug: "toshin-mishima",
@@ -350,7 +339,6 @@ export const WORKS: Work[] = [
       { file: "after-02.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
-    heroCompare: { before: "before-05.jpg", after: "after-04.jpg" },
   },
   {
     slug: "memorial-garden",
@@ -483,7 +471,6 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
-    heroCompare: { before: "before-05.jpg", after: "after-02.jpg" },
   },
   {
     slug: "karumen-mishima",
@@ -626,7 +613,6 @@ export const WORKS: Work[] = [
       { file: "after-03.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
-    heroCompare: { before: "before-05.jpg", after: "after-04.jpg" },
   },
   {
     slug: "sports-lounge",
@@ -709,7 +695,6 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
-    heroCompare: { before: "before-02.jpg", after: "after-05.jpg" },
   },
   {
     slug: "shibuya-daidokoroya",
@@ -750,7 +735,6 @@ export const WORKS: Work[] = [
       { file: "after-04.jpg", state: "after" },
       { file: "after-05.jpg", state: "after" },
     ],
-    heroCompare: { before: "before-05.jpg", after: "after-03.jpg" },
   },
   {
     slug: "yokohama-kohoku",
