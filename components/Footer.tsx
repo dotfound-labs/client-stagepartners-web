@@ -24,11 +24,11 @@ export default function Footer() {
       <div className="mx-auto flex max-w-[1520px] flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
         <Link href="/" aria-label="STAGE PARTNERS トップへ">
           <Image
-            src="/logo-color-footer.png"
+            src="/fotterlogo-color.png"
             alt="STAGE PARTNERS"
-            width={400}
-            height={97}
-            className="h-8 w-auto"
+            width={702}
+            height={392}
+            className="h-12 w-auto"
           />
         </Link>
 
