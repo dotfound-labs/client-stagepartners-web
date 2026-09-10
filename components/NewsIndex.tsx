@@ -9,12 +9,12 @@ import {
   formatNewsDate,
   type NewsCategory,
   type NewsPost,
-} from "@/lib/news";
+} from "@/content/news";
 
 /**
  * お知らせ一覧(/news)。
  *
- * 記事データは props で受け取る。ここで lib/news.ts を直接読まないのは、
+ * 記事データは props で受け取る。ここで content/news.ts を直接読まないのは、
  * バックエンド接続時に app/news/page.tsx 側で await して渡すだけで
  * 済むようにするため(このコンポーネントは変更不要になる)。
  *

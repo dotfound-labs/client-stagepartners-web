@@ -2,6 +2,9 @@
  * 施工実績のデータ。一覧(/works)・詳細(/works/[slug])・TOPの実績セクションが
  * 共有する唯一の情報源。
  *
+ * このファイルは content/ 配下（サイトに載せる「中身」を置く層）にある。
+ * 技術ユーティリティは lib/ に分けてある。
+ *
  * 写真は scripts/build-works-images.mjs が public/works/<slug>/ に書き出したもの。
  * ファイル名だけを持ち、パスの組み立ては workImage() に寄せている。
  */

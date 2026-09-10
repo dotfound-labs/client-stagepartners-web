@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WorksIndex from "@/components/WorksIndex";
-import { WORKS } from "@/lib/works";
+import { WORKS } from "@/content/works";
 
 export const metadata: Metadata = {
   title: "施工実績｜店舗の内装工事・リノベーション・解体 | STAGE PARTNERS",

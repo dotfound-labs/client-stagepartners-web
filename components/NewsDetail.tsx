@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { prefersReducedMotion, drawLine } from "@/lib/animations";
-import { NEWS_CATEGORY_LABEL, formatNewsDate, type NewsPost } from "@/lib/news";
+import { NEWS_CATEGORY_LABEL, formatNewsDate, type NewsPost } from "@/content/news";
 
 /**
  * お知らせ詳細(/news/[slug])。

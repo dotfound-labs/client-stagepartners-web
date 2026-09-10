@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { prefersReducedMotion } from "@/lib/animations";
-import { STATE_LABEL, workImage, type Shot, type Work } from "@/lib/works";
+import { STATE_LABEL, workImage, type Shot, type Work } from "@/content/works";
 
 /**
  * 施工前・施工後を、左右2カラムでそれぞれ1つのセクションとして見せる。

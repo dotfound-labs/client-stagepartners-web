@@ -9,7 +9,7 @@ import {
   drawLine,
   staggerFadeUp,
 } from "@/lib/animations";
-import { CATEGORY_LABEL, formatWorkDate, workImage, type Work } from "@/lib/works";
+import { CATEGORY_LABEL, formatWorkDate, workImage, type Work } from "@/content/works";
 import WorkPhotos, { hasPhotoSplit } from "@/components/WorkPhotos";
 import WorkCompareHero from "@/components/WorkCompareHero";
 

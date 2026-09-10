@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { prefersReducedMotion } from "@/lib/animations";
-import { workImage, type Work } from "@/lib/works";
+import { workImage, type Work } from "@/content/works";
 
 /**
  * 施工の記録セクション冒頭に置く、施工前→施工後のスクロール連動ワイプ(パイロット)。

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import NewsIndex from "@/components/NewsIndex";
 import Footer from "@/components/Footer";
-import { getAllNews } from "@/lib/news";
+import { getAllNews } from "@/content/news";
 
 export const metadata: Metadata = {
   title: "お知らせ | STAGE PARTNERS",
