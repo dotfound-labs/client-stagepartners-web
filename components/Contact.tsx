@@ -4,19 +4,12 @@ import { useState } from "react";
 import Image from "next/image";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
+import { INQUIRY_TYPES, OFFICES } from "@/content/company";
 
 // お問い合わせフォーム。送信は Web3Forms を利用する。
 // ドメイン確定後、Web3Forms で発行される正式な access_key に差し替える。
 // それまでは仮のキーのため、実際の送信はエラーになる(UIは完成状態)。
 const WEB3FORMS_ACCESS_KEY = "00000000-0000-0000-0000-000000000000";
-
-const INQUIRY_TYPES = [
-  "不動産の売却・買取のご相談",
-  "賃貸・空室のご相談",
-  "リフォーム・改修のご相談",
-  "建物・入居者の管理のご相談",
-  "その他のお問い合わせ",
-];
 
 type Status = "idle" | "sending" | "success" | "error";
 
@@ -109,11 +102,17 @@ export default function Contact() {
           </p>
           <div
             data-contact-fade
-            className="mt-10 space-y-1 text-sm text-on-dark/70"
+            className="mt-10 space-y-2 text-sm text-on-dark/70"
           >
             <p className="font-latin text-[11px] tracking-[0.2em] text-on-dark/50">TEL</p>
-            <p className="font-latin text-lg tracking-[0.05em] text-on-dark">000-000-0000</p>
-            <p className="text-xs text-on-dark/50">受付時間　平日 9:00 – 18:00</p>
+            {OFFICES.map((office) => (
+              <p key={office.key} className="flex items-baseline gap-3">
+                <span className="text-xs text-on-dark/50">{office.label}</span>
+                <span className="font-latin text-lg tracking-[0.05em] text-on-dark">
+                  {office.tel}
+                </span>
+              </p>
+            ))}
           </div>
         </div>
 

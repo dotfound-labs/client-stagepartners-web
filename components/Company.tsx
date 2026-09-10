@@ -3,9 +3,11 @@
 import Image from "next/image";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
+import { COMPANY_NAME, HEAD_OFFICE, OFFICES } from "@/content/company";
 
 // 会社概要ページ(/company)本体のコンテンツ。
 // 代表者名は正式決定まで仮の値。許認可番号は確定後に各行へ追記する。
+// 会社名・拠点・電話は content/company.ts を単一の情報源にしている。
 type ProfileRow = {
   label: string;
   value?: string | string[];
@@ -13,12 +15,14 @@ type ProfileRow = {
 };
 
 const PROFILE: ProfileRow[] = [
-  { label: "会社名", value: "株式会社STAGE PARTNERS" },
+  { label: "会社名", value: COMPANY_NAME },
   { label: "設立", value: "2026年6月15日" },
   { label: "資本金", value: "800万円" },
-  { label: "本社", value: "〒410-0055　静岡県沼津市高島本町16-16" },
-  { label: "沼津オフィス", value: "静岡県沼津市米山町1-5" },
-  { label: "東京オフィス", value: "東京都港区浜松町2-7-13 Biz Feel浜松町3F" },
+  { label: "本社", value: `〒${HEAD_OFFICE.postalCode}　${HEAD_OFFICE.address}` },
+  ...OFFICES.map((office) => ({
+    label: office.label,
+    value: [office.address, `TEL ${office.tel}`],
+  })),
   {
     label: "事業内容",
     value: "不動産ソリューション（仲介・管理・買取再販）／ 建築ソリューション（リフォーム）",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LegalPage from "@/components/LegalPage";
+import { BUSINESS_HOURS, COMPANY_NAME, HEAD_OFFICE, OFFICES } from "@/content/company";
 
 // 本サイトはお問い合わせ・ご相談の受付が中心で、サイト上での商品の通信販売・
 // オンライン決済は行っていない。そのため特定商取引法が定める表示事項のうち、
@@ -37,7 +38,7 @@ export default function TokushohoPage() {
                 <dl className="border-t border-line">
                   <div className={ROW}>
                     <dt className={LABEL}>販売業者</dt>
-                    <dd className={VALUE}>株式会社STAGE PARTNERS</dd>
+                    <dd className={VALUE}>{COMPANY_NAME}</dd>
                   </div>
                   <div className={ROW}>
                     <dt className={LABEL}>運営統括責任者</dt>
@@ -54,16 +55,19 @@ export default function TokushohoPage() {
                   <div className={ROW}>
                     <dt className={LABEL}>所在地</dt>
                     <dd className={VALUE}>
-                      〒410-0055　静岡県沼津市高島本町16-16
+                      〒{HEAD_OFFICE.postalCode}　{HEAD_OFFICE.address}
                       <span className="block text-xs text-ink-muted">
-                        （沼津オフィス：静岡県沼津市米山町1-5／東京オフィス：東京都港区浜松町2-7-13 Biz Feel浜松町3F）
+                        （{OFFICES.map((o) => `${o.label}：${o.address}`).join("／")}）
                       </span>
                     </dd>
                   </div>
                   <div className={ROW}>
                     <dt className={LABEL}>電話番号</dt>
                     <dd className={VALUE}>
-                      000-000-0000（受付時間　平日 9:00–18:00）
+                      {OFFICES.map((o) => `${o.label} ${o.tel}`).join("／")}
+                      <span className="block text-xs text-ink-muted">
+                        受付時間　{BUSINESS_HOURS}
+                      </span>
                     </dd>
                   </div>
                   <div className={ROW}>
