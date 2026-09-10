@@ -328,7 +328,7 @@ export default function ArchitectureSolution() {
           </h1>
 
           <p data-hero-lead className="t-note mt-6 max-w-xl text-on-dark/80">
-            店舗の内装から、住まいの改修、建てた後の維持管理まで。図面を引くところから引き渡した先まで、一社で受けます。
+            店舗・オフィス等の新規出店から、住まいの改修、建てた後の維持管理まで。図面を引くところから引き渡した先まで、一社で受けます。
           </p>
         </div>
       </section>
@@ -382,7 +382,7 @@ export default function ArchitectureSolution() {
 
           <div>
             <p data-fade className="t-note max-w-2xl text-ink-muted">
-              壁紙の張り替えやエアコンの交換といった一日で終わる工事から、フロアをまるごと変える大型リニューアルまで扱います。業種が変われば必要な設備も動線も変わるので、図面はいつも一から引き直します。
+              店舗・オフィス等の新規出店は、デザインから施工まで一貫してお引き受けします。壁紙の張り替えやエアコンの交換といった一日で終わる工事から、フロアをまるごと変える大型リニューアルまで扱います。業種が変われば必要な設備も動線も変わるので、図面はいつも一から引き直します。
             </p>
             <p data-fade className="t-note mt-5 max-w-2xl text-ink-muted">
               住まいも同じです。二世帯住宅への間取り変更、マンションのリノベーション。家族の人数が変われば、必要な部屋の数も位置も変わります。
