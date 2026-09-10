@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
 
-// 地主さま・オーナーさま向けの課題提起。相談への入口をつくる。
+// オーナー様向けの課題提起。相談への入口をつくる。
 const CONCERNS = [
   {
     index: "01",
@@ -83,7 +83,7 @@ export default function Challenges() {
             抱え込んでいませんか。
           </h2>
           <p data-challenge-fade className="t-note mt-6 max-w-md text-ink-muted">
-            地主さま・オーナーさまが直面しやすい課題を、STAGE PARTNERSは不動産と建築の両面から解きほぐします。
+            オーナー様が直面しやすい課題を、STAGE PARTNERSは不動産と建築の両面から解きほぐします。
           </p>
         </div>
 

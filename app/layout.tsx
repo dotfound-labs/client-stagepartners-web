@@ -31,7 +31,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "STAGE PARTNERS | 株式会社ステージパートナーズ",
   description:
-    "土地と建物に、次の価値を。STAGE PARTNERSは不動産の仲介・管理から建物のリフォームまで、地主さま・オーナーさまの資産の可能性を一貫して引き出すパートナーです。",
+    "土地と建物に、次の価値を。STAGE PARTNERSは不動産の仲介・管理から建物のリフォームまで、オーナー様の資産の可能性を一貫して引き出すパートナーです。",
   // ファビコンは app/favicon.ico・app/icon.png・app/apple-icon.png を
   // Next.jsのファイル規約で自動配信する。ここでiconsを指定すると規約側が
   // 上書きされるため書かない。
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "STAGE PARTNERS | 株式会社ステージパートナーズ",
     description:
-      "不動産の仲介・管理から建物のリフォームまで。土地と建物の可能性を一貫して引き出す、地主さま・オーナーさまのためのパートナー。",
+      "不動産の仲介・管理から建物のリフォームまで。土地と建物の可能性を一貫して引き出す、オーナー様のためのパートナー。",
     locale: "ja_JP",
     type: "website",
   },

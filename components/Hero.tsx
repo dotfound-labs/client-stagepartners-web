@@ -112,7 +112,7 @@ export default function Hero() {
           <div key={slide.src} data-hero-slide className={`absolute inset-0 ${index === 0 ? "opacity-100" : "opacity-0"}`}>
             <Image
               src={slide.src}
-              alt={index === 0 ? "STAGE PARTNERSが向き合う沼津の土地と建物" : ""}
+              alt={index === 0 ? "STAGE PARTNERSが向き合う土地と建物" : ""}
               fill
               sizes="100vw"
               priority={index === 0}
@@ -161,7 +161,7 @@ export default function Hero() {
         >
           不動産の仲介・管理から、建物のリフォーム・改修まで。
           <br className="hidden sm:block" />
-          沼津を拠点に、地主さま・オーナーさまの資産の可能性を、一貫して引き出します。
+          静岡・東京・神奈川を拠点に、オーナー様の資産の可能性を、一貫して引き出します。
         </p>
 
         <div data-hero-cta className="mt-11">
