@@ -96,7 +96,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "shofuku",
-    title: "松福様 焼津店",
+    title: "松福 焼津店様",
     category: "store",
     type: "飲食店 / 新装",
     summary: "ラーメン店の新装工事です。道路から見える正面の看板と駐車場の導線をあわせて整えました。",
@@ -113,7 +113,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "tanakatei",
-    title: "田中亭様 三島スカイウォーク店",
+    title: "田中亭 三島スカイウォーク店様",
     category: "store",
     type: "飲食店 / 新装",
     summary: "三島スカイウォークの飲食店です。厨房から客席までの動線をつくりました。",
@@ -131,7 +131,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "tokuzomaru-kakoujou",
-    title: "徳造丸様 沼津港店 加工場",
+    title: "徳造丸 沼津港店 加工場様",
     category: "store",
     type: "加工場 / 新設",
     summary: "沼津港店の加工場です。ステンレスの什器と洗い場を入れ、衛生管理のとれる配置にしました。",
@@ -148,7 +148,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "tokuzomaru-omiyage",
-    title: "徳造丸様 沼津港店 御土産店",
+    title: "徳造丸 沼津港店 御土産店様",
     category: "store",
     type: "物販店 / 新装",
     summary: "沼津港店の御土産店です。冷蔵ケースの位置から決め、商品が見やすい売場にしました。",
@@ -167,7 +167,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "tokuzomaru-hiroba",
-    title: "徳造丸様 沼津港店 広場",
+    title: "徳造丸 沼津港店 広場様",
     category: "store",
     type: "外構 / 整備",
     summary: "沼津港店の広場です。人工芝を敷き、シンボルのオブジェを据えて滞在できる場所にしました。",
@@ -182,7 +182,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "tokuzomaru",
-    title: "徳造丸様 沼津港店",
+    title: "徳造丸 沼津港店様",
     category: "store",
     type: "飲食店 / 新装",
     summary: "沼津港の海鮮料理店です。躯体の状態から、客席と厨房を一から起こしました。",
@@ -221,7 +221,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "viva-genjokaifuku",
-    title: "ビバモール甲斐敷島様 テナント原状回復工事",
+    title: "ビバモール甲斐敷島 テナント原状回復工事様",
     category: "facility",
     type: "商業施設 / 原状回復",
     summary: "商業施設のテナント原状回復工事です。区画を貸し出せる状態に整えました。",
@@ -279,7 +279,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "toshin-shimizu",
-    title: "東進衛星予備校様 清水校",
+    title: "東進衛星予備校 清水校様",
     category: "store",
     type: "学習塾 / 新装",
     summary: "予備校の新装工事です。既存の事務所空間を、個別に区切った自習ブースに作り替えました。",
@@ -300,7 +300,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "toshin-mishima",
-    title: "東進衛星予備校様 三島校",
+    title: "東進衛星予備校 三島校様",
     category: "store",
     type: "学習塾 / 新装",
     summary: "予備校の新装工事です。自習席と講義室、水まわりまでを一度に整備しました。",
@@ -379,7 +379,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "namakon-kaitai",
-    title: "静岡生コン様 解体工事",
+    title: "静岡生コン 解体工事様",
     category: "facility",
     type: "プラント / 解体",
     summary: "生コン工場の解体工事です。プラント設備を撤去し、更地まで戻しました。",
@@ -411,7 +411,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "karumen-susono",
-    title: "黄金トマトのカル麺様 裾野店",
+    title: "黄金トマトのカル麺 裾野店様",
     category: "store",
     type: "飲食店 / 新装",
     summary: "ラーメン店の新装工事です。既存の建物を店舗に変え、道路からの見え方を作り直しました。",
@@ -432,7 +432,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "karumen-numazu",
-    title: "黄金トマトのカル麺様 沼津店",
+    title: "黄金トマトのカル麺 沼津店様",
     category: "store",
     type: "飲食店 / 居抜き改装",
     summary: "居抜きの物件を使ったラーメン店です。前のテナントの設備を活かしつつ、厨房を組み直しました。",
@@ -453,7 +453,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "karumen-mishima",
-    title: "黄金トマトのカル麺様 三島スカイウォーク店",
+    title: "黄金トマトのカル麺 三島スカイウォーク店様",
     category: "store",
     type: "飲食店 / 新装",
     summary: "三島スカイウォークの店舗です。植栽を吊った開放的な売場に仕上げました。",
@@ -575,7 +575,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "ph-komazawa",
-    title: "ピタットハウス様 駒澤大学店",
+    title: "ピタットハウス 駒澤大学店様",
     category: "store",
     type: "事務所 / 新装",
     summary: "不動産店舗の新装工事です。靴修理店だった区画を、通りから中が見える明るい店構えに変えました。",
