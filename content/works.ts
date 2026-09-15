@@ -131,7 +131,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "tokuzomaru-kakoujou",
-    title: "徳造丸 沼津港店 加工場様",
+    title: "徳造丸 沼津港店様 加工場",
     category: "store",
     type: "加工場 / 新設",
     summary: "沼津港店の加工場です。ステンレスの什器と洗い場を入れ、衛生管理のとれる配置にしました。",
@@ -148,7 +148,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "tokuzomaru-omiyage",
-    title: "徳造丸 沼津港店 御土産店様",
+    title: "徳造丸 沼津港店様 御土産店",
     category: "store",
     type: "物販店 / 新装",
     summary: "沼津港店の御土産店です。冷蔵ケースの位置から決め、商品が見やすい売場にしました。",
@@ -167,7 +167,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "tokuzomaru-hiroba",
-    title: "徳造丸 沼津港店 広場様",
+    title: "徳造丸 沼津港店様 広場",
     category: "store",
     type: "外構 / 整備",
     summary: "沼津港店の広場です。人工芝を敷き、シンボルのオブジェを据えて滞在できる場所にしました。",
@@ -221,7 +221,7 @@ export const WORKS: Work[] = [
   },
   {
     slug: "viva-genjokaifuku",
-    title: "ビバモール甲斐敷島 テナント原状回復工事様",
+    title: "ビバモール甲斐敷島様 テナント原状回復工事",
     category: "facility",
     type: "商業施設 / 原状回復",
     summary: "商業施設のテナント原状回復工事です。区画を貸し出せる状態に整えました。",
