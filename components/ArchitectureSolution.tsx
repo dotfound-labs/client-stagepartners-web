@@ -552,8 +552,8 @@ export default function ArchitectureSolution() {
             className="media relative aspect-[4/3] w-full overflow-hidden bg-[#161513]"
           >
             <Image
-              src="/heroimage2.jpg"
-              alt="沼津の街並みとテナントが入る建物"
+              src="/kadai.PNG"
+              alt="クライアントの課題解決"
               fill
               sizes="(min-width: 1024px) 42vw, 100vw"
               className="object-cover object-center"
