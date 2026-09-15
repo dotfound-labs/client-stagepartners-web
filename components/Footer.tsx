@@ -26,8 +26,8 @@ export default function Footer() {
           <Image
             src="/logo-color-footer.png"
             alt="STAGE PARTNERS"
-            width={400}
-            height={97}
+            width={456}
+            height={114}
             className="h-8 w-auto"
           />
         </Link>

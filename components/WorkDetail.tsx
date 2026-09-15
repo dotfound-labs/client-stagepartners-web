@@ -9,9 +9,8 @@ import {
   drawLine,
   staggerFadeUp,
 } from "@/lib/animations";
-import { CATEGORY_LABEL, formatWorkDate, workImage, type Work } from "@/lib/works";
+import { CATEGORY_LABEL, formatWorkDate, workImage, type Work } from "@/content/works";
 import WorkPhotos, { hasPhotoSplit } from "@/components/WorkPhotos";
-import WorkCompareHero from "@/components/WorkCompareHero";
 
 type Props = { work: Work; prev: Work; next: Work };
 
@@ -122,15 +121,8 @@ export default function WorkDetail({ work, prev, next }: Props) {
         </div>
       </section>
 
-      {/* 代表の1組を、施工前→施工後のスクロールワイプで見せる(パイロット)。
-          overflow-hidden の中では position:sticky が効かない(ビューポートではなく
-          その祖先がスクロールポートになってしまう)ため、次の「施工の記録」セクション
-          とはあえて分け、overflow-hidden を持たない単独のセクションに置く。
-          work.heroCompare が無い案件では WorkCompareHero 自体が何も描画しない。 */}
-      <WorkCompareHero work={work} />
-
       {/* 施工の記録。全案件で同じ見出し・同じ骨格にする。
-          店舗案件で施工前の写真がある場合だけ、左に施工前・右に施工後を並べる。
+          店舗案件で施工前の写真がある場合だけ、施工前と施工後を並べる。
           施設営繕・解体、または施工後しかない案件は単カラムにする。 */}
       <section
         data-section
@@ -146,7 +138,7 @@ export default function WorkDetail({ work, prev, next }: Props) {
           </h2>
           <p data-fade className="t-note mt-5 max-w-lg text-ink-muted">
             {hasSplit
-              ? "施工前、施工後の順に、スクロールに合わせてご覧いただけます。"
+              ? "施工前と施工後を並べてご覧いただけます。"
               : isFacility
                 ? "現場の記録です。"
                 : "施工後の様子です。"}

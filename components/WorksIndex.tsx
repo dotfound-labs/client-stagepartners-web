@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { Flip } from "gsap/Flip";
 import { scrollTriggerDefaults, prefersReducedMotion, drawLine } from "@/lib/animations";
-import { CATEGORY_LABEL, WORKS, formatWorkDate, getWork, workImage, type WorkCategory } from "@/lib/works";
+import { CATEGORY_LABEL, WORKS, formatWorkDate, getWork, workImage, type WorkCategory } from "@/content/works";
 
 if (typeof window !== "undefined") gsap.registerPlugin(Flip);
 

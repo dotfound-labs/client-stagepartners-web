@@ -4,15 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
+import { OFFICES } from "@/content/company";
 
-// トップページのお問い合わせ導線(仕様書決定: 2026-07-27レビュー
-// 「お問い合わせ → ボタンクリックでフォームが立ち上がる形式」)。
-// フォーム本体は /contact に置き、トップは相談を促す面に徹する。
-const INQUIRY_SHORTCUTS = [
-  { label: "地主・オーナー向け相談", type: "owner" },
-  { label: "リフォームのご相談", type: "renovation" },
-  { label: "物件をお探しの方", type: "property" },
-];
+// トップページのお問い合わせ導線。フォーム本体は /contact に置き、
+// トップは相談を促す面に徹する。
 
 export default function ContactCta() {
   const sectionRef = useScopedGsap<HTMLElement>(({ scope }) => {
@@ -80,25 +75,10 @@ export default function ContactCta() {
             data-contact-fade
             className="t-note mt-7 max-w-md text-on-dark/70"
           >
-            売却・賃貸・リフォーム・管理まで、どんな段階のご相談でも構いません。ご相談は無料です。
+            売却・賃貸・リフォーム・管理、オフィス・店舗の新規出店まで、
+            <br />
+            どんな段階のご相談でも構いません。ご相談は無料です。
           </p>
-
-          {/* 用件が決まっている人向けの近道 */}
-          <ul data-contact-fade className="mt-9 flex flex-wrap gap-3">
-            {INQUIRY_SHORTCUTS.map((item) => (
-              <li key={item.type}>
-                <Link
-                  href={`/contact?type=${item.type}`}
-                  className="inline-flex items-center gap-2.5 border border-on-dark/30 px-5 py-2.5 text-xs tracking-[0.1em] text-on-dark/80 transition-colors duration-300 hover:border-on-dark hover:text-on-dark"
-                >
-                  {item.label}
-                  <span aria-hidden className="text-[10px]">
-                    →
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
         </div>
 
         <div data-contact-fade className="flex flex-col items-start gap-8 lg:items-end">
@@ -115,10 +95,16 @@ export default function ContactCta() {
             </span>
           </Link>
 
-          <div className="text-on-dark/70">
+          <div className="space-y-2 text-on-dark/70 lg:text-right">
             <p className="font-latin text-[11px] tracking-[0.2em] text-on-dark/50">TEL</p>
-            <p className="mt-2 font-latin text-lg tracking-[0.05em] text-on-dark">000-000-0000</p>
-            <p className="mt-1 text-xs text-on-dark/50">受付時間　平日 9:00 – 18:00</p>
+            {OFFICES.map((office) => (
+              <p key={office.key} className="flex items-baseline gap-3 lg:justify-end">
+                <span className="text-xs text-on-dark/50">{office.label}</span>
+                <span className="font-latin text-lg tracking-[0.05em] text-on-dark">
+                  {office.tel}
+                </span>
+              </p>
+            ))}
           </div>
         </div>
       </div>

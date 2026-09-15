@@ -8,12 +8,12 @@ import {
   formatNewsDate,
   getLatestNews,
   type NewsPost,
-} from "@/lib/news";
+} from "@/content/news";
 
 /**
  * TOPのお知らせセクション。最新3件を出す。
  *
- * データは lib/news.ts を唯一の情報源にしているため、記事を追加すれば
+ * データは content/news.ts を唯一の情報源にしているため、記事を追加すれば
  * 一覧(/news)とこのセクションは常に同じ内容を指す(TOP用の別配列は持たない)。
  *
  * バックエンド接続時: getLatestNews() を async にすると client component の

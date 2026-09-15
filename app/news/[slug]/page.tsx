@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NewsDetail from "@/components/NewsDetail";
-import { NEWS, getNewsPost, getNewsSiblings } from "@/lib/news";
+import { NEWS, getNewsPost, getNewsSiblings } from "@/content/news";
 
 type Params = { params: Promise<{ slug: string }> };
 

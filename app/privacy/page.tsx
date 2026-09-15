@@ -3,6 +3,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LegalPage from "@/components/LegalPage";
+import { COMPANY_NAME, HEAD_OFFICE } from "@/content/company";
 
 // 個人情報保護法・関連ガイドラインに沿った一般的な条項構成。
 // 実際の取扱い(委託先の範囲、保管期間の具体的な数値、開示請求の受付方法の詳細)は
@@ -126,9 +127,9 @@ export default function PrivacyPage() {
                 <p>
                   本ポリシーに関するお問い合わせは、下記までご連絡ください。
                   <br />
-                  株式会社STAGE PARTNERS
+                  {COMPANY_NAME}
                   <br />
-                  静岡県沼津市高島本町16-16
+                  {HEAD_OFFICE.address}
                   <br />
                   お問い合わせフォーム：
                   <Link href="/contact">お問い合わせページ</Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { workImage, type Shot, type Work } from "@/lib/works";
+import { workImage, type Shot, type Work } from "@/content/works";
 import WorkPhotoSequence from "@/components/WorkPhotoSequence";
 
 /**
