@@ -54,15 +54,15 @@ const FLOW = [
   },
   {
     title: "詳細設計・お見積もり",
-    body: "色や質感、家具、必要な設備を一つずつ決めます。費用と工期をお示しし、ご了承をいただいてから着工日を確定します。",
+    body: "色や質感、家具、必要な設備を一つずつ決めます。\n費用と工期をお示しし、ご了承をいただいてから着工日を確定します。",
   },
   {
     title: "施工",
-    body: "解体、造作、仕上げの順に進みます。工事中は定期的に進捗をご報告し、変更が必要になればその都度ご相談します。",
+    body: "解体、造作、仕上げの順に進みます。工事中は定期的に進捗をご報告し、\n変更が必要になればその都度ご相談します。",
   },
   {
     title: "引き渡し・検査",
-    body: "設備の使い方をご説明し、検査を受けます。保健所や消防署の営業許可も、ここで取得します。引き渡した後の不具合にも対応します。",
+    body: "設備の使い方をご説明し、検査を受けます。保健所や消防署の営業許可も、ここで取得します。\n引き渡した後の不具合にも対応します。",
   },
 ];
 
@@ -130,7 +130,7 @@ function StepList({ steps, tone }: { steps: Step[]; tone: "dark" | "light" }) {
               {step.title}
             </h4>
             <p
-              className={`mt-3 text-sm leading-relaxed ${dark ? "text-on-dark/60" : "text-ink-muted"
+              className={`mt-3 whitespace-pre-line text-sm leading-relaxed ${dark ? "text-on-dark/60" : "text-ink-muted"
                 }`}
             >
               {step.body}
@@ -446,7 +446,9 @@ export default function ArchitectureSolution() {
               店舗ができるまで
             </h3>
             <p data-fade className="t-note mt-4 text-on-dark/60">
-              ご相談から引き渡しまで、六つの段階を踏みます。どの段階でも図面と見積もりをご覧いただき、合意してから次へ進みます。
+              ご相談から引き渡しまで、六つの段階を踏みます。
+              <br />
+              どの段階でも図面と見積もりをご覧いただき、合意してから次へ進みます。
             </p>
 
             <StepList steps={FLOW} tone="dark" />

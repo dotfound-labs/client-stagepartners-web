@@ -105,7 +105,9 @@ export default function WorksIndex() {
             施工実績
           </h1>
           <p data-hero-lead className="t-note mt-6 max-w-xl text-on-dark/80">
-            飲食店や物販店の新装から、住まいの改修、施設の営繕と解体まで。これまでに手がけた{WORKS.length}件をご覧ください。
+            飲食店や物販店の新装から、住まいの改修、施設の営繕と解体まで。
+            <br />
+            これまでに手がけた実績をご覧ください。
           </p>
         </div>
       </section>

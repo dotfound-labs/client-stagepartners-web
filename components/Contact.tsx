@@ -98,7 +98,9 @@ export default function Contact() {
             data-contact-fade
             className="t-note mt-7 max-w-md text-on-dark/70"
           >
-            売却・賃貸・リフォーム・管理まで、どんな段階のご相談でも構いません。
+            売却・賃貸・リフォーム・管理まで、
+            <br />
+            どんな段階のご相談でも構いません。
             <br />
             ご相談は無料です。お気軽にお問い合わせください。
           </p>

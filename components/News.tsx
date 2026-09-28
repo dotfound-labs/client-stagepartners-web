@@ -77,6 +77,11 @@ export default function News({ posts }: Props) {
           >
             お知らせ
           </h2>
+          <p data-news-fade className="t-note mt-6 max-w-[340px] text-ink-muted">
+            新着情報や施工実績の公開、現場の様子など、
+            <br />
+            STAGE PARTNERSからのお知らせをお届けします。
+          </p>
           {/* gsapでopacityをアニメーションする要素にTailwindのtransition-opacityが
               同居すると競合して表示されないため、ラッパー側をアニメーション対象にする。 */}
           <div data-news-fade className="mt-8">

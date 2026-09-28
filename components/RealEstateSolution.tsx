@@ -303,7 +303,9 @@ export default function RealEstateSolution() {
           </h1>
 
           <p data-hero-lead className="t-note mt-6 max-w-xl text-on-dark/80">
-            売買・賃貸の仲介から管理、買取・再販まで。建築部門を自社に持つ強みを活かし、貸す・売る・活かすの判断からその先の手入れまでを一社でお引き受けします。
+            売買・賃貸の仲介から管理、買取・再販まで。建築部門を自社に持つ強みを活かし、
+            <br />
+            貸す・売る・活かすの判断からその先の手入れまでを一社でお引き受けします。
           </p>
         </div>
       </section>
@@ -338,7 +340,7 @@ export default function RealEstateSolution() {
         className="w-full bg-paper px-6 py-24 sm:px-10 lg:px-16 lg:py-28 xl:px-24"
       >
         <div className="mx-auto max-w-[1520px]">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[340px_1fr] lg:gap-20">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[180px_1fr] lg:gap-20">
             <div>
               <p className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-ink-muted sm:text-[11px]">
                 <span data-rule aria-hidden className="inline-block h-px w-10 bg-ink/25" />
@@ -351,7 +353,9 @@ export default function RealEstateSolution() {
 
             <div>
               <p data-fade className="t-note max-w-2xl text-ink-muted">
-                住まいから事業用の物件まで、不動産に関わる業務を一通り扱います。仲介して終わりではなく、貸した後の管理や、必要になったときの改修まで見据えてご提案します。
+                住まいから事業用の物件まで、不動産に関わる業務を一通り扱います。
+                <br />
+                仲介して終わりではなく、貸した後の管理や、必要になったときの改修まで見据えてご提案します。
               </p>
 
               <ul data-service-list className="mt-12 grid grid-cols-1 gap-px overflow-hidden border border-line bg-line sm:grid-cols-3">
@@ -497,7 +501,9 @@ export default function RealEstateSolution() {
       >
         <div className="mx-auto max-w-[1520px]">
           <p data-fade className="t-body max-w-xl font-display font-light text-on-dark/90">
-            貸すか、売るか、手を入れて活かすか。判断の材料からご一緒します。
+            貸すか、売るか、手を入れて活かすか。
+            <br />
+            判断の材料からご一緒します。
           </p>
 
           <div data-fade className="mt-9 flex flex-wrap items-center gap-4">

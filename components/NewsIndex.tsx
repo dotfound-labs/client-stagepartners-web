@@ -78,7 +78,9 @@ export default function NewsIndex({ posts }: Props) {
             お知らせ
           </h1>
           <p data-hero-lead className="t-note mt-6 max-w-xl text-on-dark/80">
-            新着情報や施工実績の公開、現場の様子など、STAGE PARTNERSからのお知らせをお届けします。
+            新着情報や施工実績の公開、現場の様子など、
+            <br />
+            STAGE PARTNERSからのお知らせをお届けします。
           </p>
         </div>
       </section>

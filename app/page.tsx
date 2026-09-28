@@ -4,7 +4,7 @@ import Message from "@/components/Message";
 import Challenges from "@/components/Challenges";
 import Business from "@/components/Business";
 import Strengths from "@/components/Strengths";
-import Works from "@/components/Works";
+import Works from "@/components/WorksTop";
 import News from "@/components/News";
 import ContactCta from "@/components/ContactCta";
 import Footer from "@/components/Footer";

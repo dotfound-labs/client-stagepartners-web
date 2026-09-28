@@ -73,11 +73,13 @@ export default function ContactCta() {
           </h2>
           <p
             data-contact-fade
-            className="t-note mt-7 max-w-md text-on-dark/70"
+            className="t-note mt-7 max-w-lg text-on-dark/70"
           >
-            売却・賃貸・リフォーム・管理、オフィス・店舗の新規出店まで、
+            売却・賃貸・リフォーム・管理まで、
             <br />
-            どんな段階のご相談でも構いません。ご相談は無料です。
+            どんな段階のご相談でも構いません。
+            <br />
+            ご相談は無料です。お気軽にお問い合わせください。
           </p>
         </div>
 
