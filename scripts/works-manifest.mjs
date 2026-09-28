@@ -9,8 +9,7 @@ export const SRC_ROOT = process.env.WORKS_SRC || `${process.env.HOME}/Desktop`;
 export const COVER_OVERRIDE = {
   "kanogawa": "after-02.jpg",
   "tokuzomaru-hiroba": "after-03.jpg",
-  "memorial-garden-site": "after-04.jpg",
-  "mansion-renovation": "after-04.jpg"
+  "memorial-garden-site": "after-04.jpg"
 };
 
 export const PROJECTS = [
@@ -45,8 +44,6 @@ export const PROJECTS = [
     before: "建築/室内野球練習場(施工前)", after: "建築/室内野球練習場" },
   { slug: "karumen-susono", title: "黄金トマトのカル麺 裾野店", type: "飲食店 / 新装", category: "store",
     before: "建築/黄金トマトのカル麺裾野店(施工前)", after: "建築/黄金トマトのカル麺裾野店" },
-  { slug: "karumen-numazu", title: "黄金トマトのカル麺 沼津店", type: "飲食店 / 居抜き改装", category: "store",
-    before: "建築/黄金トマトのカル麺沼津店(施工前居抜物件)", after: "建築/黄金トマトのカル麺沼津店" },
   { slug: "karumen-mishima", title: "黄金トマトのカル麺 三島スカイウォーク店", type: "飲食店 / 新装", category: "store",
     before: "建築/黄金トマトのカル麺三島スカイウォーク店(施工前)", after: "建築/黄金トマトのカル麺三島スカイウォーク店" },
   { slug: "laseed", title: "La.seed", type: "スポーツバー / 改装", category: "store",
@@ -57,36 +54,31 @@ export const PROJECTS = [
     before: "建築/lounge bar THE OKAERU(施工前)", after: "建築/lounge bar THE OKAERU" },
   { slug: "ph-komazawa", title: "ピタットハウス 駒澤大学店", type: "事務所 / 新装", category: "store",
     before: "建築/ピタットハウス駒澤大学店(施工前)", after: "建築/ピタットハウス駒澤大学店" },
-  { slug: "whitening-shop", title: "ホワイトニングショップ", type: "クリニック / 新装", category: "store",
-    before: "建築/ホワイトニングショップ(施工前)", after: "建築/ホワイトニングショップ" },
   { slug: "mobile-shop", title: "携帯ショップ", type: "物販店 / 改装", category: "store",
     before: "建築/携帯ショップ(施工前)", after: "建築/携帯ショップ" },
   { slug: "shibuya-daidokoroya", title: "渋谷 台所家", type: "飲食店 / 新装", category: "store",
     before: "建築/渋谷台所屋(施工前)", after: "建築/渋谷台所屋" },
-  { slug: "pachinko-renewal", title: "パチンコ店 改装", type: "遊技場 / 改装", category: "store",
-    before: "建築/パチンコ店改装前", after: "建築/パチンコ店改装後" },
   { slug: "sports-lounge", title: "スポーツ施設ラウンジ", type: "スポーツ施設 / 改装", category: "store",
     before: "建築/スポーツ施設ラウンジ(施工前)", after: "建築/スポーツ施設ラウンジ施工" },
-  { slug: "atami-mansion", title: "熱海マンション", type: "住宅 / リノベーション", category: "store",
-    before: "建築/熱海マンション(施工前)", after: "建築/熱海マンション" },
-  { slug: "mansion-renovation", title: "マンションリノベーション", type: "住宅 / リノベーション", category: "store",
-    before: "建築/マンションリノベーション(施工前)", after: "建築/マンションリノベーション" },
-
   // --- 施工後のみ ---
   { slug: "deltaring-gym", title: "DELTARING GYM", type: "スポーツ施設 / 新装", category: "store",
     after: "建築/DELTARING GYM/デルタリングジム" },
   { slug: "yokohama-kohoku", title: "横浜港北区 住宅リノベーション", type: "住宅 / リノベーション", category: "store",
     after: "建築/横浜港北区住宅リノベーション" },
+  // 2026-09-28訂正: 旧パス"建築/メモリアルガーデン(施工中)"は未整理の生写真フォルダで、
+  // 番号順に厳選済みの正しいフォルダは「管理棟」/「管理棟(施工前)」。
   { slug: "memorial-garden-site", title: "メモリアルガーデン様　管理棟", type: "霊園管理棟 / 新築", category: "store",
-    after: "建築/メモリアルガーデン(施工中)" },
+    before: "建築/メモリアルガーデン管理棟(施工前)", after: "建築/メモリアルガーデン管理棟" },
 
   // --- 施設営繕・解体 ---
   { slug: "roppongi-kaitai", title: "六本木飲食店 解体工事", type: "飲食店 / 解体", category: "facility",
     before: "解体/六本木飲食店解体前", after: "解体/六本木飲食店解体後" },
+  // pachinko-kaitai/namakon-kaitai/viva-genjokaifuku: 施工前後が別フォルダに分かれておらず、
+  // 同一フォルダ内に「解体前①②」「解体後①②」が混在している(2026-09-28確認)。
   { slug: "pachinko-kaitai", title: "パチンコ店 解体工事", type: "遊技場 / 解体", category: "facility",
-    after: "解体/解体工事(パチンコ店)" },
+    before: "解体/解体工事(パチンコ店)", after: "解体/解体工事(パチンコ店)" },
   { slug: "namakon-kaitai", title: "静岡生コン 解体工事", type: "プラント / 解体", category: "facility",
-    after: "解体/解体工事(静岡生コン)" },
+    before: "解体/解体工事(静岡生コン)", after: "解体/解体工事(静岡生コン)" },
   { slug: "viva-genjokaifuku", title: "ビバモール甲斐敷島 テナント原状回復工事", type: "商業施設 / 原状回復", category: "facility",
-    after: "解体/ビバモール甲斐敷島テナント原状回復工事" },
+    before: "解体/ビバモール甲斐敷島テナント原状回復工事", after: "解体/ビバモール甲斐敷島テナント原状回復工事" },
 ];

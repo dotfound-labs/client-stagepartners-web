@@ -140,7 +140,7 @@ export default function Hero() {
           <span className="block overflow-hidden">
             <span
               data-hero-line
-              className="block text-[clamp(2.25rem,7vw,4.25rem)] leading-[1.3] tracking-[0.02em]"
+              className="block text-[clamp(2.25rem,7vw,4.25rem)] leading-[1.3] tracking-[-0.02em]"
             >
               挑戦する人が、
             </span>
@@ -148,7 +148,7 @@ export default function Hero() {
           <span className="block overflow-hidden">
             <span
               data-hero-line
-              className="block text-[clamp(2.25rem,7vw,4.25rem)] leading-[1.3] tracking-[0.02em]"
+              className="block text-[clamp(2.25rem,7vw,4.25rem)] leading-[1.3] tracking-[-0.02em]"
             >
               輝ける場所を。
             </span>
@@ -157,7 +157,7 @@ export default function Hero() {
 
         <p
           data-hero-sub
-          className="mt-8 max-w-xl text-sm font-normal leading-loose text-on-dark/85 sm:text-base"
+          className="mt-8 max-w-2xl text-sm font-normal leading-loose text-on-dark/85 sm:text-base"
         >
           不動産の仲介・管理から、建物のリフォーム・改修まで。
           <br className="hidden sm:block" />
