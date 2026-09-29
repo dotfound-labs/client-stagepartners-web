@@ -507,7 +507,7 @@ export const WORKS: Work[] = [
     category: "store",
     type: "飲食店 / 新装",
     summary: "ラーメン店の新装工事です。既存の建物を店舗に変え、道路からの見え方を作り直しました。",
-    cover: "after-02.jpg",
+    cover: "after-05.jpg",
     date: "2019-03",
     shots: [
       { file: "before-01.jpg", state: "before" },
