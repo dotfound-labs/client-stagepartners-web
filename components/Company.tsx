@@ -14,6 +14,24 @@ type ProfileRow = {
   links?: { name: string; href: string }[];
 };
 
+// 2026-09-29: グループ会社の記載・外部リンクを一時非表示（CEO指示）。
+// データ自体は GROUP_COMPANIES_ROW に残したまま、下の PROFILE 組み立て時に
+// SHOW_GROUP_COMPANIES で出し入れするだけにしてある。
+// 復活させる場合は true に戻すだけで、表示内容・順序とも元通りになる。
+const SHOW_GROUP_COMPANIES = false;
+
+const GROUP_COMPANIES_ROW: ProfileRow = {
+  label: "グループ会社",
+  links: [
+    { name: "サンプラホールディングス株式会社", href: "https://www.sunpla-hd.co.jp/" },
+    { name: "株式会社サン・プランナー", href: "https://www.sunpla.info/" },
+    { name: "株式会社ソレイユ", href: "https://www.soleil-fuji.co.jp/" },
+    { name: "株式会社サンプラダイニング", href: "https://sunpladining.com/" },
+    { name: "株式会社sunpla style", href: "https://sunpla-style.co.jp/" },
+    { name: "株式会社ドットファウンド", href: "https://www.dotfound.co.jp/" },
+  ],
+};
+
 const PROFILE: ProfileRow[] = [
   { label: "会社名", value: COMPANY_NAME },
   { label: "設立", value: "2026年6月15日" },
@@ -31,17 +49,7 @@ const PROFILE: ProfileRow[] = [
     label: "許認可",
     value: ["宅地建物取引業免許", "一般建設業登録", "一級建築士事務所"],
   },
-  {
-    label: "グループ会社",
-    links: [
-      { name: "サンプラホールディングス株式会社", href: "https://www.sunpla-hd.co.jp/" },
-      { name: "株式会社サン・プランナー", href: "https://www.sunpla.info/" },
-      { name: "株式会社ソレイユ", href: "https://www.soleil-fuji.co.jp/" },
-      { name: "株式会社サンプラダイニング", href: "https://sunpladining.com/" },
-      { name: "株式会社sunpla style", href: "https://sunpla-style.co.jp/" },
-      { name: "株式会社ドットファウンド", href: "https://www.dotfound.co.jp/" },
-    ],
-  },
+  ...(SHOW_GROUP_COMPANIES ? [GROUP_COMPANIES_ROW] : []),
 ];
 
 export default function Company() {
