@@ -34,8 +34,6 @@ const GROUP_COMPANIES_ROW: ProfileRow = {
 
 const PROFILE: ProfileRow[] = [
   { label: "会社名", value: COMPANY_NAME },
-  { label: "設立", value: "2026年6月15日" },
-  { label: "資本金", value: "800万円" },
   { label: "本社", value: `〒${HEAD_OFFICE.postalCode}　${HEAD_OFFICE.address}` },
   ...OFFICES.map((office) => ({
     label: office.label,
