@@ -6,7 +6,7 @@ import { scrollTriggerDefaults } from "@/lib/animations";
 import { COMPANY_NAME, HEAD_OFFICE, OFFICES } from "@/content/company";
 
 // 会社概要ページ(/company)本体のコンテンツ。
-// 代表者名は正式決定まで仮の値。許認可番号は確定後に各行へ追記する。
+// 代表者名は正式決定まで仮の値。一級建築士事務所の登録番号は事業譲渡後に取得予定のため、取得後に許認可の行末へ追記する。
 // 会社名・拠点・電話は content/company.ts を単一の情報源にしている。
 type ProfileRow = {
   label: string;
@@ -45,7 +45,11 @@ const PROFILE: ProfileRow[] = [
   },
   {
     label: "許認可",
-    value: ["宅地建物取引業免許", "一般建設業登録", "一級建築士事務所"],
+    value: [
+      "宅地建物取引業免許　静岡県知事(1)第15176号",
+      "一般建設業登録　静岡県知事許可(般-6)第39891号",
+      "一級建築士事務所　",
+    ],
   },
   ...(SHOW_GROUP_COMPANIES ? [GROUP_COMPANIES_ROW] : []),
 ];
