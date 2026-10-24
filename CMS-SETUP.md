@@ -20,7 +20,7 @@ was created. Never use another project or put credentials in Git.
    settings, and uses database-generated document IDs. All five migrations run
    locally in the SQL test suite. Reconcile versions as described in
    `supabase/HOSTED-MIGRATION-MAPPING.md`; do not blindly run `db push`.
-   Also review/apply `20261024170841_cms_typed_pages_and_verified_media.sql`
+   Also review/apply `20261024174351_cms_typed_pages_and_verified_media.sql`
    before issuing users: it validates typed page fields and images, preserves
    authorization before media-reference creation, and replaces user-callable
    media finalization with a trusted-server-only verifier.

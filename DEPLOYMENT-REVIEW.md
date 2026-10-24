@@ -48,3 +48,15 @@ mobile menu layout and home text remain readable. Temporary viewport reset.
 Canonical points to the verified production domain; font preloads remain zero.
 A literal ampersand entity in the home subtitle was found visually and corrected
 in the next patch, with stable field identity and guarded seed-history repair.
+
+## Reviewed fix Preview (e7a62c7)
+
+Vercel deployment 62zqqtX5QmMgXehv4E5LPx89hcQw was visibly Ready in Preview,
+source feat/admin-cms at e7a62c75c52af30dc58c09a5fbd0704ef8f10c13.
+https://client-stagepartners-ht2z57tgq-carrerleger55-5086s-projects.vercel.app
+Authenticated browser checks: home subtitle displays an ampersand, not a literal
+entity; home, works, news and admin have noindex/nofollow. Works=30, news=6.
+Admin input/button disabled with unconfigured notice; rendered HTML contains no
+secret-key patterns. Local compiled client JavaScript: 29 files scanned, zero
+server-secret identifiers/prefix matches. No secret values were printed.
+No protection settings changed. No additional login or user handoff was needed.

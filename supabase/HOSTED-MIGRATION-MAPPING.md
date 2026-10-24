@@ -1,22 +1,20 @@
-# Migration history coordination
+# Migration filenames reconciled
 
-Only target: apkfyxfmsndwqjfetdad. Parent confirmed all six applied bodies.
-They are immutable; the executor has not applied hosted migrations.
+Only target: apkfyxfmsndwqjfetdad. The six stored hosted SQL bodies were compared
+exactly with reviewed artifacts. Current local bodies were also compared against
+reviewed commit 19e865d (line endings normalized) before renaming. All matched.
+Only filenames and local references changed; SQL bodies and hosted history did not.
 
-| Local version | Hosted version | Name |
+| Current local / hosted version | Previous local version | Name |
 | --- | --- | --- |
-| 20261024160612 | 20261024162912 | cms_foundation |
-| 20261024160620 | 20261024164747 | cms_content_and_media |
-| 20261024160627 | 20261024164820 | cms_admin_and_instagram |
-| 20261024161315 | 20261024164833 | cms_existing_content |
-| 20261024164822 | 20261024174313 | cms_page_content |
-| 20261024170841 | 20261024174351 | cms_typed_pages_and_verified_media |
+| 20261024162912 | 20261024160612 | cms_foundation |
+| 20261024164747 | 20261024160620 | cms_content_and_media |
+| 20261024164820 | 20261024160627 | cms_admin_and_instagram |
+| 20261024164833 | 20261024161315 | cms_existing_content |
+| 20261024174313 | 20261024164822 | cms_page_content |
+| 20261024174351 | 20261024170841 | cms_typed_pages_and_verified_media |
 
-20261024180000_cms_integration_runtime.sql is new and unapplied.
-
-Do not run db push, reset, repair or replay local files blindly. Reconciliation
-proposal: compare each hosted stored SQL body with its reviewed local file,
-then rename the six local files to hosted versions and update generator paths.
-This changes local names, not hosted history. If any body differs, inspect the
-exact difference first. No history deletion/repair or filename reconciliation
-has been executed. Do not use --include-all to bypass mismatched versions.
+20261024180000_cms_integration_runtime.sql remains unapplied and sorts after all
+six applied files. No db push, reset, repair, --include-all or hosted history
+mutation was executed. Before any future deployment, verify the exact project
+and current hosted migration list; migration application remains a separate step.

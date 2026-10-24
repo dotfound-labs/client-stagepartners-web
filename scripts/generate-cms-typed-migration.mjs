@@ -5,7 +5,7 @@ const {PAGE_TEMPLATES}=load('content/page-fields.ts'),{PAGE_ASSETS}=load('conten
 const quote=value=>"'"+JSON.stringify(value).replaceAll("'","''")+"'::jsonb";
 const fields=Object.fromEntries(Object.entries(PAGE_TEMPLATES).map(([scope,page])=>[scope,Object.fromEntries(page.fields.map(f=>[f.id,f.kind]))]));
 const slots=Object.fromEntries(Object.entries(PAGE_ASSETS).map(([scope,data])=>[scope,Object.fromEntries(data.images.map(i=>[i.id,i.path]))]));
-const original=readFileSync('supabase/migrations/20261024160620_cms_content_and_media.sql','utf8');
+const original=readFileSync('supabase/migrations/20261024164747_cms_content_and_media.sql','utf8');
 let validate=original.slice(original.indexOf('create function cms_private.validate_content'),original.indexOf('create function cms_private.sync_media_references'));
 validate=validate.replace('create function','create or replace function').replace('declare item jsonb; allowed_keys text[];',`declare item jsonb; allowed_keys text[]; field record; slot record; fields jsonb := ${quote(fields)}; slots jsonb := ${quote(slots)};`);
 validate=validate.replace("else array['title','fields'] end;","else array['title','fields','images'] end;");

@@ -8,13 +8,13 @@ The first four applied SQL files are unchanged.
 
 Pending files, in order:
 
-1. Revised `20261024164822_cms_page_content.sql`. The site-policy lead now uses
+1. Revised `20261024174313_cms_page_content.sql`. The site-policy lead now uses
    www.stagepartners.co.jp in source, descriptor and published seed. Its stable
    suffix `text_c02d9817` is explicitly bound and scoped as
    `site-policy.text_c02d9817`. All page/common fields are namespaced. The seed
    remains unapplied according to parent; if that changes, stop and write a new
    data migration instead of replaying/replacing it.
-2. `20261024170841_cms_typed_pages_and_verified_media.sql`. Replaces validation
+2. `20261024174351_cms_typed_pages_and_verified_media.sql`. Replaces validation
    functions with a static allowlist of each page's typed fields and image slots.
    Link protocols and phone format are checked in API and DB. Legacy image paths
    must match the registered slot. Arbitrary nested image keys cannot create
