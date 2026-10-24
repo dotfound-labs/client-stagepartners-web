@@ -2,11 +2,20 @@ begin;
 
 create function cms_private.validate_content(p_module text,p_slug text,p_data jsonb) returns void
 language plpgsql immutable set search_path = '' as $$
-declare item jsonb;
+declare item jsonb; allowed_keys text[];
 begin
+  if p_module is null or p_slug is null then raise exception 'CMS_INVALID_IDENTITY'; end if;
   if p_data is null or jsonb_typeof(p_data) <> 'object' or octet_length(p_data::text) > 262144
     or jsonb_typeof(p_data->'title') <> 'string' or length(btrim(p_data->>'title')) not between 1 and 200
     or p_data->>'title' is null then raise exception 'CMS_INVALID_CONTENT'; end if;
+  allowed_keys := case p_module
+    when 'works' then array['slug','title','category','type','summary','cover','shots','date','featured']
+    when 'news' then array['slug','title','category','date','excerpt','body']
+    else array['title','fields'] end;
+  if exists(select 1 from jsonb_object_keys(p_data) k where not (k = any(allowed_keys)))
+    then raise exception 'CMS_UNKNOWN_FIELD'; end if;
+  if p_data ? 'slug' and (jsonb_typeof(p_data->'slug') <> 'string' or (p_data->>'slug') is distinct from p_slug)
+    then raise exception 'CMS_INVALID_IDENTITY'; end if;
   if p_module = 'works' then
     if coalesce(p_data->>'category','') not in ('store','facility')
       or coalesce(jsonb_typeof(p_data->'shots'),'') <> 'array'
@@ -18,10 +27,12 @@ begin
       or (p_data ? 'featured' and jsonb_typeof(p_data->'featured') <> 'boolean')
       then raise exception 'CMS_INVALID_WORK'; end if;
     for item in select value from jsonb_array_elements((p_data->'shots') || jsonb_build_array(p_data->'cover')) loop
-      if jsonb_typeof(item) <> 'object' or coalesce(length(btrim(item->>'alt')),0) not between 1 and 500
+      if jsonb_typeof(item) <> 'object' or coalesce(jsonb_typeof(item->'alt'),'') <> 'string'
+        or coalesce(length(btrim(item->>'alt')),0) not between 1 and 500
+        or exists(select 1 from jsonb_object_keys(item) k where k not in ('media_id','legacy_path','alt','state'))
         or ((item ? 'media_id') = (item ? 'legacy_path'))
-        or (item ? 'media_id' and coalesce(item->>'media_id','') !~ '^[0-9a-fA-F-]{36}$')
-        or (item ? 'legacy_path' and coalesce(item->>'legacy_path','') !~ ('^/works/' || p_slug || '/[a-zA-Z0-9_-]+\.(jpg|png|webp|avif)$'))
+        or (item ? 'media_id' and (jsonb_typeof(item->'media_id') <> 'string' or coalesce(item->>'media_id','') !~ '^[0-9a-fA-F-]{36}$'))
+        or (item ? 'legacy_path' and (jsonb_typeof(item->'legacy_path') <> 'string' or coalesce(item->>'legacy_path','') !~ ('^/works/' || p_slug || '/[a-zA-Z0-9_-]+\.(jpg|png|webp|avif)$')))
         then raise exception 'CMS_INVALID_IMAGE'; end if;
     end loop;
     if exists(select 1 from jsonb_array_elements(p_data->'shots') s where coalesce(s->>'state','') not in ('before','after'))
@@ -61,10 +72,22 @@ begin
   else
     payload := new.data; reference_kind := 'revision'; reference_key := new.id::text; doc_id := new.document_id;
   end if;
-  delete from cms_private.media_references where kind = reference_kind and reference_id = reference_key;
-  for mid in select distinct (value #>> '{}')::uuid from jsonb_path_query(payload,'$.**.media_id') as refs(value) loop
+  -- Only the documented photo slots may establish an authorization-bearing link.
+  -- Check BEFORE replacing existing references, so a reference cannot authorize itself.
+  for mid in select distinct (value #>> '{}')::uuid from (
+    select * from jsonb_path_query(payload,'$.shots[*].media_id')
+    union all select * from jsonb_path_query(payload,'$.cover.media_id')
+  ) as refs(value) loop
     select * into m from public.cms_media where id = mid for update;
     if not found or not m.ready or m.deletion_requested then raise exception 'CMS_MEDIA_NOT_READY'; end if;
+    if (select auth.uid()) is not null and not cms_private.media_visible(mid)
+      then raise exception 'CMS_MEDIA_FORBIDDEN' using errcode = '42501'; end if;
+  end loop;
+  delete from cms_private.media_references where kind = reference_kind and reference_id = reference_key;
+  for mid in select distinct (value #>> '{}')::uuid from (
+    select * from jsonb_path_query(payload,'$.shots[*].media_id')
+    union all select * from jsonb_path_query(payload,'$.cover.media_id')
+  ) as refs(value) loop
     insert into cms_private.media_references values(reference_kind,reference_key,mid,doc_id);
   end loop;
   return new;
@@ -82,6 +105,8 @@ language plpgsql security definer set search_path = '' as $$
 declare d public.cms_documents; v_actor uuid; v_data jsonb; v_cap text; v_result jsonb;
   v_fingerprint text; receipt cms_private.receipts;
 begin
+  if p_module is null or p_slug is null or p_module not in ('works','news','pages','settings')
+    or p_slug !~ '^[a-z0-9]+(-[a-z0-9]+)*$' then raise exception 'CMS_INVALID_IDENTITY'; end if;
   v_cap := case when p_action in ('publish','unpublish') then 'publish'
     when p_action = 'archive' then 'delete' else 'edit' end;
   if p_module = 'settings' then v_cap := 'edit'; end if;
@@ -107,7 +132,7 @@ begin
     insert into public.cms_documents(id,module,slug,draft,updated_by)
       values(p_id,p_module,p_slug,p_data,v_actor) returning * into d;
   else
-    if d.module <> p_module or d.slug <> p_slug then raise exception 'CMS_IMMUTABLE_IDENTITY'; end if;
+    if d.module is distinct from p_module or d.slug is distinct from p_slug then raise exception 'CMS_IMMUTABLE_IDENTITY'; end if;
     if d.version <> p_expected_version then raise exception 'CMS_VERSION_CONFLICT' using errcode = '40001'; end if;
     if p_action = 'restore' then
       select data into v_data from public.cms_revisions where id = p_restore_revision and document_id = p_id;
@@ -115,7 +140,7 @@ begin
     elsif p_action = 'save' then v_data := p_data;
     else v_data := d.draft;
     end if;
-    perform cms_private.validate_content(p_module,p_slug,v_data);
+    perform cms_private.validate_content(d.module,d.slug,v_data);
     update public.cms_documents set draft = v_data, version = version + 1,
       archived = case when p_action = 'archive' then true when p_action in ('save','restore') then false else archived end,
       updated_by = v_actor, updated_at = now() where id = p_id returning * into d;

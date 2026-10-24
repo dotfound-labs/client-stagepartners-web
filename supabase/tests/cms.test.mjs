@@ -122,6 +122,20 @@ await test('media reserve, authorized upload, finalize, private-by-default',asyn
 });
 const wid=randomUUID();const work={title:'Test work',category:'store',type:'Renovation',summary:'Summary',cover:{media_id:mid,alt:'Cover'},shots:[{media_id:mid,alt:'After',state:'after'}]};
 const workMutation=(action,version,data=work)=>db.query('select public.cms_mutate_content($1,\'works\',\'test-work\',$2,$3,$4,$5)',[wid,action,JSON.stringify(data),version,randomUUID()]);
+await test('private media UUID cannot grant its own access through a new reference',async()=>{
+  await db.exec('reset role');
+  await db.query("insert into public.cms_permissions values($1,'works','read'),($1,'works','edit')",[users.publisher.id]);
+  await actor('publisher');
+  await assert.rejects(workMutation('save',0),/CMS_MEDIA_FORBIDDEN/);
+  assert.equal((await db.query('select id from public.cms_documents where id=$1',[wid])).rows.length,0);
+  assert.equal((await db.query('select id from storage.objects where name=$1',[path])).rows.length,0);
+});
+await test('extra JSON keys cannot smuggle authorization-bearing media references',async()=>{
+  await actor('manager');
+  await assert.rejects(mutate('save',5,{...news,hidden:{media_id:mid}}),/CMS_UNKNOWN_FIELD/);
+  await actor('owner');
+  await assert.rejects(workMutation('save',0,{...work,cover:{...work.cover,hidden:{media_id:mid}}}),/CMS_INVALID_IMAGE/);
+});
 await test('published media becomes visible; image overwrites are impossible',async()=>{
   await actor('owner');await workMutation('save',0);await workMutation('publish',1);
   await actor('anon');assert.equal((await db.query('select * from storage.objects where name=$1',[path])).rows.length,1);
@@ -131,6 +145,19 @@ await test('media referenced by draft/publication/history cannot be deleted',asy
   await actor('owner');await denied("select public.cms_mutate_media($1,'delete')",[mid],/CMS_MEDIA_IN_USE/);
   await workMutation('unpublish',2);await actor('anon');assert.equal((await db.query('select * from storage.objects where name=$1',[path])).rows.length,0);
   await actor('owner');await denied("select public.cms_mutate_media($1,'delete')",[mid],/CMS_MEDIA_IN_USE/);
+});
+await test('RPC rejects NULL identity and cross-work legacy paths',async()=>{
+  await actor('owner');
+  const bad={...work,cover:{legacy_path:'/works/other-work/after-01.jpg',alt:'Wrong work'}};
+  await denied('select public.cms_mutate_content($1,\'works\',null,\'save\',$2,3,$3)',[wid,JSON.stringify(bad),randomUUID()],/CMS_INVALID_IDENTITY/);
+  await denied('select public.cms_mutate_content($1,null,\'test-work\',\'save\',$2,3,$3)',[wid,JSON.stringify(bad),randomUUID()],/CMS_INVALID_IDENTITY/);
+  await assert.rejects(workMutation('save',3,bad),/CMS_INVALID_IMAGE/);
+});
+await test('RPC photo fields require JSON strings and known keys',async()=>{
+  await actor('owner');
+  for(const patch of [{alt:42},{media_id:42},{media_id:null},{alt:{value:'Caption'}},{media_id:undefined,legacy_path:42}]){
+    await assert.rejects(workMutation('save',3,{...work,cover:{...work.cover,...patch}}),/CMS_INVALID_IMAGE/);
+  }
 });
 await test('public and regular admins cannot invoke Instagram import',async()=>{
   const q="select public.cms_import_instagram('123','456','https://www.instagram.com/p/test/','Caption',now())";
