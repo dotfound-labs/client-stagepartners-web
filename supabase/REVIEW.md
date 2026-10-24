@@ -1,5 +1,11 @@
 # STAGE PARTNERS CMS — database review
 
+> Status update: parent reports the first four migrations applied to the authorized
+> new project; see HOSTED-MIGRATION-MAPPING.md. The original preparation review
+> below is retained as history. Revised page seed and typed-pages/verified-media
+> migration are pending review/application. The executor has made only the
+> subsequently authorized read-only public connection checks, not hosted writes.
+
 ## Authorized target and current status
 
 **Only** the newly created `stagepartners-cms` project, reference

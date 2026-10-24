@@ -1,10 +1,10 @@
 "use client";
-import CmsText from "@/components/CmsText";
+import CmsText, { CommonFields, useCmsText } from "@/components/CmsText";
 
 
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/components/CmsImage";
+import Link from "@/components/CmsLink";
 import { usePathname } from "next/navigation";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 
@@ -41,7 +41,8 @@ type HeaderProps = {
   transparent?: boolean;
 };
 
-export default function Header({ transparent = false }: HeaderProps) {
+function HeaderContent({ transparent = false }: HeaderProps) {
+  const cmsText=useCmsText();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openMobile, setOpenMobile] = useState<string | null>(null);
   const pathname = usePathname();
@@ -88,7 +89,7 @@ export default function Header({ transparent = false }: HeaderProps) {
       <div className="mx-auto flex max-w-[1520px] items-center justify-between px-6 py-4 sm:px-10 lg:px-16">
         <Link
           href="/"
-          aria-label="STAGE PARTNERS トップへ"
+          aria-label={cmsText("STAGE PARTNERS トップへ")}
           className="shrink-0"
           onClick={scrollTopIfHome}
         >
@@ -104,7 +105,7 @@ export default function Header({ transparent = false }: HeaderProps) {
 
         <nav
           className="hidden items-center gap-8 lg:flex"
-          aria-label="メインナビゲーション"
+          aria-label={cmsText("メインナビゲーション")}
         >
           <CmsText>{NAV_ITEMS.map((item) =>
             item.cta ? (
@@ -164,7 +165,7 @@ export default function Header({ transparent = false }: HeaderProps) {
           onClick={() => setIsMenuOpen((v) => !v)}
           aria-expanded={isMenuOpen}
           aria-controls="mobile-nav"
-          aria-label="メニューを開閉する"
+          aria-label={cmsText("メニューを開閉する")}
           className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 lg:hidden"
         >
           <span
@@ -182,7 +183,7 @@ export default function Header({ transparent = false }: HeaderProps) {
       {/* モバイル: 各項目をアコーディオンで開閉して次階層を表示 */}
       <nav
         id="mobile-nav"
-        aria-label="モバイルナビゲーション"
+        aria-label={cmsText("モバイルナビゲーション")}
         className={`overflow-hidden bg-navy/98 backdrop-blur-md transition-[max-height,opacity] duration-500 ease-out lg:hidden ${isMenuOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"}`}
       >
         <ul className="flex flex-col border-t border-on-dark/10 px-6 py-2 sm:px-10">
@@ -267,3 +268,5 @@ export default function Header({ transparent = false }: HeaderProps) {
     </header>
   );
 }
+
+export default function Header(props:HeaderProps){return <CommonFields><HeaderContent {...props}/></CommonFields>;}

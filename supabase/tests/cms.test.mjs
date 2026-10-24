@@ -2,7 +2,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { readFile, readdir } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-process.on('uncaughtException',error=>{console.error('FAIL',error.message,error.where??'');process.exit(1);});
+process.on('uncaughtException',error=>{console.error('FAIL',error.message,error.where??'',error.position??'',error.query?.slice(Math.max(0,Number(error.position)-100),Number(error.position)+100)??'');process.exit(1);});
 
 // Real PostgreSQL SQL/RLS execution in WASM; Auth/Storage schemas are local
 // fixtures, not the live Supabase services. All addresses are test-only.
@@ -30,7 +30,7 @@ for (const file of (await readdir(new URL('../migrations/',import.meta.url))).fi
   console.log('APPLIED',file);
 }
 const users = {};
-for (const name of ['owner','editor','publisher','manager','outsider','invitee']) {
+for (const name of ['owner','editor','publisher','manager','outsider','invitee','pageeditor']) {
   users[name] = { id:randomUUID(),sid:randomUUID(),email:name+'@example.test' };
   await db.query('insert into auth.users values($1,$2,now())',[users[name].id,users[name].email]);
   await db.query('insert into auth.sessions values($1,$2)',[users[name].sid,users[name].id]);
@@ -114,10 +114,10 @@ await test('revoked Auth session cannot use remaining membership',async()=>{
 });
 const mid=randomUUID();let path;
 await test('media reserve, authorized upload, finalize, private-by-default',async()=>{
-  await actor('owner');path=(await db.query("select public.cms_mutate_media($1,'reserve','image.jpg','Description','image/jpeg',100) result",[mid])).rows[0].result.object_path;
-  await actor('anon');await denied("insert into storage.objects(bucket_id,name) values('cms-media',$1)",[path]);
-  await actor('owner');await db.query("insert into storage.objects(bucket_id,name) values('cms-media',$1)",[path]);
-  await db.query("select public.cms_mutate_media($1,'finalize')",[mid]);
+  await actor('owner');path=(await db.query("select public.cms_mutate_media($1,'reserve','image.jpg','Description','image/webp',100) result",[mid])).rows[0].result.object_path;
+  await actor('anon');await denied("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[path]);
+  await actor('owner');await db.query("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[path]);
+  await denied("select public.cms_mutate_media($1,'finalize')",[mid],/CMS_TRUSTED_VERIFIER_REQUIRED/); await denied("select public.cms_finalize_verified_media($1,100,$2)",[mid,users.owner.id]); await actor('service'); await db.query("select public.cms_finalize_verified_media($1,100,$2)",[mid,users.owner.id]);
   await actor('anon');assert.equal((await db.query('select * from storage.objects where name=$1',[path])).rows.length,0);
 });
 const wid=randomUUID();const work={title:'Test work',category:'store',type:'Renovation',summary:'Summary',cover:{media_id:mid,alt:'Cover'},shots:[{media_id:mid,alt:'After',state:'after'}]};
@@ -180,9 +180,9 @@ await test('inquiry data and audit logs are unavailable to anonymous visitors',a
 });
 await test('unused media supports safe two-phase deletion through Storage RLS',async()=>{
   await actor('owner');const unused=randomUUID();
-  const objectPath=(await db.query("select public.cms_mutate_media($1,'reserve','unused.jpg','Unused','image/jpeg',100) result",[unused])).rows[0].result.object_path;
-  await db.query("insert into storage.objects(bucket_id,name) values('cms-media',$1)",[objectPath]);
-  await db.query("select public.cms_mutate_media($1,'finalize')",[unused]);
+  const objectPath=(await db.query("select public.cms_mutate_media($1,'reserve','unused.jpg','Unused','image/webp',100) result",[unused])).rows[0].result.object_path;
+  await db.query("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[objectPath]);
+  await actor('service'); await db.query("select public.cms_finalize_verified_media($1,100,$2)",[unused,users.owner.id]); await actor('owner');
   await db.query("select public.cms_mutate_media($1,'delete')",[unused]);
   await denied("select public.cms_mutate_media($1,'purge')",[unused],/CMS_REMOVE_STORAGE_FIRST/);
   assert.equal((await db.query('delete from storage.objects where name=$1 returning id',[objectPath])).rows.length,1);
@@ -200,6 +200,45 @@ await test('all CMS exposed tables have RLS; privileged functions have fixed sea
   await db.exec('reset role');
   assert.equal((await db.query("select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' and relname like 'cms_%' and not relrowsecurity")).rows.length,0);
   assert.equal((await db.query("select proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='cms_private' and prosecdef and proconfig is null")).rows.length,0);
+});
+await test('published site policy uses corrected domain and stable editor field',async()=>{
+  await actor('anon');
+  const {rows}=await db.query("select data->'fields'->>'site-policy.text_c02d9817' lead from public.cms_published where module='pages' and slug='site-policy'");
+  const source=await readFile(new URL('../../app/site-policy/page.tsx',import.meta.url),'utf8');
+  assert.equal(rows[0].lead,source.match(/lead="([^"]+)"/)[1]);
+  assert.match(rows[0].lead,/www\.stagepartners\.co\.jp/);
+  assert.doesNotMatch(rows[0].lead,/stagepartners-hp1/);
+  assert.match(source,/leadFieldId="text_c02d9817"/);
+  assert.match(source,/canonical: "\/site-policy"/);
+});
+await test('typed page RPC rejects wrong scope, unsafe links and arbitrary image slots',async()=>{
+  await actor('owner');
+  const row=(await db.query("select * from public.cms_documents where module='pages' and slug='home'")).rows[0];
+  const call=data=>db.query('select public.cms_mutate_content($1,$2,$3,$4,$5,$6,$7)',[row.id,'pages','home','save',JSON.stringify(data),row.version,randomUUID()]);
+  await assert.rejects(call({...row.draft,fields:{'common.text_123':'Wrong scope'}}),/CMS_UNKNOWN_FIELD/);
+  const link=Object.keys(row.draft.fields).find(key=>key.includes('.link_'));
+  assert.ok(link);await assert.rejects(call({...row.draft,fields:{...row.draft.fields,[link]:'javascript:alert(1)'}}),/CMS_INVALID_LINK/);
+  await assert.rejects(call({...row.draft,images:{arbitrary:{media_id:mid,alt:'Photo'}}}),/CMS_INVALID_IMAGE/);
+  await assert.rejects(call({...row.draft,images:{image_text_ab7d0563:{legacy_path:'/company-hero.jpg',alt:'Photo'}}}),/CMS_INVALID_IMAGE/);
+});
+await test('unverified direct uploads cannot become ready or published through RPC',async()=>{
+  await actor('owner');const unverified=randomUUID();
+  const path=(await db.query("select public.cms_mutate_media($1,'reserve','unverified.webp','Unverified','image/webp',100) result",[unverified])).rows[0].result.object_path;
+  await db.query("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[path]);
+  await denied("select public.cms_mutate_media($1,'finalize')",[unverified],/CMS_TRUSTED_VERIFIER_REQUIRED/);
+  await denied('select public.cms_finalize_verified_media($1,100,$2)',[unverified,users.owner.id]);
+  const row=(await db.query("select * from public.cms_documents where module='pages' and slug='home'")).rows[0];
+  await assert.rejects(db.query('select public.cms_mutate_content($1,$2,$3,$4,$5,$6,$7)',[row.id,'pages','home','save',JSON.stringify({...row.draft,images:{image_text_ab7d0563:{media_id:unverified,alt:'Unverified'}}}),row.version,randomUUID()]),/CMS_MEDIA_NOT_READY/);
+});
+await test('page image slots cannot self-authorize another private media UUID',async()=>{
+  await actor('owner');const privateId=randomUUID();
+  const path=(await db.query("select public.cms_mutate_media($1,'reserve','private.webp','Private','image/webp',100) result",[privateId])).rows[0].result.object_path;
+  await actor('service');await db.query("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[path]);
+  await db.query('select public.cms_finalize_verified_media($1,100,$2)',[privateId,users.owner.id]);
+  await db.exec('reset role');await db.query("insert into public.cms_permissions values($1,'pages','read'),($1,'pages','edit')",[users.pageeditor.id]);
+  await actor('pageeditor');const row=(await db.query("select * from public.cms_documents where module='pages' and slug='home'")).rows[0];
+  await assert.rejects(db.query('select public.cms_mutate_content($1,$2,$3,$4,$5,$6,$7)',[row.id,'pages','home','save',JSON.stringify({...row.draft,images:{image_text_ab7d0563:{media_id:privateId,alt:'Private'}}}),row.version,randomUUID()]),/CMS_MEDIA_FORBIDDEN/);
+  assert.equal((await db.query('select * from storage.objects where name=$1',[path])).rows.length,0);
 });
 console.log(`${passed} database tests passed. LOCAL PGlite; no hosted Supabase calls.`);
 await db.close();

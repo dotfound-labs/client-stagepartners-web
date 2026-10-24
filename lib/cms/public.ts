@@ -27,13 +27,10 @@ export const getPublishedNews = cache(async (): Promise<NewsPost[]> => {
   if (rows === null) return [...NEWS].sort((a, b) => b.date.localeCompare(a.date));
   return rows.map(row => ({ ...(parseContent("news", row.data) as NewsData), slug: row.slug, sourceUrl: row.source === "instagram" ? row.source_url ?? undefined : undefined })).sort((a, b) => b.date.localeCompare(a.date));
 });
-export const getPageFields = cache(async (slug: string) => {
-  const [pages, settings] = await Promise.all([slug === "common" ? Promise.resolve(null) : published("pages"), published("settings")]);
-  if (settings === null) return Object.fromEntries([...(PAGE_TEMPLATES.common?.fields ?? []), ...(PAGE_TEMPLATES[slug]?.fields ?? [])].map(f => [f.id, f.value]));
-  const common = settings.find(row => row.slug === "common");
-  if (!common) throw new Error("共通設定の公開版を準備してください。");
-  if (slug === "common") return (parseContent("settings", common.data) as PageData).fields;
-  const page = pages?.find(row => row.slug === slug);
-  if (!page) notFound();
-  return { ...(parseContent("settings", common.data) as PageData).fields, ...(parseContent("pages", page.data) as PageData).fields };
+export const getPageContent = cache(async (slug: string):Promise<PageData> => {
+  const rows=await published(slug==='common'?'settings':'pages');
+  if(rows===null){const template=PAGE_TEMPLATES[slug];if(!template)notFound();return {title:template.title,fields:Object.fromEntries(template.fields.map(f=>[f.id,f.value]))};}
+  const row=rows.find(row=>row.slug===slug);if(!row)notFound();
+  return parseContent(slug==='common'?'settings':'pages',row.data) as PageData;
 });
+export const getPageFields=cache(async(slug:string)=>(await getPageContent(slug)).fields);

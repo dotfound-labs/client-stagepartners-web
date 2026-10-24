@@ -2,7 +2,7 @@
 import CmsText from "@/components/CmsText";
 
 
-import Link from "next/link";
+import Link from "@/components/CmsLink";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
 

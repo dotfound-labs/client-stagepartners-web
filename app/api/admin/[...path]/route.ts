@@ -4,6 +4,8 @@ import { z, ZodError } from "zod";
 import { CmsError, databaseError, requireIdentity, requirePermission, sessionClient } from "@/lib/cms/server";
 import { MODULES, parseContent, slugSchema, type Module, type Capability } from "@/lib/cms/model";
 import { PAGE_TEMPLATES } from "@/content/page-fields";
+import { PAGE_ASSETS } from "@/content/page-assets";
+import { safeHref } from "@/lib/cms/page-values";
 
 export const dynamic = "force-dynamic";
 type Context = { params: Promise<{ path: string[] }> };
@@ -95,6 +97,8 @@ export async function POST(request: Request, context: Context) {
         if (!template || (value.module === "settings") !== (value.slug === "common")) throw new CmsError(400, "ページの種類を確認してください。");
         const allowed = new Set(template.fields.map(f => f.id));
         if (Object.keys(data.fields).some(key => !allowed.has(key))) throw new CmsError(400, "未対応の入力項目があります。");
+        for(const field of template.fields){const entry=data.fields[field.id];if(entry===undefined)continue;if(field.kind==="link"&&!safeHref(entry)||field.kind==="phone"&&!/^\+?[0-9-]{6,20}$/.test(entry))throw new CmsError(400,"リンク先・電話番号の形式を確認してください。");}
+        for(const [key,image] of Object.entries(data.images??{})){const slot=PAGE_ASSETS[value.slug]?.images.find(s=>s.id===key);if(!slot||image.legacy_path&&image.legacy_path!==slot.path)throw new CmsError(400,"画像の指定が正しくありません。");}
       }
       const { data: result, error } = await client.rpc("cms_mutate_content", { p_id: value.id, p_module: value.module, p_slug: value.slug, p_action: value.action, p_data: data, p_expected_version: value.version, p_request_id: value.requestId, p_restore_revision: value.revisionId ?? null }); databaseError(error);
       return reply({ result });

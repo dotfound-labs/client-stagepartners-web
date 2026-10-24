@@ -1,0 +1,11 @@
+"use client";
+/* eslint-disable @next/next/no-img-element */
+import {useState} from "react";
+import {PAGE_ASSETS} from "@/content/page-assets";
+import {canRead,photoUrl,type PageData,type Media,type Identity} from "@/lib/cms/model";
+export default function PageImages({slug,data,change,identity}:{slug:string;data:PageData;change:(data:Partial<PageData>)=>void;identity:Identity}){
+  const [items,setItems]=useState<Media[]>([]),[selected,setSelected]=useState(""),[error,setError]=useState("");
+  const slots=PAGE_ASSETS[slug]?.images??[];
+  if(!slots.length)return null;
+  return <section><h2>ページの写真・ロゴ</h2><p className="admin-help">使う画像を選び、写真の説明を入力してください。元の画像へ戻すこともできます。</p>{error&&<p role="alert">{error}</p>}{slots.map(slot=>{const value=data.images?.[slot.id]??{legacy_path:slot.path,alt:slot.alt};return <div className="admin-photo-row" key={slot.id}><img src={photoUrl(value)} alt={value.alt}/><div><h3>{slot.label}</h3><label>画像の説明<input value={value.alt} maxLength={500} onChange={e=>change({images:{...data.images,[slot.id]:{...value,alt:e.target.value}}})}/></label><div className="admin-inline"><button type="button" disabled={!canRead(identity,"media")} onClick={async()=>{try{const result=await fetch('/api/admin/media',{cache:'no-store'});const json=await result.json();if(!result.ok)throw new Error(json.error);setItems(json.media.filter((m:Media)=>m.ready&&!m.deletion_requested));setSelected(slot.id);}catch(e){setError((e as Error).message);}}}>画像を選ぶ</button><button type="button" onClick={()=>{const images={...data.images};delete images[slot.id];change({images});}}>元の画像に戻す</button></div>{selected===slot.id&&<div className="admin-media-picker">{items.map(m=><button type="button" key={m.id} onClick={()=>{change({images:{...data.images,[slot.id]:{media_id:m.id,alt:m.alt}}});setSelected("");}}><img src={`/api/media/${m.id}`} alt={m.alt}/>{m.alt}</button>)}</div>}</div></div>;})}</section>;
+}

@@ -1,8 +1,9 @@
 "use client";
+import CmsAnchor from "@/components/CmsLink";
 import CmsText from "@/components/CmsText";
 
 
-import Image from "next/image";
+import Image from "@/components/CmsImage";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
 import { COMPANY_NAME, HEAD_OFFICE, OFFICES } from "@/content/company";
@@ -126,7 +127,7 @@ export default function Company() {
                   <CmsText>{row.links
                     ? row.links.map((link) => (
                       <span key={link.href} className="block">
-                        <a
+                        <CmsAnchor
                           href={link.href}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -135,7 +136,7 @@ export default function Company() {
                           <CmsText>{link.name}</CmsText>
                           <span aria-hidden className="text-[0.85em] text-ink-muted"><CmsText>{"↗"}</CmsText></span>
                           <span className="sr-only"><CmsText>{"（外部サイト・新しいタブで開きます）"}</CmsText></span>
-                        </a>
+                        </CmsAnchor>
                       </span>
                     ))
                     : Array.isArray(row.value)

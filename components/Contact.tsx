@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import CmsText from "@/components/CmsText";
+import CmsText, {useCmsText} from "@/components/CmsText";
 import Image from "next/image";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
@@ -15,6 +15,7 @@ const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY ?? "";
 type Status = "idle" | "sending" | "success" | "error";
 
 export default function Contact() {
+  const cmsText=useCmsText();
   const [status, setStatus] = useState<Status>("idle");
 
   const sectionRef = useScopedGsap<HTMLElement>(({ scope }) => {
@@ -170,12 +171,12 @@ export default function Contact() {
               </span>
               <select
                 name="inquiry_type"
-                defaultValue={INQUIRY_TYPES[0]}
+                defaultValue={cmsText(INQUIRY_TYPES[0])}
                 className="mt-2 w-full border-b border-line bg-transparent py-2.5 text-sm text-ink outline-none transition-colors focus:border-foreground"
               >
                 {INQUIRY_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
+                  <option key={type} value={cmsText(type)}>
+                    {cmsText(type)}
                   </option>
                 ))}
               </select>

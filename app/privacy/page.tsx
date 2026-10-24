@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/cms/metadata";
 import PublishedPage from "@/components/PublishedPage";
 
 import CmsText from "@/components/CmsText";
@@ -11,11 +12,11 @@ import { COMPANY_NAME, HEAD_OFFICE } from "@/content/company";
 // 個人情報保護法・関連ガイドラインに沿った一般的な条項構成。
 // 実際の取扱い(委託先の範囲、保管期間の具体的な数値、開示請求の受付方法の詳細)は
 // 運用が固まり次第、法務確認のうえで数値・固有名詞を確定させる。
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> { return pageMetadata("privacy", {
   title: "プライバシーポリシー | STAGE PARTNERS",
   description: "株式会社STAGE PARTNERSの個人情報の取扱いについて。",
   alternates: { canonical: "/privacy" },
-};
+}); }
 
 export default function PrivacyPage() {
   return (

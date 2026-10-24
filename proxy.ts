@@ -24,4 +24,4 @@ export async function proxy(request: NextRequest) {
   response.headers.set("X-Robots-Tag", "noindex, nofollow");
   return response;
 }
-export const config = { matcher: ["/admin/:path*", "/api/admin/:path*", "/api/media/:path*", "/auth/:path*"] };
+export const config = { matcher: ["/admin/:path*", "/api/admin/:path*", "/api/auth/:path*", "/api/media/:path*", "/auth/:path*"] };

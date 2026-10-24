@@ -1,9 +1,10 @@
 "use client";
+import CmsAnchor from "@/components/CmsLink";
 import CmsText from "@/components/CmsText";
 
 
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/components/CmsImage";
+import Link from "@/components/CmsLink";
 import { useScopedGsap, gsap, SplitText } from "@/hooks/useGsap";
 import {
   scrollTriggerDefaults,
@@ -310,7 +311,7 @@ export default function RealEstateSolution() {
         <ul className="mx-auto flex max-w-[1520px] flex-wrap items-center gap-x-8 gap-y-3">
           <CmsText>{SECTIONS.map((section) => (
             <li key={section.id} data-nav-item>
-              <a
+              <CmsAnchor
                 href={`#${section.id}`}
                 className="group inline-flex items-center gap-2 text-xs text-ink-muted transition-colors hover:text-ink"
               >
@@ -319,7 +320,7 @@ export default function RealEstateSolution() {
                   className="inline-block h-px w-4 bg-ink/30 transition-all duration-300 group-hover:w-7 group-hover:bg-ink"
                 />
                 <CmsText>{section.label}</CmsText>
-              </a>
+              </CmsAnchor>
             </li>
           ))}</CmsText>
         </ul>
@@ -428,7 +429,7 @@ export default function RealEstateSolution() {
           {/* at home の掲載ページへ。外部サイトなので新規タブで開き、
               rel="noopener" を付ける(target="_blank" の際の作法)。 */}
           <div data-fade>
-            <a
+            <CmsAnchor
               href="https://www.athome.co.jp/ahcb/aim.html"
               target="_blank"
               rel="noopener noreferrer"
@@ -449,7 +450,7 @@ export default function RealEstateSolution() {
                 />
               </p>
               <p className="mt-2 text-xs tracking-[0.05em] text-ink-muted"><CmsText>{"外部サイト（at home）が新しいタブで開きます"}</CmsText></p>
-            </a>
+            </CmsAnchor>
           </div>
         </div>
       </section>

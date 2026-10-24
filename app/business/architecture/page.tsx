@@ -1,10 +1,11 @@
+import { pageMetadata } from "@/lib/cms/metadata";
 import PublishedPage from "@/components/PublishedPage";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import ArchitectureSolution from "@/components/ArchitectureSolution";
 import Footer from "@/components/Footer";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> { return pageMetadata("architecture", {
   title: "建築ソリューション｜店舗の内装工事・リノベーション・施設営繕 | STAGE PARTNERS",
   description:
     "飲食店・美容室・クリニックなどの店舗デザイン施工から、住まいのリノベーション、建物の点検・補修・メンテナンスまで。静岡県沼津市のSTAGE PARTNERSが、設計から引き渡し後の維持管理まで一社で担います。空き店舗の改修とテナント募集もご相談ください。",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
     type: "article",
     locale: "ja_JP",
   },
-};
+}); }
 
 export default function ArchitecturePage() {
   return (

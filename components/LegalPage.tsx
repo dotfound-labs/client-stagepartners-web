@@ -12,11 +12,12 @@ type Props = {
   eyebrow: string;
   title: string;
   lead?: string;
+  leadFieldId?: string;
   updated: string;
   sections: LegalSection[];
 };
 
-export default function LegalPage({ eyebrow, title, lead, updated, sections }: Props) {
+export default function LegalPage({ eyebrow, title, lead, leadFieldId, updated, sections }: Props) {
   return (
     <section className="w-full bg-paper px-6 py-28 sm:px-10 lg:px-16 lg:py-32 xl:px-24">
       <div className="mx-auto max-w-3xl">
@@ -25,7 +26,7 @@ export default function LegalPage({ eyebrow, title, lead, updated, sections }: P
           <CmsText>{eyebrow}</CmsText>
         </p>
         <h1 className="t-heading mt-7 font-display font-normal text-ink"><CmsText>{title}</CmsText></h1>
-        <CmsText>{lead && <p className="t-note mt-6 text-ink-muted"><CmsText>{lead}</CmsText></p>}</CmsText>
+        <CmsText>{lead && <p className="t-note mt-6 text-ink-muted"><CmsText fieldId={leadFieldId}>{lead}</CmsText></p>}</CmsText>
         <p className="mt-6 text-xs tracking-[0.05em] text-ink-muted"><CmsText>{"最終更新日："}</CmsText><CmsText>{updated}</CmsText></p>
 
         <div className="mt-16 space-y-14 border-t border-line pt-14">

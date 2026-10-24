@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/cms/metadata";
 import PublishedPage from "@/components/PublishedPage";
 
 import CmsText from "@/components/CmsText";
@@ -14,11 +15,11 @@ import { BUSINESS_HOURS, COMPANY_NAME, HEAD_OFFICE, OFFICES } from "@/content/co
 // 運営統括責任者名は、会社概要ページと同じ方針(2026-08-24 代表者情報削除)に
 // 揃えて個人名を記載していない。オンライン販売機能を追加する場合は、
 // その時点で本ページの全項目を法務確認のうえ書き直す。
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> { return pageMetadata("tokushoho", {
   title: "特定商取引法に基づく表記 | STAGE PARTNERS",
   description: "株式会社STAGE PARTNERSの特定商取引法に基づく表記です。",
   alternates: { canonical: "/tokushoho" },
-};
+}); }
 
 const ROW = "flex flex-col gap-1 border-b border-line py-5 sm:flex-row sm:gap-8";
 const LABEL = "font-latin text-[11px] tracking-[0.15em] text-ink-muted sm:w-40 sm:shrink-0 sm:pt-1";

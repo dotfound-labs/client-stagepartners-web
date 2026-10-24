@@ -2,8 +2,8 @@
 import CmsText from "@/components/CmsText";
 
 
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/components/CmsImage";
+import Link from "@/components/CmsLink";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
 import { OFFICES } from "@/content/company";

@@ -3,8 +3,8 @@ import CmsText from "@/components/CmsText";
 
 
 import { useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/components/CmsImage";
+import Link from "@/components/CmsLink";
 import { useScopedGsap, gsap, SplitText } from "@/hooks/useGsap";
 import { onStageReveal } from "@/lib/animations";
 

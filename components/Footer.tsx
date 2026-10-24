@@ -1,7 +1,7 @@
 
-import CmsText from "@/components/CmsText";
-import Image from "next/image";
-import Link from "next/link";
+import CmsText, { CommonFields } from "@/components/CmsText";
+import Image from "@/components/CmsImage";
+import Link from "@/components/CmsLink";
 
 // "#news" のようなアンカーだけのhrefは、トップページ以外にいる時にクリックしても
 // 遷移できないため、"/#news" のようにパスを明示する。
@@ -20,7 +20,7 @@ const LEGAL_LINKS = [
   { label: "特定商取引法に基づく表記", href: "/tokushoho" },
 ];
 
-export default function Footer() {
+function FooterContent() {
   return (
     <footer className="w-full border-t border-line bg-paper px-6 py-16 sm:px-10 lg:px-16 xl:px-24">
       <div className="mx-auto flex max-w-[1520px] flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
@@ -71,3 +71,5 @@ export default function Footer() {
     </footer>
   );
 }
+
+export default function Footer(){return <CommonFields><FooterContent/></CommonFields>;}

@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/cms/metadata";
 import PublishedPage from "@/components/PublishedPage";
 
 import CmsText from "@/components/CmsText";
@@ -7,11 +8,11 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LegalPage from "@/components/LegalPage";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> { return pageMetadata("site-policy", {
   title: "サイトポリシー | STAGE PARTNERS",
   description: "株式会社STAGE PARTNERSが運営する本サイトのご利用にあたっての注意事項です。",
   alternates: { canonical: "/site-policy" },
-};
+}); }
 
 export default function SitePolicyPage() {
   return (
@@ -20,8 +21,9 @@ export default function SitePolicyPage() {
       <main id="main" className="flex flex-1 flex-col">
         <LegalPage
           eyebrow="SITE POLICY"
+          leadFieldId="text_c02d9817"
           title="サイトポリシー"
-          lead="本サイト（stagepartners-hp1.vercel.app、以下「本サイト」といいます）は、株式会社STAGE PARTNERS（以下「当社」といいます）が運営しています。本サイトのご利用にあたっては、以下の内容をご確認ください。"
+          lead="本サイト（www.stagepartners.co.jp、以下「本サイト」といいます）は、株式会社STAGE PARTNERS（以下「当社」といいます）が運営しています。本サイトのご利用にあたっては、以下の内容をご確認ください。"
           updated="2026年8月25日"
           sections={[
             {
