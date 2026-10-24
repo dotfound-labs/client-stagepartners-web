@@ -276,5 +276,37 @@ await test('interleaved upload attempts cannot replace ready or published bytes'
   const winner=(await db.query('select object_path,verified_sha256 from public.cms_media where id=$1',[id])).rows[0];
   assert.equal(winner.object_path,a);assert.equal(winner.verified_sha256,digestA);
 });
+await test('inquiry intake is service-only, idempotent and rate limited',async()=>{
+ const id=randomUUID(),args=[id,'Visitor','visitor@example.test','','Question','Message'];
+ const sql='select public.cms_receive_inquiry($1,$2,$3,$4,$5,$6) created';
+ await actor('anon');await denied(sql,args);
+ await actor('owner');await denied(sql,args);
+ await actor('service');assert.equal((await db.query(sql,args)).rows[0].created,true);
+ assert.equal((await db.query(sql,args)).rows[0].created,false);
+ await assert.rejects(db.query(sql,[id,...args.slice(1,5),'Changed']),/CMS_INQUIRY_CONFLICT/);
+ for(let i=0;i<2;i++)await db.query(sql,[randomUUID(),...args.slice(1)]);
+ await assert.rejects(db.query(sql,[randomUUID(),...args.slice(1)]),/CMS_INQUIRY_RATE_LIMIT/);
+ await actor('anon');await denied('select * from public.cms_inquiries');
+});
+await test('Instagram image URLs are private and disappear from published lookup when hidden',async()=>{
+ await actor('owner');await db.query("select public.cms_configure_instagram('123','official',true,true)");
+ await actor('service');
+ const imported=(await db.query("select public.cms_import_instagram('123','999','https://www.instagram.com/p/TEST999/','Image post',now()) result")).rows[0].result;
+ await db.query("insert into public.cms_instagram_images(document_id,image_url) values($1,'https://scontent.cdninstagram.com/image.jpg')",[imported.id]);
+ assert.ok((await db.query("select public.cms_instagram_image('instagram-999') url")).rows[0].url);
+ await actor('anon');await denied("select public.cms_instagram_image('instagram-999')");await denied('select * from public.cms_instagram_images');
+ await actor('owner');await db.query("select public.cms_mutate_content($1,'news','instagram-999','unpublish',null,1,$2)",[imported.id,randomUUID()]);
+ await actor('service');assert.equal((await db.query("select public.cms_instagram_image('instagram-999') url")).rows[0].url,null);
+ await db.exec('reset role');await db.exec("update public.cms_instagram_config set next_attempt_at=null");await actor('service');
+ assert.equal((await db.query('select public.cms_claim_instagram_sync() claimed')).rows[0].claimed,true);
+ assert.equal((await db.query('select public.cms_claim_instagram_sync() claimed')).rows[0].claimed,false);
+});
+await test('invitation delivery claim is service-only and never retries an uncertain send',async()=>{
+ await actor('owner');const id=(await db.query("select public.cms_reserve_invitation('delivery@example.test',false,'[]') id")).rows[0].id;
+ await denied('select public.cms_claim_invitation_delivery($1,$2)',[id,users.owner.id]);
+ await actor('service');await denied('select public.cms_claim_invitation_delivery($1,$2)',[id,users.outsider.id]);
+ assert.equal((await db.query('select public.cms_claim_invitation_delivery($1,$2) email',[id,users.owner.id])).rows[0].email,'delivery@example.test');
+ assert.equal((await db.query('select public.cms_claim_invitation_delivery($1,$2) email',[id,users.owner.id])).rows[0].email,null);
+});
 console.log(`${passed} database tests passed. LOCAL PGlite; no hosted Supabase calls.`);
 await db.close();

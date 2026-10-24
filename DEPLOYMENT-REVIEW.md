@@ -18,3 +18,19 @@ remain unconfigured. This observation does not authorize a production merge.
 
 npm audit on the pinned checkout returned zero vulnerabilities. This describes
 the new branch dependency graph, not an update to the deployed production code.
+
+## First branch push verified
+
+Commit 19e865d pushed successfully. GitHub deployment records verify two
+integrations, both production_environment=false and success:
+- client-stagepartners-web deployment 7302175078, Preview:
+  https://client-stagepartners-2lnnl5g0y-carrerleger55-5086s-projects.vercel.app
+- old stagepartners-hp1 deployment 7302184437, Preview:
+  https://stagepartners-hp1-immg9atox-ryota-demo.vercel.app
+
+The second integration was discovered in commit statuses after push. No
+Production deployment is recorded for that commit. Draft PR creation through
+GitHub connector failed with 403 Resource not accessible by integration; it has
+not been retried through another identity. Required access is repository Pull
+requests: write for that integration. Manual compare link:
+https://github.com/dotfound-labs/client-stagepartners-web/compare/main...feat/admin-cms

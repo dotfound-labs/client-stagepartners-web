@@ -1,21 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CmsText, {useCmsText} from "@/components/CmsText";
 import Image from "next/image";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
 import { INQUIRY_TYPES, OFFICES } from "@/content/company";
 
-// お問い合わせフォーム。送信は Web3Forms を利用する。
-// ドメイン確定後、Web3Forms で発行される正式な access_key に差し替える。
-// それまでは仮のキーのため、実際の送信はエラーになる(UIは完成状態)。
-const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY ?? "";
-
 type Status = "idle" | "sending" | "success" | "error";
 
 export default function Contact() {
   const cmsText=useCmsText();
+  const [enabled,setEnabled]=useState(false);
+  const submission=useRef<{id:string;payload:string}|null>(null);
+  useEffect(()=>{fetch("/api/contact").then(r=>r.json()).then(data=>setEnabled(data.enabled===true)).catch(()=>setEnabled(false));},[]);
   const [status, setStatus] = useState<Status>("idle");
 
   const sectionRef = useScopedGsap<HTMLElement>(({ scope }) => {
@@ -31,26 +29,26 @@ export default function Contact() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!WEB3FORMS_ACCESS_KEY || status === "sending") return;
+    if (!enabled || status === "sending") return;
     setStatus("sending");
 
     // Reactはハンドラが返った直後にcurrentTargetをnullへ戻すため、awaitを挟むと
     // 送信後には参照できない。同期のうちにform要素を掴んでおく。
     const form = e.currentTarget;
     const formData = new FormData(form);
-    formData.append("access_key", WEB3FORMS_ACCESS_KEY);
-    formData.append("subject", "STAGE PARTNERS｜サイトからのお問い合わせ");
-
+    const fields={...Object.fromEntries(formData),website:formData.get("website")??""};
+    const payload=JSON.stringify(fields);
+    if(submission.current?.payload!==payload)submission.current={id:crypto.randomUUID(),payload};
     try {
-      const res = await fetch("https://api.web3forms.com/submit", {
+      const res = await fetch("/api/contact", {
         method: "POST",
-        headers: { Accept: "application/json" },
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({...fields,id:submission.current.id}),
       });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         setStatus("success");
-        form.reset();
+        form.reset(); submission.current=null;
       } else {
         setStatus("error");
       }
@@ -128,6 +126,7 @@ export default function Contact() {
           onSubmit={handleSubmit}
           className="bg-paper p-7 sm:p-10"
         >
+          <input name="website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden"/>
           <div className="grid grid-cols-1 gap-6">
             <label className="block">
               <span className="text-xs font-medium tracking-[0.1em] text-ink-muted">
@@ -194,10 +193,10 @@ export default function Contact() {
               />
             </label>
 
-            {!WEB3FORMS_ACCESS_KEY && <p role="status" className="text-sm text-ink">フォームは現在準備中です。上記のお電話にてお問い合わせください。</p>}
+            {!enabled && <p role="status" className="text-sm text-ink">フォームは現在準備中です。上記のお電話にてお問い合わせください。</p>}
             <button
               type="submit"
-              disabled={!WEB3FORMS_ACCESS_KEY || status === "sending"}
+              disabled={!enabled || status === "sending"}
               className="mt-2 inline-flex items-center justify-center gap-3 bg-navy-mid px-11 py-4 text-xs font-medium tracking-[0.2em] text-on-dark transition-opacity hover:opacity-85 disabled:opacity-50"
             >
               {status === "sending" ? "送信中..." : "この内容で送信する"}

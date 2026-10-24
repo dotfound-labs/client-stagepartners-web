@@ -1,3 +1,5 @@
+import {deliverInvitation} from "@/lib/cms/invitation-delivery";
+import {instagramReady,contactReady} from "@/lib/cms/integration-config";
 import { NextResponse } from "next/server";
 import { sameOrigin } from "@/lib/cms/csrf";
 import { z, ZodError } from "zod";
@@ -58,12 +60,12 @@ export async function GET(request: Request, context: Context) {
     if (path === "inquiries") {
       requirePermission(identity, "inquiries", "read");
       const { data, error } = await client.from("cms_inquiries").select("*").order("created_at", { ascending: false }).limit(200); databaseError(error);
-      return reply({ inquiries: data, intakeEnabled: false });
+      return reply({ inquiries: data, intakeEnabled: contactReady() });
     }
     if (path === "instagram") {
       requirePermission(identity, "settings", "read");
       const { data, error } = await client.from("cms_instagram_config").select("*").single(); databaseError(error);
-      return reply({ config: data, authorizationConfigured: false });
+      return reply({ config: data, authorizationConfigured: instagramReady() });
     }
     throw new CmsError(404, "対象が見つかりません。");
   } catch (error) { return failure(error); }
@@ -112,9 +114,10 @@ export async function POST(request: Request, context: Context) {
         const { error } = await client.rpc("cms_set_member", { p_user_id: value.id, p_owner: value.owner, p_active: value.active, p_permissions: value.permissions }); databaseError(error);
       } else {
         if (!value.email) throw new CmsError(400, "メールアドレスを入力してください。");
-        const { error } = await client.rpc("cms_reserve_invitation", { p_email: value.email, p_owner: value.owner, p_permissions: value.permissions }); databaseError(error);
+        const { data: invitationId, error } = await client.rpc("cms_reserve_invitation", { p_email: value.email, p_owner: value.owner, p_permissions: value.permissions }); databaseError(error);
+        return reply({ok:true,message:await deliverInvitation(invitationId)});
       }
-      return reply({ ok: true, message: path === "invitation" ? "招待を予約しました。メール送信設定は承認待ちです。まだメールは送信されていません。" : "権限を保存しました。" });
+      return reply({ ok: true, message: "権限を保存しました。" });
     }
     if (path === "invitation/cancel") {
       requirePermission(identity, "users", "manage"); const { id } = z.object({ id: z.uuid() }).parse(input);
@@ -139,8 +142,8 @@ export async function POST(request: Request, context: Context) {
       if (!identity.owner) throw new CmsError(403, "オーナーのみ変更できます。");
       const value = z.object({ accountId: z.string().regex(/^\d+$/).nullable(), username: z.string().regex(/^[A-Za-z0-9_.]{1,30}$/).nullable(), enabled: z.boolean(), autoPublish: z.boolean() }).strict().parse(input);
       // OAuth and secret provisioning have not been authorized/configured yet.
-      if (value.enabled) throw new CmsError(409, "公式アカウントの確認と安全なAPI認可が完了してから有効化できます。");
-      const { error } = await client.rpc("cms_configure_instagram", { p_account_id: value.accountId, p_username: value.username, p_enabled: false, p_auto_publish: value.autoPublish }); databaseError(error); return reply({ ok: true });
+      if (value.enabled && !instagramReady()) throw new CmsError(409, "公式アカウントの確認と安全なAPI認可が完了してから有効化できます。");
+      const { error } = await client.rpc("cms_configure_instagram", { p_account_id: value.accountId, p_username: value.username, p_enabled: value.enabled, p_auto_publish: value.autoPublish }); databaseError(error); return reply({ ok: true });
     }
     throw new CmsError(404, "対象が見つかりません。");
   } catch (error) { return failure(error); }

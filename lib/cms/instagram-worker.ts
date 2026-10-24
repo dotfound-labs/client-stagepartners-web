@@ -1,11 +1,10 @@
 import "server-only";
 import { z } from "zod";
-// Deliberately not wired to a route/cron. The caller must obtain approved server
-// credentials and current DB configuration; never pass the token to a browser.
-const media = z.object({ id: z.string().regex(/^\d+$/), caption: z.string().max(20000).optional(), permalink: z.url().refine(url => /^https:\/\/www\.instagram\.com\/(p|reel)\/[A-Za-z0-9_-]+\/?$/.test(url)), timestamp: z.iso.datetime({ offset: true }) });
+// Runs only through the explicitly enabled server job; tokens never reach the browser.
+const media = z.object({ id: z.string().regex(/^\d+$/), caption: z.string().max(20000).optional(), media_type:z.enum(["IMAGE","VIDEO","CAROUSEL_ALBUM"]), media_url:z.url().optional(), thumbnail_url:z.url().optional(), permalink: z.url().refine(url => /^https:\/\/www\.instagram\.com\/(p|reel)\/[A-Za-z0-9_-]+\/?$/.test(url)), timestamp: z.iso.datetime({ offset: true }) });
 export type InstagramDependencies = {
   fetch: typeof fetch;
-  importPost: (post: { accountId: string; mediaId: string; permalink: string; caption: string; timestamp: string }) => Promise<void>;
+  importPost: (post: { accountId: string; mediaId: string; permalink: string; caption: string; timestamp: string; imageUrl?:string }) => Promise<void>;
   health: (status: "ok" | "token-expired" | "rate-limited" | "error", retrySeconds: number) => Promise<void>;
 };
 export async function syncInstagram(config: { enabled: boolean; accountId: string; apiVersion: string; accessToken: string; nextAttemptAt?: string }, dependencies: InstagramDependencies) {
@@ -15,7 +14,7 @@ export async function syncInstagram(config: { enabled: boolean; accountId: strin
   try {
     // Official Instagram Login API; no scraping, embeds or outbound posting.
     const url = new URL(`https://graph.instagram.com/${config.apiVersion}/${config.accountId}/media`);
-    url.searchParams.set("fields", "id,caption,permalink,timestamp"); url.searchParams.set("limit", "50");
+    url.searchParams.set("fields", "id,caption,permalink,timestamp,media_type,media_url,thumbnail_url"); url.searchParams.set("limit", "50");
     const response = await dependencies.fetch(url, { headers: { Authorization: `Bearer ${config.accessToken}` }, cache: "no-store", redirect: "error", signal: AbortSignal.timeout(15000) });
     const body = await response.json();
     if (!response.ok) {
@@ -26,7 +25,7 @@ export async function syncInstagram(config: { enabled: boolean; accountId: strin
     }
     const posts = z.object({ data: z.array(media).max(50) }).parse(body);
     for (const post of posts.data) {
-      await dependencies.importPost({ accountId: config.accountId, mediaId: post.id, permalink: post.permalink, caption: post.caption ?? "", timestamp: post.timestamp }); imported++;
+      await dependencies.importPost({ accountId: config.accountId, mediaId: post.id, permalink: post.permalink, caption: post.caption ?? "", timestamp: post.timestamp, imageUrl:post.media_type==="VIDEO"?post.thumbnail_url:post.media_url }); imported++;
     }
     await dependencies.health("ok", 3600); return { status: "ok", imported };
   } catch {

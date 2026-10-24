@@ -1,3 +1,11 @@
+Current implementation update: standard invite/recovery callback, disabled-by-default
+admin invitation sender, Instagram image proxy/hourly job endpoint, and durable
+inquiry intake/provider adapter are implemented. See INTEGRATION-ACTIVATION.md
+for exact activation requirements and limits. Migration 7 remains pending review;
+parent confirmed migrations 1–6 applied. No live Auth/Storage/integration E2E yet.
+PR #7 exists (user-created, open, not merged); subsequent branch pushes update it.
+Earlier setup status below is retained as historical implementation notes.
+
 # CMS implementation and remaining activation
 
 Only project `apkfyxfmsndwqjfetdad` (stagepartners-cms, Tokyo) is supported.

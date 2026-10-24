@@ -1,3 +1,6 @@
+Parent subsequently confirmed migrations 5 and 6 applied. Their SQL bodies are
+immutable. The pending wording below describes the original review stage.
+
 # Additional review: typed pages and verified media
 
 Only target: `apkfyxfmsndwqjfetdad`. No hosted change executed here.
