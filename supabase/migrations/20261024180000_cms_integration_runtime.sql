@@ -26,7 +26,8 @@ end $$;
 revoke all on function public.cms_claim_instagram_sync() from public,anon,authenticated;
 grant execute on function public.cms_claim_instagram_sync() to service_role;
 alter table public.cms_inquiries add column notification_status text not null default 'pending'
- check(notification_status in ('pending','sent','uncertain'));
+ check(notification_status in ('pending','accepted','uncertain'));
+alter table public.cms_inquiries add column notification_provider_id text;
 create function public.cms_receive_inquiry(p_id uuid,p_name text,p_email text,p_phone text,p_subject text,p_message text) returns boolean
 language plpgsql security definer set search_path='' as $$
 declare existing public.cms_inquiries;
@@ -49,14 +50,14 @@ begin
  insert into public.cms_inquiries(id,name,email,phone,subject,message) values(p_id,p_name,lower(p_email),p_phone,p_subject,p_message);
  return true;
 end $$;
-create function public.cms_inquiry_notification(p_id uuid,p_status text) returns void
+create function public.cms_inquiry_notification(p_id uuid,p_status text,p_provider_id text default null) returns void
 language plpgsql security definer set search_path='' as $$
 begin
- if p_status not in ('sent','uncertain') then raise exception 'CMS_INVALID_STATUS'; end if;
- update public.cms_inquiries set notification_status=p_status where id=p_id and notification_status='pending';
+ if p_status is null or p_status not in ('accepted','uncertain') or (p_status='accepted' and (p_provider_id is null or p_provider_id !~ '^sub_[a-zA-Z0-9_-]{1,128}$')) then raise exception 'CMS_INVALID_STATUS'; end if;
+ update public.cms_inquiries set notification_status=p_status,notification_provider_id=case when p_status='accepted' then p_provider_id else null end where id=p_id and notification_status='pending';
 end $$;
-revoke all on function public.cms_receive_inquiry(uuid,text,text,text,text,text),public.cms_inquiry_notification(uuid,text) from public,anon,authenticated;
-grant execute on function public.cms_receive_inquiry(uuid,text,text,text,text,text),public.cms_inquiry_notification(uuid,text) to service_role;
+revoke all on function public.cms_receive_inquiry(uuid,text,text,text,text,text),public.cms_inquiry_notification(uuid,text,text) from public,anon,authenticated;
+grant execute on function public.cms_receive_inquiry(uuid,text,text,text,text,text),public.cms_inquiry_notification(uuid,text,text) to service_role;
 alter table public.cms_invitations add column delivery_attempted_at timestamptz;
 create function public.cms_claim_invitation_delivery(p_id uuid,p_actor uuid) returns text
 language plpgsql security definer set search_path='' as $$
@@ -77,4 +78,21 @@ language sql security definer set search_path='' as $$
 $$;
 revoke all on function public.cms_claim_invitation_delivery(uuid,uuid),public.cms_mark_invitation_sent(uuid) from public,anon,authenticated;
 grant execute on function public.cms_claim_invitation_delivery(uuid,uuid),public.cms_mark_invitation_sent(uuid) to service_role;
+-- Correct only the exact imported default; preserve any subsequent custom text.
+with changed as (
+ update public.cms_documents set draft=jsonb_set(draft,'{fields,home.text_579bb17d}','"REAL ESTATE & ARCHITECTURE"'),
+ version=version+1,updated_at=now()
+ where module='pages' and slug='home' and version=1
+ and draft#>>'{fields,home.text_579bb17d}'='REAL ESTATE &amp; ARCHITECTURE'
+ and exists(select 1 from public.cms_published p where p.document_id=cms_documents.id and p.version=1 and p.data=cms_documents.draft)
+ returning *
+), history as (
+ insert into public.cms_revisions(document_id,version,action,data)
+ select id,version,'migration.entity_text',draft from changed returning document_id
+), published as (
+ update public.cms_published p set data=jsonb_set(p.data,'{fields,home.text_579bb17d}','"REAL ESTATE & ARCHITECTURE"'),version=c.version
+ from changed c where p.document_id=c.id and p.data#>>'{fields,home.text_579bb17d}'='REAL ESTATE &amp; ARCHITECTURE'
+ returning p.document_id
+)
+insert into public.cms_audit(action,target_id) select 'migration.entity_text',id::text from changed;
 commit;

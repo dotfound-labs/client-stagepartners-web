@@ -34,3 +34,17 @@ GitHub connector failed with 403 Resource not accessible by integration; it has
 not been retried through another identity. Required access is repository Pull
 requests: write for that integration. Manual compare link:
 https://github.com/dotfound-labs/client-stagepartners-web/compare/main...feat/admin-cms
+
+## Authenticated Preview QA (5032b02)
+
+The login prompt came from selecting a different Chrome session. The current
+session containing the user's GitHub work opened the protected Preview without
+changing protection or signing in again. Verified /admin shows disabled inputs
+and the honest unconfigured notice, with noindex/nofollow metadata. Rendered
+admin HTML contained no secret-key patterns (a bounded DOM check, not a claim
+about every possible response). Works list has 30 items; news list has six.
+At 390px the admin and settled public home have no horizontal overflow; the
+mobile menu layout and home text remain readable. Temporary viewport reset.
+Canonical points to the verified production domain; font preloads remain zero.
+A literal ampersand entity in the home subtitle was found visually and corrected
+in the next patch, with stable field identity and guarded seed-history repair.

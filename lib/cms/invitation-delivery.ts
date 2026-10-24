@@ -1,12 +1,11 @@
 import "server-only";
+import {invitationDeliveryConfig} from "./invitation-readiness";
 import {trustedServerClient} from "./trusted-server";
 import {requireIdentity,requirePermission} from "./server";
 export async function deliverInvitation(id:string){
- if(process.env.VERCEL_ENV==="preview"||process.env.CMS_INVITATIONS_ENABLED!=="true")return "招待を予約しました。メール送信は未設定のため、まだ送信していません。";
- const redirect=process.env.CMS_AUTH_CALLBACK_URL;
- if(!redirect)throw new Error("INVITE_NOT_CONFIGURED");
- const url=new URL(redirect);
- if(url.pathname!=="/auth/callback"||url.search||url.hash||url.username||url.password||!(url.protocol==="https:"||(url.protocol==="http:"&&["localhost","127.0.0.1"].includes(url.hostname))))throw new Error("INVITE_REDIRECT_INVALID");
+ const config=invitationDeliveryConfig();
+ if(!config)return "招待を予約しました。メール送信は無効のため、まだ送信していません。";
+ const redirect=config.redirect;
  const {identity}=await requireIdentity();requirePermission(identity,"users","manage");
  const db=trustedServerClient();const claim=await db.rpc("cms_claim_invitation_delivery",{p_id:id,p_actor:identity.id});
  if(claim.error)throw new Error("INVITE_CLAIM_FAILED");

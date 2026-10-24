@@ -19,6 +19,9 @@ export function useCmsText() {
   const {scope,data,common}=useCmsValues();
   return (value:string,fieldId?:string)=> {
     const exact=data.fields[`${scope}.${fieldId??textKey(value)}`];
+    // Historical seed snapshots keep their immutable text; render this known
+    // imported entity as the original visible ampersand, including after restore.
+    if(scope==="home"&&(fieldId??textKey(value))==="text_579bb17d"&&exact==="REAL ESTATE &amp; ARCHITECTURE")return "REAL ESTATE & ARCHITECTURE";
     if(exact!==undefined)return exact;
     const pattern=new RegExp(commonParts.map(part=>part.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|"),"g");
     return value.replace(pattern,part=>common.fields[`common.${textKey(part)}`]??part);

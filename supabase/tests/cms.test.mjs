@@ -308,5 +308,20 @@ await test('invitation delivery claim is service-only and never retries an uncer
  assert.equal((await db.query('select public.cms_claim_invitation_delivery($1,$2) email',[id,users.owner.id])).rows[0].email,'delivery@example.test');
  assert.equal((await db.query('select public.cms_claim_invitation_delivery($1,$2) email',[id,users.owner.id])).rows[0].email,null);
 });
+await test('notification acceptance stores reconciliation ID and does not claim delivery',async()=>{
+ await actor('service');const id=randomUUID();
+ await db.query("select public.cms_receive_inquiry($1,'Test','reconcile@example.test','','Question','Message')",[id]);
+ await assert.rejects(db.query("select public.cms_inquiry_notification($1,'accepted',null)",[id]),/CMS_INVALID_STATUS/);
+ await db.query("select public.cms_inquiry_notification($1,'accepted','sub_fixture123')",[id]);
+ await actor('owner');const row=(await db.query('select notification_status,notification_provider_id from public.cms_inquiries where id=$1',[id])).rows[0];
+ assert.equal(row.notification_status,'accepted');assert.equal(row.notification_provider_id,'sub_fixture123');
+});
+await test('home imported entity is corrected with stable field identity and recorded history',async()=>{
+ await actor('owner');const row=(await db.query("select * from public.cms_documents where module='pages' and slug='home'")).rows[0];
+ assert.equal(row.draft.fields['home.text_579bb17d'],'REAL ESTATE & ARCHITECTURE');
+ assert.ok((await db.query("select * from public.cms_revisions where document_id=$1 and action='migration.entity_text'",[row.id])).rows.length);
+ await actor('anon');const published=(await db.query("select data from public.cms_published where module='pages' and slug='home'")).rows[0];
+ assert.equal(published.data.fields['home.text_579bb17d'],'REAL ESTATE & ARCHITECTURE');
+});
 console.log(`${passed} database tests passed. LOCAL PGlite; no hosted Supabase calls.`);
 await db.close();

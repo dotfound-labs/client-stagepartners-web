@@ -32,6 +32,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  ...(process.env.VERCEL_ENV === "preview" ? {robots:{index:false,follow:false}} : {}),
   title: "STAGE PARTNERS | 株式会社ステージパートナーズ",
   description:
     "土地と建物に、次の価値を。STAGE PARTNERSは不動産の仲介・管理から建物のリフォームまで、オーナー様の資産の可能性を一貫して引き出すパートナーです。",

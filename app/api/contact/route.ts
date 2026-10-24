@@ -20,12 +20,12 @@ export async function POST(request:Request){
   if(stored.data){
    // The durable CMS record is the receipt. Notification is attempted once only;
    // timeout may mean delivery succeeded, so never retry it automatically.
-   let status="uncertain";
+   let status="uncertain",providerId:string|null=null;
    try{
     const response=await fetch("https://api.web3forms.com/v1/submissions",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json",Authorization:`Bearer ${process.env.WEB3FORMS_SECRET_KEY}`},redirect:"error",signal:AbortSignal.timeout(10000),body:JSON.stringify({form_id:process.env.WEB3FORMS_FORM_ID,fields:{name:data.name,email:data.email,phone:data.phone,message:data.message,inquiry_type:data.inquiry_type},subject:`STAGE PARTNERS | ${data.inquiry_type}`,replyto:data.email})});
-    const result=await response.json();if(response.status===201&&typeof result.data?.id==="string")status="sent";
+    const result=await response.json();if(response.status===201&&typeof result.data?.id==="string"&&/^sub_[a-zA-Z0-9_-]{1,128}$/.test(result.data.id)){status="accepted";providerId=result.data.id;}
    }catch{/* No PII or provider response logging. */}
-   await db.rpc("cms_inquiry_notification",{p_id:data.id,p_status:status});
+   await db.rpc("cms_inquiry_notification",{p_id:data.id,p_status:status,p_provider_id:providerId});
   }
   return Response.json({success:true},{headers});
  }catch{return Response.json({error:"受付できませんでした。入力内容と接続を確認してください。"},{status:400,headers});}

@@ -13,8 +13,8 @@ export const PAGE_TEMPLATES:Record<string,PageTemplate>={
       },
       {
         "id": "home.text_579bb17d",
-        "label": "REAL ESTATE &amp; ARCHITECTURE",
-        "value": "REAL ESTATE &amp; ARCHITECTURE",
+        "label": "REAL ESTATE & ARCHITECTURE",
+        "value": "REAL ESTATE & ARCHITECTURE",
         "section": "Hero",
         "kind": "text"
       },

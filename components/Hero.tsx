@@ -134,7 +134,7 @@ export default function Hero() {
           data-hero-eyebrow
           className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-on-dark/70 sm:text-[11px]"
         >
-          <span aria-hidden className="inline-block h-px w-10 bg-on-dark/40" /><CmsText>{"REAL ESTATE &amp; ARCHITECTURE"}</CmsText></p>
+          <span aria-hidden className="inline-block h-px w-10 bg-on-dark/40" /><CmsText fieldId="text_579bb17d">{"REAL ESTATE & ARCHITECTURE"}</CmsText></p>
 
         <h1 className="mt-7 font-display font-normal text-on-dark">
           <span className="block overflow-hidden">

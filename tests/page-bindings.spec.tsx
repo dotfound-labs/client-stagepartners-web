@@ -22,3 +22,8 @@ test('edited metadata reaches page title, description and social metadata',()=>{
   const result=resolvePageMetadata('company',{[`company.${textKey('Company')}`]:'Updated title',[`company.${textKey('Description')}`]:'Updated description'},{title:'Company',description:'Description',alternates:{canonical:'/company'}});
   expect(result.title).toBe('Updated title');expect(result.description).toBe('Updated description');expect(result.openGraph).toMatchObject({title:'Updated title',description:'Updated description'});expect(result.alternates?.canonical).toBe('/company');
 });
+
+test('restored historical hero default does not double-encode its ampersand',()=>{
+ const html=renderToStaticMarkup(<PageFieldsProvider scope="home" common={{title:'Common',fields:{}}} page={{title:'Home',fields:{'home.text_579bb17d':'REAL ESTATE &amp; ARCHITECTURE'}}}><CmsText fieldId="text_579bb17d">REAL ESTATE &amp; ARCHITECTURE</CmsText></PageFieldsProvider>);
+ expect(html).toContain('REAL ESTATE &amp; ARCHITECTURE');expect(html).not.toContain('&amp;amp;');
+});

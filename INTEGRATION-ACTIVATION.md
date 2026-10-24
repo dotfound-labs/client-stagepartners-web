@@ -45,7 +45,7 @@ source-link fallback. No posting back to Instagram.
 
 ## Contact
 
-Approve the delivery provider and verified recipient first. The existing
+Approve the delivery provider, actual recipient, autoresponder behavior and all downstream integrations first. The existing
 Web3Forms adapter uses its documented server Submissions API (PRO feature):
 WEB3FORMS_SECRET_KEY with Create submissions permission and WEB3FORMS_FORM_ID,
 SUPABASE_SECRET_KEY and CONTACT_INTAKE_ENABLED=true are required. Server status
@@ -85,3 +85,8 @@ Official references checked during implementation:
 - https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login
 - https://developers.facebook.com/documentation/instagram-platform/reference/instagram-media
 - https://docs.web3forms.com/getting-started/submissions-api
+
+Notification status `accepted` means the provider accepted the submission, not
+that the recipient received email. The provider submission ID is stored for
+reconciliation. Honeypot and email/global caps do not prevent quota-exhaustion
+denial of service; evaluate stronger abuse controls before public activation.

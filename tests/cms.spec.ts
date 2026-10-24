@@ -34,6 +34,8 @@ test("public SEO, existing content and disabled contact delivery", async ({ page
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `https://www.stagepartners.co.jp${path === "/" ? "" : path}`);
     await expect(page.locator('link[rel="preload"][as="font"]')).toHaveCount(0);
   }
+  await page.goto(base);
+  await expect(page.getByText("REAL ESTATE &amp; ARCHITECTURE",{exact:true})).toHaveCount(0);
   await page.goto(`${base}/contact`);
   await expect(page.getByRole("button", {name:"この内容で送信する"})).toBeDisabled();
   await page.goto(`${base}/works`);

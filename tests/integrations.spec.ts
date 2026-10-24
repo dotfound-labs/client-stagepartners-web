@@ -43,3 +43,23 @@ test("official Instagram adapter handles photos, expired tokens, limits and disa
  await sync(config,{...dependencies,fetch:async()=>Response.json({error:{code:190}},{status:401})});expect(health).toBe('token-expired');
  await sync(config,{...dependencies,fetch:async()=>Response.json({error:{code:4}},{status:429})});expect(health).toBe('rate-limited');
 });
+
+test("invitation readiness and labels agree for disabled, Preview and enabled fixtures",async()=>{
+ const {invitationDeliveryConfig,invitationIntentMatches}=await import('../lib/cms/invitation-readiness');
+ const {invitationPresentation}=await import('../lib/cms/invitation-presentation');
+ const fixture={CMS_INVITATIONS_ENABLED:'true',NEXT_PUBLIC_SUPABASE_URL:'https://apkfyxfmsndwqjfetdad.supabase.co',NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fixture',SUPABASE_SECRET_KEY:'sb_secret_fixture',CMS_AUTH_CALLBACK_URL:'https://preview.example.test/auth/callback'};
+ for(const env of [{...fixture,CMS_INVITATIONS_ENABLED:'false'},{...fixture,VERCEL_ENV:'preview'},{...fixture,SUPABASE_SECRET_KEY:undefined},{...fixture,CMS_AUTH_CALLBACK_URL:'https://example.test/other'}]){
+  const enabled=Boolean(invitationDeliveryConfig(env));expect(enabled).toBe(false);expect(invitationPresentation(enabled).label).toContain('メール送信なし');
+ }
+ const enabled=Boolean(invitationDeliveryConfig(fixture));expect(enabled).toBe(true);expect(invitationPresentation(enabled).label).toBe('招待メールを送信');expect(invitationPresentation(enabled).notice).toContain('送信します');
+ expect(invitationIntentMatches(false,true)).toBe(false);expect(invitationIntentMatches(true,false)).toBe(false);
+});
+test("password page uses verified server email and rejects unverified identity",async()=>{
+ const require=createRequire(process.cwd()+"/package.json");let email='verified@example.test',confirmed=true;
+ const exports:Record<string,unknown>={};
+ vm.runInNewContext(ts.transpileModule(readFileSync('app/auth/set-password/page.tsx','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText,{exports,require:(name:string)=>name==='@/lib/cms/server'?{sessionClient:async()=>({auth:{getUser:async()=>({data:{user:{email,email_confirmed_at:confirmed?'verified':null}},error:null})}})}:name==='next/navigation'?{redirect:()=>{throw new Error('REDIRECT');}}:name==='@/components/admin/AccountSetup'?{default:()=>null}:require(name)});
+ const page=exports.default as ()=>Promise<{props:{verifiedEmail:string}}>;
+ expect((await page()).props.verifiedEmail).toBe('verified@example.test');
+ email='other-verified@example.test';expect((await page()).props.verifiedEmail).toBe(email);
+ confirmed=false;expect(await page().then(()=>'',error=>error.message)).toBe('REDIRECT');
+});

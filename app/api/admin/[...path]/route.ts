@@ -1,3 +1,4 @@
+import {invitationDeliveryConfig,invitationIntentMatches} from "@/lib/cms/invitation-readiness";
 import {deliverInvitation} from "@/lib/cms/invitation-delivery";
 import {instagramReady,contactReady} from "@/lib/cms/integration-config";
 import { NextResponse } from "next/server";
@@ -55,7 +56,7 @@ export async function GET(request: Request, context: Context) {
       requirePermission(identity, "users", "manage");
       const results = await Promise.all([client.from("cms_members").select("*"), client.from("cms_permissions").select("*"), client.from("cms_invitations").select("*").order("created_at", { ascending: false }).limit(100)]);
       results.forEach(r => databaseError(r.error));
-      return reply({ members: results[0].data, permissions: results[1].data, invitations: results[2].data, deliveryEnabled: false });
+      return reply({ members: results[0].data, permissions: results[1].data, invitations: results[2].data, deliveryEnabled: Boolean(invitationDeliveryConfig()) });
     }
     if (path === "inquiries") {
       requirePermission(identity, "inquiries", "read");
@@ -108,11 +109,12 @@ export async function POST(request: Request, context: Context) {
     if (path === "member" || path === "invitation") {
       requirePermission(identity, "users", "manage");
       const permission = z.object({ module: z.enum(Object.keys(MODULES) as [Module, ...Module[]]), capability: z.enum(["read", "edit", "publish", "delete", "manage"]) }).strict();
-      const value = z.object({ id: z.uuid().optional(), email: z.email().max(254).optional(), owner: z.boolean(), active: z.boolean().optional(), permissions: z.array(permission).max(32) }).strict().parse(input);
+      const value = z.object({ id: z.uuid().optional(), email: z.email().max(254).optional(), sendEmail:z.boolean().optional(), owner: z.boolean(), active: z.boolean().optional(), permissions: z.array(permission).max(32) }).strict().parse(input);
       if (path === "member") {
         if (!value.id || value.active === undefined) throw new CmsError(400, "対象を選択してください。");
         const { error } = await client.rpc("cms_set_member", { p_user_id: value.id, p_owner: value.owner, p_active: value.active, p_permissions: value.permissions }); databaseError(error);
       } else {
+        if(value.sendEmail===undefined||!invitationIntentMatches(value.sendEmail,Boolean(invitationDeliveryConfig())))throw new CmsError(409,"招待メールの送信設定が変わりました。画面を再読み込みして確認してください。");
         if (!value.email) throw new CmsError(400, "メールアドレスを入力してください。");
         const { data: invitationId, error } = await client.rpc("cms_reserve_invitation", { p_email: value.email, p_owner: value.owner, p_permissions: value.permissions }); databaseError(error);
         return reply({ok:true,message:await deliverInvitation(invitationId)});
