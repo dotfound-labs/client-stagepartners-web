@@ -1,4 +1,6 @@
 "use client";
+import CmsText from "@/components/CmsText";
+
 
 import Image from "next/image";
 import Link from "next/link";
@@ -122,35 +124,33 @@ export default function Message() {
         <div className="relative z-10 mx-auto w-full max-w-[1600px] px-6 sm:px-10 lg:px-14">
           <div className="max-w-3xl">
             <p className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-on-dark/55 sm:text-[11px]">
-              <span aria-hidden className="inline-block h-px w-10 bg-on-dark/30" />
-              MESSAGE
-            </p>
+              <span aria-hidden className="inline-block h-px w-10 bg-on-dark/30" /><CmsText>{"MESSAGE"}</CmsText></p>
 
             <p
               data-msg-intro
               className="t-body mt-10 font-display font-light text-on-dark/85 sm:mt-12"
             >
-              {INTRO}
+              <CmsText>{INTRO}</CmsText>
             </p>
 
             <h2 className="mt-8 font-display font-normal sm:mt-10">
-              {CORE.map((line) => (
+              <CmsText>{CORE.map((line) => (
                 <span key={line} className="block overflow-hidden">
                   <span
                     data-msg-core-line
                     className="t-heading block text-on-dark"
                   >
-                    {line}
+                    <CmsText>{line}</CmsText>
                   </span>
                 </span>
-              ))}
+              ))}</CmsText>
             </h2>
 
             <p
               data-msg-outro
               className="t-body mt-8 font-display font-light text-on-dark/85 sm:mt-10"
             >
-              {OUTRO}
+              <CmsText>{OUTRO}</CmsText>
             </p>
 
             <span
@@ -163,14 +163,10 @@ export default function Message() {
               data-msg-link
               href="/company"
               className="group mt-9 inline-flex items-center gap-3 bg-on-dark px-8 py-4 text-xs font-medium tracking-[0.2em] text-navy transition-colors duration-300 hover:bg-navy-mid hover:text-on-dark"
-            >
-              私たちについて
-              <span
+            ><CmsText>{"私たちについて"}</CmsText><span
                 aria-hidden
                 className="transition-transform duration-300 group-hover:translate-x-1"
-              >
-                →
-              </span>
+              ><CmsText>{"→"}</CmsText></span>
             </Link>
           </div>
         </div>

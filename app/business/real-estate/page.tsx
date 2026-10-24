@@ -1,3 +1,4 @@
+import PublishedPage from "@/components/PublishedPage";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import RealEstateSolution from "@/components/RealEstateSolution";
@@ -12,12 +13,12 @@ export const metadata: Metadata = {
 
 export default function RealEstatePage() {
   return (
-    <>
+    <PublishedPage slug="real-estate">
       <Header />
       <main id="main" className="flex flex-1 flex-col">
         <RealEstateSolution />
       </main>
       <Footer />
-    </>
+    </PublishedPage>
   );
 }

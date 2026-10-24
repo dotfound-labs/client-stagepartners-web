@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
-import { CATEGORY_LABEL, WORKS as ALL_WORKS, workImage } from "@/content/works";
+import { CATEGORY_LABEL, WORKS as ALL_WORKS, workImage, type Work } from "@/content/works";
 
 // トップに出す注目実績。スラッグで明示指定する(2026-09-10 議事録)。
 const FEATURED_SLUGS = ["zentoku", "issekisancho", "deltaring-gym"] as const;
@@ -12,7 +12,7 @@ const FEATURED = FEATURED_SLUGS
   .map((slug) => ALL_WORKS.find((w) => w.slug === slug))
   .filter((w): w is NonNullable<typeof w> => Boolean(w));
 
-export default function Works() {
+export default function Works({ works = FEATURED }: { works?: Work[] }) {
   const sectionRef = useScopedGsap<HTMLElement>(() => {
     gsap.from("[data-works-fade]", {
       opacity: 0,
@@ -83,13 +83,14 @@ export default function Works() {
           data-works-grid
           className="mt-14 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3"
         >
-          {FEATURED.map((work) => (
+          {works.map((work) => (
             <article key={work.slug} data-works-card>
               <Link href={`/works/${work.slug}`} className="group block">
                 {/* 一覧ページと同じ3:2。サイト内で実績カードの比率をそろえる */}
                 <div className="media relative aspect-[3/2] w-full overflow-hidden bg-[#161513]">
                   <Image
                     src={workImage(work, work.cover)}
+ unoptimized={work.cover.startsWith("/api/media/")}
                     alt={`${work.title}の施工実績`}
                     fill
                     sizes="(min-width: 1024px) 32vw, (min-width: 640px) 48vw, 100vw"

@@ -1,9 +1,10 @@
+import PublishedPage from "@/components/PublishedPage";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NewsDetail from "@/components/NewsDetail";
-import { NEWS, getNewsPost, getNewsSiblings } from "@/content/news";
+import { getPublishedNews } from "@/lib/cms/public";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -13,13 +14,12 @@ type Params = { params: Promise<{ slug: string }> };
  * APIから slug 一覧を取得するようにし、下の dynamicParams = false を外す
  * (外すと、ビルド後に追加された記事も初回アクセス時に生成される)。
  */
-export function generateStaticParams() {
-  return NEWS.map((post) => ({ slug: post.slug }));
-}
+
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const post = getNewsPost(slug);
+  const posts = await getPublishedNews();
+  const post = posts.find(p => p.slug === slug);
   if (!post) return {};
   const title = `${post.title} | お知らせ | STAGE PARTNERS`;
   return {
@@ -38,19 +38,21 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function NewsPostPage({ params }: Params) {
   const { slug } = await params;
-  const post = getNewsPost(slug);
+  const posts = await getPublishedNews();
+  const post = posts.find(p => p.slug === slug);
   if (!post) notFound();
-  const { prev, next } = getNewsSiblings(slug);
+  const index = posts.indexOf(post);
+  const prev = posts[index - 1] ?? null, next = posts[index + 1] ?? null;
 
   return (
-    <>
+    <PublishedPage slug="common">
       <Header />
       <main id="main" className="flex flex-1 flex-col">
         <NewsDetail post={post} prev={prev} next={next} />
       </main>
       <Footer />
-    </>
+    </PublishedPage>
   );
 }
 
-export const dynamicParams = false;
+export const dynamic = "force-dynamic";

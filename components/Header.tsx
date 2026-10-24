@@ -1,4 +1,6 @@
 "use client";
+import CmsText from "@/components/CmsText";
+
 
 import { useState } from "react";
 import Image from "next/image";
@@ -104,23 +106,23 @@ export default function Header({ transparent = false }: HeaderProps) {
           className="hidden items-center gap-8 lg:flex"
           aria-label="メインナビゲーション"
         >
-          {NAV_ITEMS.map((item) =>
+          <CmsText>{NAV_ITEMS.map((item) =>
             item.cta ? (
               <Link
                 key={item.label}
                 href={item.href}
                 className="inline-flex items-center gap-2 bg-on-dark px-6 py-2.5 text-xs font-medium tracking-[0.12em] text-navy transition-colors hover:bg-navy-mid hover:text-on-dark"
               >
-                {item.label}
-                <span aria-hidden>→</span>
+                <CmsText>{item.label}</CmsText>
+                <span aria-hidden><CmsText>{"→"}</CmsText></span>
               </Link>
             ) : (
               <div key={item.label} className="group relative">
-                {item.children ? (
+                <CmsText>{item.children ? (
                   // 子を持つ項目(事業内容)は自身のページを持たないため、リンクにせず
                   // ホバー/フォーカスでドロップダウンを開くだけの見出しにする。
                   <span className="inline-flex cursor-default items-center gap-1.5 py-6 text-xs font-normal tracking-[0.12em] text-on-dark/80 transition-colors group-hover:text-on-dark">
-                    {item.label}
+                    <CmsText>{item.label}</CmsText>
                     <span
                       aria-hidden
                       className="mt-px inline-block h-1 w-1 rotate-45 border-b border-r border-on-dark/50 transition-colors group-hover:border-on-dark"
@@ -132,29 +134,29 @@ export default function Header({ transparent = false }: HeaderProps) {
                     onClick={item.href === "/" ? scrollTopIfHome : undefined}
                     className="inline-flex items-center gap-1.5 py-6 text-xs font-normal tracking-[0.12em] text-on-dark/80 transition-colors hover:text-on-dark"
                   >
-                    {item.label}
+                    <CmsText>{item.label}</CmsText>
                   </Link>
-                )}
+                )}</CmsText>
 
-                {item.children && (
+                <CmsText>{item.children && (
                   <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 pt-1 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
                     <ul className="min-w-[220px] border border-on-dark/10 bg-navy/98 py-2 shadow-2xl backdrop-blur-md">
-                      {item.children.map((child) => (
+                      <CmsText>{item.children.map((child) => (
                         <li key={child.label}>
                           <Link
                             href={child.href}
                             className="block whitespace-nowrap px-5 py-3 text-xs font-normal tracking-[0.08em] text-on-dark/70 transition-colors hover:bg-on-dark/5 hover:text-on-dark"
                           >
-                            {child.label}
+                            <CmsText>{child.label}</CmsText>
                           </Link>
                         </li>
-                      ))}
+                      ))}</CmsText>
                     </ul>
                   </div>
-                )}
+                )}</CmsText>
               </div>
             ),
-          )}
+          )}</CmsText>
         </nav>
 
         <button
@@ -184,7 +186,7 @@ export default function Header({ transparent = false }: HeaderProps) {
         className={`overflow-hidden bg-navy/98 backdrop-blur-md transition-[max-height,opacity] duration-500 ease-out lg:hidden ${isMenuOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"}`}
       >
         <ul className="flex flex-col border-t border-on-dark/10 px-6 py-2 sm:px-10">
-          {NAV_ITEMS.map((item) =>
+          <CmsText>{NAV_ITEMS.map((item) =>
             item.cta ? (
               <li key={item.label} className="py-4">
                 <Link
@@ -192,14 +194,14 @@ export default function Header({ transparent = false }: HeaderProps) {
                   onClick={() => setIsMenuOpen(false)}
                   className="flex items-center justify-center gap-2 bg-on-dark py-3.5 text-sm font-medium tracking-[0.08em] text-navy"
                 >
-                  {item.label}
-                  <span aria-hidden>→</span>
+                  <CmsText>{item.label}</CmsText>
+                  <span aria-hidden><CmsText>{"→"}</CmsText></span>
                 </Link>
               </li>
             ) : (
               <li key={item.label} className="border-b border-on-dark/5">
                 <div className="flex items-center justify-between">
-                  {item.children ? (
+                  <CmsText>{item.children ? (
                     // 子を持つ項目(事業内容)は自身のページを持たないため、
                     // タップでアコーディオンを開閉するだけにする。
                     <button
@@ -209,7 +211,7 @@ export default function Header({ transparent = false }: HeaderProps) {
                       }
                       className="block flex-1 py-4 text-left text-sm font-normal tracking-[0.08em] text-on-dark/85"
                     >
-                      {item.label}
+                      <CmsText>{item.label}</CmsText>
                     </button>
                   ) : (
                     <Link
@@ -220,10 +222,10 @@ export default function Header({ transparent = false }: HeaderProps) {
                       }}
                       className="block flex-1 py-4 text-sm font-normal tracking-[0.08em] text-on-dark/85"
                     >
-                      {item.label}
+                      <CmsText>{item.label}</CmsText>
                     </Link>
-                  )}
-                  {item.children && (
+                  )}</CmsText>
+                  <CmsText>{item.children && (
                     <button
                       type="button"
                       aria-label={`${item.label}のサブメニューを開閉`}
@@ -237,29 +239,29 @@ export default function Header({ transparent = false }: HeaderProps) {
                         className={`inline-block h-2 w-2 rotate-45 border-b border-r border-on-dark/60 transition-transform duration-300 ${openMobile === item.label ? "-rotate-[135deg]" : ""}`}
                       />
                     </button>
-                  )}
+                  )}</CmsText>
                 </div>
 
-                {item.children && (
+                <CmsText>{item.children && (
                   <ul
                     className={`overflow-hidden transition-[max-height,opacity] duration-300 ${openMobile === item.label ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}`}
                   >
-                    {item.children.map((child) => (
+                    <CmsText>{item.children.map((child) => (
                       <li key={child.label}>
                         <Link
                           href={child.href}
                           onClick={() => setIsMenuOpen(false)}
                           className="block py-3 pl-4 text-xs font-normal tracking-[0.06em] text-on-dark/60"
                         >
-                          {child.label}
+                          <CmsText>{child.label}</CmsText>
                         </Link>
                       </li>
-                    ))}
+                    ))}</CmsText>
                   </ul>
-                )}
+                )}</CmsText>
               </li>
             ),
-          )}
+          )}</CmsText>
         </ul>
       </nav>
     </header>

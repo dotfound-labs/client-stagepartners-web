@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import CmsText from "@/components/CmsText";
 import Image from "next/image";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { scrollTriggerDefaults } from "@/lib/animations";
@@ -9,7 +10,7 @@ import { INQUIRY_TYPES, OFFICES } from "@/content/company";
 // お問い合わせフォーム。送信は Web3Forms を利用する。
 // ドメイン確定後、Web3Forms で発行される正式な access_key に差し替える。
 // それまでは仮のキーのため、実際の送信はエラーになる(UIは完成状態)。
-const WEB3FORMS_ACCESS_KEY = "00000000-0000-0000-0000-000000000000";
+const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY ?? "";
 
 type Status = "idle" | "sending" | "success" | "error";
 
@@ -29,6 +30,7 @@ export default function Contact() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!WEB3FORMS_ACCESS_KEY || status === "sending") return;
     setStatus("sending");
 
     // Reactはハンドラが返った直後にcurrentTargetをnullへ戻すため、awaitを挟むと
@@ -111,9 +113,9 @@ export default function Contact() {
             <p className="font-latin text-[11px] tracking-[0.2em] text-on-dark/50">TEL</p>
             {OFFICES.map((office) => (
               <p key={office.key} className="flex items-baseline gap-3">
-                <span className="text-xs text-on-dark/50">{office.label}</span>
+                <span className="text-xs text-on-dark/50"><CmsText>{office.label}</CmsText></span>
                 <span className="font-latin text-lg tracking-[0.05em] text-on-dark">
-                  {office.tel}
+                  <CmsText>{office.tel}</CmsText>
                 </span>
               </p>
             ))}
@@ -191,9 +193,10 @@ export default function Contact() {
               />
             </label>
 
+            {!WEB3FORMS_ACCESS_KEY && <p role="status" className="text-sm text-ink">フォームは現在準備中です。上記のお電話にてお問い合わせください。</p>}
             <button
               type="submit"
-              disabled={status === "sending"}
+              disabled={!WEB3FORMS_ACCESS_KEY || status === "sending"}
               className="mt-2 inline-flex items-center justify-center gap-3 bg-navy-mid px-11 py-4 text-xs font-medium tracking-[0.2em] text-on-dark transition-opacity hover:opacity-85 disabled:opacity-50"
             >
               {status === "sending" ? "送信中..." : "この内容で送信する"}

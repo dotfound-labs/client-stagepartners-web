@@ -60,6 +60,7 @@ export default function WorkDetail({ work, prev, next }: Props) {
         <div data-hero-media aria-hidden className="absolute inset-0">
           <Image
             src={workImage(work, work.cover)}
+ unoptimized={work.cover.startsWith("/api/media/")}
             alt=""
             fill
             sizes="100vw"

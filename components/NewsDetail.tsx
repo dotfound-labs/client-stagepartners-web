@@ -91,7 +91,8 @@ export default function NewsDetail({ post, prev, next }: Props) {
             NEWS
           </p>
 
-          <div className="mt-12 space-y-6">
+          {post.sourceUrl && <p className="mt-8"><a href={post.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Instagramの元の投稿を見る ↗</a></p>}
+            <div className="mt-12 space-y-6">
             {post.body.map((paragraph, i) => (
               <p
                 key={i}

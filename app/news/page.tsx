@@ -1,8 +1,9 @@
+import PublishedPage from "@/components/PublishedPage";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import NewsIndex from "@/components/NewsIndex";
 import Footer from "@/components/Footer";
-import { getAllNews } from "@/content/news";
+import { getPublishedNews } from "@/lib/cms/public";
 
 export const metadata: Metadata = {
   title: "お知らせ | STAGE PARTNERS",
@@ -18,16 +19,16 @@ export const metadata: Metadata = {
  * `const posts = await getAllNews();` に変えるだけで動く。
  * CMSの更新を反映させたい場合は `export const revalidate = 60;` を追加する。
  */
-export default function NewsPage() {
-  const posts = getAllNews();
+export default async function NewsPage() {
+  const posts = await getPublishedNews();
 
   return (
-    <>
+    <PublishedPage slug="common">
       <Header />
       <main id="main" className="flex flex-1 flex-col">
         <NewsIndex posts={posts} />
       </main>
       <Footer />
-    </>
+    </PublishedPage>
   );
 }

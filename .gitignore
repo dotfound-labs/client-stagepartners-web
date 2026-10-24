@@ -43,3 +43,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/*-output.txt
+/dependency-audit.json
+/test-results/
+/playwright-report/
+/lint-results.json

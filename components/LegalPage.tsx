@@ -1,3 +1,5 @@
+
+import CmsText from "@/components/CmsText";
 import type { ReactNode } from "react";
 
 /**
@@ -20,23 +22,23 @@ export default function LegalPage({ eyebrow, title, lead, updated, sections }: P
       <div className="mx-auto max-w-3xl">
         <p className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-ink-muted sm:text-[11px]">
           <span aria-hidden className="inline-block h-px w-10 bg-ink/25" />
-          {eyebrow}
+          <CmsText>{eyebrow}</CmsText>
         </p>
-        <h1 className="t-heading mt-7 font-display font-normal text-ink">{title}</h1>
-        {lead && <p className="t-note mt-6 text-ink-muted">{lead}</p>}
-        <p className="mt-6 text-xs tracking-[0.05em] text-ink-muted">最終更新日：{updated}</p>
+        <h1 className="t-heading mt-7 font-display font-normal text-ink"><CmsText>{title}</CmsText></h1>
+        <CmsText>{lead && <p className="t-note mt-6 text-ink-muted"><CmsText>{lead}</CmsText></p>}</CmsText>
+        <p className="mt-6 text-xs tracking-[0.05em] text-ink-muted"><CmsText>{"最終更新日："}</CmsText><CmsText>{updated}</CmsText></p>
 
         <div className="mt-16 space-y-14 border-t border-line pt-14">
-          {sections.map((section) => (
+          <CmsText>{sections.map((section) => (
             <div key={section.heading}>
               <h2 className="font-display text-lg font-normal text-ink sm:text-xl">
-                {section.heading}
+                <CmsText>{section.heading}</CmsText>
               </h2>
               <div className="t-note mt-5 space-y-4 leading-loose text-ink-muted [&_a]:underline [&_a]:underline-offset-4 [&_a]:transition-colors hover:[&_a]:text-ink [&_li]:leading-loose [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5">
-                {section.body}
+                <CmsText>{section.body}</CmsText>
               </div>
             </div>
-          ))}
+          ))}</CmsText>
         </div>
       </div>
     </section>

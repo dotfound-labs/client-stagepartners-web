@@ -1,3 +1,4 @@
+import PublishedPage from "@/components/PublishedPage";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import ComingSoon from "@/components/ComingSoon";
@@ -10,6 +11,7 @@ import Footer from "@/components/Footer";
 // 正式導線として残すかどうかはCEO/クライアント判断待ち。
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/recruit" },
   title: "採用情報 | STAGE PARTNERS",
   description:
     "STAGE PARTNERSの採用情報ページです。募集要項は近日公開予定です。",
@@ -17,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function RecruitPage() {
   return (
-    <>
+    <PublishedPage slug="common">
       <Header />
       <main id="main" className="flex flex-1 flex-col">
         <ComingSoon
@@ -27,6 +29,6 @@ export default function RecruitPage() {
         />
       </main>
       <Footer />
-    </>
+    </PublishedPage>
   );
 }

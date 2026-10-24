@@ -1,4 +1,6 @@
 "use client";
+import CmsText from "@/components/CmsText";
+
 
 import Image from "next/image";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
@@ -105,27 +107,23 @@ export default function Company() {
             data-company-text
             className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-ink-muted sm:text-[11px]"
           >
-            <span aria-hidden className="inline-block h-px w-10 bg-ink/25" />
-            COMPANY
-          </p>
+            <span aria-hidden className="inline-block h-px w-10 bg-ink/25" /><CmsText>{"COMPANY"}</CmsText></p>
           <h2
             data-company-text
             className="t-heading mt-8 font-display font-normal text-ink"
-          >
-            会社概要
-          </h2>
+          ><CmsText>{"会社概要"}</CmsText></h2>
 
           <dl data-company-text className="mt-10 border-t border-line">
-            {PROFILE.map((row) => (
+            <CmsText>{PROFILE.map((row) => (
               <div
                 key={row.label}
                 className="flex flex-col gap-1 border-b border-line py-5 sm:flex-row sm:gap-8"
               >
                 <dt className="font-latin text-[11px] tracking-[0.15em] text-ink-muted sm:w-36 sm:shrink-0 sm:pt-1">
-                  {row.label}
+                  <CmsText>{row.label}</CmsText>
                 </dt>
                 <dd className="text-sm font-normal leading-relaxed text-ink sm:text-base">
-                  {row.links
+                  <CmsText>{row.links
                     ? row.links.map((link) => (
                       <span key={link.href} className="block">
                         <a
@@ -134,24 +132,22 @@ export default function Company() {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 underline-offset-4 transition-colors hover:text-navy-mid hover:underline"
                         >
-                          {link.name}
-                          <span aria-hidden className="text-[0.85em] text-ink-muted">
-                            ↗
-                          </span>
-                          <span className="sr-only">（外部サイト・新しいタブで開きます）</span>
+                          <CmsText>{link.name}</CmsText>
+                          <span aria-hidden className="text-[0.85em] text-ink-muted"><CmsText>{"↗"}</CmsText></span>
+                          <span className="sr-only"><CmsText>{"（外部サイト・新しいタブで開きます）"}</CmsText></span>
                         </a>
                       </span>
                     ))
                     : Array.isArray(row.value)
                       ? row.value.map((line) => (
                         <span key={line} className="block">
-                          {line}
+                          <CmsText>{line}</CmsText>
                         </span>
                       ))
-                      : row.value}
+                      : row.value}</CmsText>
                 </dd>
               </div>
-            ))}
+            ))}</CmsText>
           </dl>
         </div>
       </div>

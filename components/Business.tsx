@@ -1,4 +1,6 @@
 "use client";
+import CmsText from "@/components/CmsText";
+
 
 import Image from "next/image";
 import Link from "next/link";
@@ -94,26 +96,16 @@ export default function Business() {
             data-business-fade
             className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-ink-muted sm:text-[11px]"
           >
-            <span aria-hidden className="inline-block h-px w-10 bg-ink/25" />
-            OUR SOLUTIONS
-          </p>
+            <span aria-hidden className="inline-block h-px w-10 bg-ink/25" /><CmsText>{"OUR SOLUTIONS"}</CmsText></p>
           <h2
             data-business-fade
             className="t-heading mt-8 font-display font-normal text-ink"
-          >
-            不動産と建築を、
-            <br />
-            一社でつなぐ。
-          </h2>
-          <p data-business-fade className="t-note mt-6 max-w-xl text-ink-muted">
-            仲介で終わらせず、リフォームで価値を高め、管理まで。
-            <br />
-            事業を分けずに一気通貫で担うからこそ、土地と建物の可能性を最大限に引き出せます。
-          </p>
+          ><CmsText>{"不動産と建築を、"}</CmsText><br /><CmsText>{"一社でつなぐ。"}</CmsText></h2>
+          <p data-business-fade className="t-note mt-6 max-w-xl text-ink-muted"><CmsText>{"仲介で終わらせず、リフォームで価値を高め、管理まで。"}</CmsText><br /><CmsText>{"事業を分けずに一気通貫で担うからこそ、土地と建物の可能性を最大限に引き出せます。"}</CmsText></p>
         </div>
 
         <div className="mt-16 flex flex-col gap-20 lg:mt-24 lg:gap-28">
-          {DIVISIONS.map((division, i) => (
+          <CmsText>{DIVISIONS.map((division, i) => (
             <div
               key={division.index}
               data-business-row
@@ -132,7 +124,7 @@ export default function Business() {
                   className={`object-cover ${division.imagePosition}`}
                 />
                 <span className="absolute left-6 top-6 font-latin text-[11px] tracking-[0.3em] text-on-dark/85">
-                  {division.en}
+                  <CmsText>{division.en}</CmsText>
                 </span>
               </div>
 
@@ -141,23 +133,23 @@ export default function Business() {
                   data-business-text
                   className="block font-latin text-[11px] tracking-[0.25em] text-ink-muted"
                 >
-                  {division.index}　{division.lead}
+                  <CmsText>{division.index}</CmsText>　<CmsText>{division.lead}</CmsText>
                 </span>
                 <h3
                   data-business-text
                   className="t-heading-tight mt-5 font-display font-normal text-ink"
                 >
-                  {division.title}
+                  <CmsText>{division.title}</CmsText>
                 </h3>
                 <p
                   data-business-text
                   className="t-note mt-5 max-w-lg whitespace-pre-line text-ink-muted"
                 >
-                  {division.description}
+                  <CmsText>{division.description}</CmsText>
                 </p>
 
                 <ul data-business-text className="mt-7 space-y-3">
-                  {division.points.map((point) => (
+                  <CmsText>{division.points.map((point) => (
                     <li
                       key={point}
                       className="flex gap-3 text-sm font-normal leading-relaxed text-ink/80"
@@ -166,28 +158,24 @@ export default function Business() {
                         aria-hidden
                         className="mt-2.5 inline-block h-px w-4 shrink-0 bg-ink/40"
                       />
-                      <span>{point}</span>
+                      <span><CmsText>{point}</CmsText></span>
                     </li>
-                  ))}
+                  ))}</CmsText>
                 </ul>
 
                 <div data-business-text className="mt-9">
                   <Link
                     href={division.href}
                     className="group inline-flex items-center gap-3 bg-navy px-8 py-4 text-xs font-medium tracking-[0.2em] text-on-dark transition-opacity hover:opacity-80"
-                  >
-                    詳細を見る
-                    <span
+                  ><CmsText>{"詳細を見る"}</CmsText><span
                       aria-hidden
                       className="transition-transform duration-300 group-hover:translate-x-1"
-                    >
-                      →
-                    </span>
+                    ><CmsText>{"→"}</CmsText></span>
                   </Link>
                 </div>
               </div>
             </div>
-          ))}
+          ))}</CmsText>
         </div>
       </div>
     </section>

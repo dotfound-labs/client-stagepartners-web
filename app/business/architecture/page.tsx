@@ -1,3 +1,4 @@
+import PublishedPage from "@/components/PublishedPage";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import ArchitectureSolution from "@/components/ArchitectureSolution";
@@ -19,12 +20,12 @@ export const metadata: Metadata = {
 
 export default function ArchitecturePage() {
   return (
-    <>
+    <PublishedPage slug="architecture">
       <Header />
       <main id="main" className="flex flex-1 flex-col">
         <ArchitectureSolution />
       </main>
       <Footer />
-    </>
+    </PublishedPage>
   );
 }

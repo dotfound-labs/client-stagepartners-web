@@ -1,3 +1,5 @@
+import PublishedPage from "@/components/PublishedPage";
+import { getPublishedWorks } from "@/lib/cms/public";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -16,14 +18,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function WorksPage() {
+export default async function WorksPage() {
+  const works = await getPublishedWorks();
   return (
-    <>
+    <PublishedPage slug="common">
       <Header />
       <main id="main" className="flex flex-1 flex-col">
-        <WorksIndex />
+        <WorksIndex works={works} />
       </main>
       <Footer />
-    </>
+    </PublishedPage>
   );
 }

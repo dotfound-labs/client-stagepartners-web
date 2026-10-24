@@ -1,4 +1,6 @@
 "use client";
+import CmsText from "@/components/CmsText";
+
 
 import Image from "next/image";
 import Link from "next/link";
@@ -60,53 +62,37 @@ export default function ContactCta() {
             data-contact-fade
             className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-on-dark/60 sm:text-[11px]"
           >
-            <span aria-hidden className="inline-block h-px w-10 bg-on-dark/30" />
-            CONTACT
-          </p>
+            <span aria-hidden className="inline-block h-px w-10 bg-on-dark/30" /><CmsText>{"CONTACT"}</CmsText></p>
           <h2
             data-contact-fade
             className="t-heading mt-8 font-display font-normal"
-          >
-            土地と建物のこと、
-            <br />
-            まずは聞かせてください。
-          </h2>
+          ><CmsText>{"土地と建物のこと、"}</CmsText><br /><CmsText>{"まずは聞かせてください。"}</CmsText></h2>
           <p
             data-contact-fade
             className="t-note mt-7 max-w-lg text-on-dark/70"
-          >
-            売却・賃貸・リフォーム・管理まで、
-            <br />
-            どんな段階のご相談でも構いません。
-            <br />
-            ご相談は無料です。お気軽にお問い合わせください。
-          </p>
+          ><CmsText>{"売却・賃貸・リフォーム・管理まで、"}</CmsText><br /><CmsText>{"どんな段階のご相談でも構いません。"}</CmsText><br /><CmsText>{"ご相談は無料です。お気軽にお問い合わせください。"}</CmsText></p>
         </div>
 
         <div data-contact-fade className="flex flex-col items-start gap-8 lg:items-end">
           <Link
             href="/contact"
             className="group inline-flex items-center gap-4 bg-on-dark px-10 py-5 text-xs font-medium tracking-[0.2em] text-navy transition-colors duration-300 hover:bg-navy-mid hover:text-on-dark"
-          >
-            お問い合わせフォームへ
-            <span
+          ><CmsText>{"お問い合わせフォームへ"}</CmsText><span
               aria-hidden
               className="transition-transform duration-300 group-hover:translate-x-1.5"
-            >
-              →
-            </span>
+            ><CmsText>{"→"}</CmsText></span>
           </Link>
 
           <div className="space-y-2 text-on-dark/70 lg:text-right">
-            <p className="font-latin text-[11px] tracking-[0.2em] text-on-dark/50">TEL</p>
-            {OFFICES.map((office) => (
+            <p className="font-latin text-[11px] tracking-[0.2em] text-on-dark/50"><CmsText>{"TEL"}</CmsText></p>
+            <CmsText>{OFFICES.map((office) => (
               <p key={office.key} className="flex items-baseline gap-3 lg:justify-end">
-                <span className="text-xs text-on-dark/50">{office.label}</span>
+                <span className="text-xs text-on-dark/50"><CmsText>{office.label}</CmsText></span>
                 <span className="font-latin text-lg tracking-[0.05em] text-on-dark">
-                  {office.tel}
+                  <CmsText>{office.tel}</CmsText>
                 </span>
               </p>
-            ))}
+            ))}</CmsText>
           </div>
         </div>
       </div>

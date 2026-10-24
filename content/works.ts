@@ -11,9 +11,10 @@
 export type WorkCategory = "store" | "facility";
 
 /** 1枚の写真と、それが施工前か施工後か。 */
-export type Shot = { file: string; state: "before" | "after" };
+export type Shot = { alt?: string; file: string; state: "before" | "after" };
 
 export type Work = {
+  featured?: boolean;
   slug: string;
   title: string;
   category: WorkCategory;
@@ -602,7 +603,7 @@ export const WORKS: Work[] = [
 
 /** public/works 配下の画像パスを組み立てる。 */
 export function workImage(work: Pick<Work, "slug">, file: string): string {
-  return `/works/${work.slug}/${file}`;
+  return file.startsWith("/") ? file : `/works/${work.slug}/${file}`;
 }
 
 export function getWork(slug: string): Work | undefined {
