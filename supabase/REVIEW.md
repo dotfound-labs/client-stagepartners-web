@@ -1,0 +1,174 @@
+# STAGE PARTNERS CMS — database review
+
+## Authorized target and current status
+
+**Only** the newly created `stagepartners-cms` project, reference
+`apkfyxfmsndwqjfetdad`, Tokyo (`ap-northeast-1`), is an authorized future target.
+**Do not inspect, link, migrate, or otherwise touch any existing/other project.**
+
+These files are prepared locally on `feat/admin-cms`. They have not been applied
+to a hosted database. No credentials, Auth users, invitations, external API grants,
+scheduled jobs, or notification emails are created by the migrations.
+
+Apply only after the parent reviews the SQL and confirms the exact target. Do not
+use an implicitly linked CLI project. The parent has confirmed this target's public
+schema was empty; recheck only this target immediately before applying. If objects
+now conflict, stop rather than drop or overwrite them. No migration uses CASCADE
+to remove an existing object, changes an existing project, or recreates public.
+
+## Migration order
+
+1. `20261024160612_cms_foundation.sql`: membership, permissions, draft documents,
+   immutable revisions, separate public snapshots, media metadata, audit and RLS.
+2. `20261024160620_cms_content_and_media.sql`: validated transactional content RPC,
+   idempotent commands, optimistic locking, image references, private Storage bucket.
+3. `20261024160627_cms_admin_and_instagram.sql`: constrained administration,
+   invitation reservations/acceptance, inquiry schema, disabled Instagram integration.
+4. `20261024161315_cms_existing_content.sql`: exact existing 30 works and six news
+   records, with their titles, paragraphs, dates, categories and image sequence.
+   Existing three featured works are retained. Import history is recorded.
+
+Files were created with Supabase CLI `2.122.0` `migration new`. The initial data
+file is reproducible with `node scripts/generate-cms-content-seed.mjs
+supabase/migrations/20261024161315_cms_existing_content.sql` from the repository root.
+
+## Permission contract
+
+| Module | Capabilities |
+| --- | --- |
+| works, news, pages | read, edit, publish, delete |
+| media | read, edit, delete |
+| inquiries | read, edit, delete |
+| settings | read, edit |
+| users | manage |
+
+Owners possess every capability. Other users receive explicit rows in
+`cms_permissions`; unchecked means no grant. Mutations also require read permission
+for that module. `users.manage` is the read/write administration capability.
+The future UI must show separate checkboxes and its server routes must verify the
+same permissions. UI checks never replace database checks.
+
+Auth identity comes from `auth.uid()` and the live `auth.sessions` session ID.
+Confirmed email and active membership are required. No authorization is derived
+from user-editable metadata or an email string supplied by the client. Permissions
+are queried from current tables, so an old JWT cannot retain removed permissions.
+Application server code must additionally use Supabase `auth.getUser()` for
+protected requests; local SQL tests do not simulate the full Auth service lifecycle.
+
+Clients have SELECT grants with RLS, never direct document/member/permission DML.
+Public RPCs are SECURITY INVOKER wrappers. Narrow SECURITY DEFINER implementations
+live in the **unexposed** `cms_private` schema with empty search paths and an
+explicit EXECUTE allowlist. Keep `cms_private` out of the Data API exposed schemas.
+Schema USAGE alone grants neither private-table access nor function execution.
+
+## Content workflow
+
+- `save` writes only draft; `publish` copies that draft to `cms_published`.
+- Editing published content never changes its public snapshot.
+- `unpublish` removes the snapshot; `archive` is a recoverable deletion.
+- Archiving a live document requires both delete and publish permissions.
+- `restore` copies a selected revision to a new draft, never republishes it.
+- Module and slug are immutable identities. An explicit version prevents lost
+  updates. Unique request IDs make identical retries return the previous result;
+  reusing a request ID with different data is rejected.
+- Public code must query **only `cms_published`**. Once CMS is configured, do not
+  fall back to legacy static records when a published query returns no row: doing
+  so would resurrect content that an administrator intentionally unpublished.
+- JSON holds typed text fields/paragraphs and ordered photo objects, not HTML.
+  SQL validates required fields and image references. The UI still needs strict
+  page-specific field descriptors, length limits and server request validation.
+- `pages` allows only home, real-estate, architecture, company, privacy, site-policy
+  and tokushoho. `settings` only allows common. Existing page text is still in the
+  source components; extracting/mapping those fields belongs to the next UI phase.
+
+## Administrator safety and initial owner
+
+No initial owner is issued automatically. After separate approval, provision the
+verified intended owner's Auth account (`info@stagepartners.co.jp`) through the
+trusted server/dashboard path. Verify the resulting UUID and confirmed email, then
+insert membership under a controlled privileged transaction. Do not infer ownership
+on first login, install an email-based signup trigger, or commit a password.
+
+All self role/permission/active-state changes are rejected. Owner changes require
+another owner. A transaction-scoped advisory lock serializes membership and invite
+acceptance; the last active owner cannot be disabled/demoted. Auth user deletion is
+blocked by a RESTRICT membership foreign key. User managers cannot grant owner,
+delegate users.manage, or grant permissions they do not currently have.
+
+Invitation reservations do **not** send email. A future server-only adapter must
+reserve once, invoke the Auth invitation API only when authorized, and handle
+uncertain email delivery without blind retries. Acceptance requires an exact match
+to the verified Auth email, a live session, a valid reservation, and a still-valid
+grantor. Expired reservations must be cancelled before replacement. A disabled
+member cannot rejoin by accepting an invitation.
+
+## Images
+
+`cms-media` is private, limited to JPEG/PNG/WebP/AVIF and 10 MiB. Reserve metadata
+before upload, upload to the returned UUID path, then finalize. No overwrite/upsert
+policy exists. Use a fresh image ID for replacements. Application upload handlers
+must check file signatures/dimensions and strip unwanted metadata before storing.
+
+Anonymous downloads require a published reference. Draft/revision media require
+current module read access or media read permission. In-use deletion checks include
+drafts, public snapshots **and history**. To delete unused media: mark deletion,
+delete via Storage API, then purge metadata. SQL never deletes storage.objects itself
+in production: removing database rows alone would orphan the stored file.
+
+Existing `/public/works/...` images remain existing public assets and are referenced
+as `legacy_path`. They are not newly private uploads. Unpublishing a work cannot
+make an image already shipped in the public repository confidential. Historical
+media are retained so restores work; a separate approved history-retention policy
+would be needed to purge those images later.
+
+## Instagram and inquiries
+
+Instagram starts disabled, with no account ID, username or tokens. An owner must
+explicitly enable import and separately enable automatic publication. Only a
+server-role worker can import posts. The configured account is checked and a unique
+source ID prevents duplication. An existing source ID is never republished or
+overwritten; manually hidden content remains hidden. Attribution is restricted to
+official HTTPS Instagram post/reel URLs. Synchronization does not post to Instagram.
+The future worker must obey `next_attempt_at`, handle pagination/backoff, and report
+only sanitized status codes. No access token belongs in any CMS table or audit row.
+
+Only business/creator accounts are eligible for the official Instagram Login API;
+the account and grant are still unverified. No live integration has been tested.
+The schema imports captions and source links; official display/media handling is
+pending the authorized account/API adapter. No scraping is used.
+
+Inquiry intake has no anonymous INSERT grant/policy and no running delivery adapter.
+The existing contact form contains an unconfigured Web3Forms key. Preserve that
+fact in the UI until a real provider/recipient is approved; do not report a fake
+successful submission. Inquiry records can be read/updated/deleted only by the
+corresponding permissions. Audit records contain no inquiry body or email content.
+
+## Verification and remaining gates
+
+Run from `supabase/tests`: `npm ci --ignore-scripts`, then `npm test`.
+PGlite `0.5.11` is pinned with a lockfile. Tests execute the actual migrations and
+RLS in local PostgreSQL WASM. Auth/Storage table definitions and JWTs are fixtures.
+They are **not** live Supabase, GoTrue, PostgREST, object-storage, or email tests.
+Do not interpret them as validation of a hosted deployment.
+
+Tests cover anonymous/outsider rejection, metadata spoofing, granular permissions,
+idempotency/conflicts, public draft isolation, restore, immediate member/session
+revocation, invite acceptance, media visibility/deletion, import deduplication,
+manual hide preservation, disabled imports, and RLS/function hardening.
+Real concurrent transactions/last-owner races require a full PostgreSQL connection
+test after review; PGlite serializes its single connection. Live advisors,
+PostgREST RPC access, Storage upload/download, invitation delivery and browser/UI
+checks are still required. Hosted application credentials and owner issuance remain
+pending authorization.
+
+The main application dependency install completed. Its existing dependency tree
+reported seven audit findings (one moderate, five high, one critical); the exact
+advisories and remediation must be reviewed before the application is delivered.
+
+## Documentation checked
+
+- [Supabase changelog](https://supabase.com/changelog.md)
+- [Explicit Data API grants change](https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically)
+- [SSR clients](https://supabase.com/docs/guides/auth/server-side/creating-a-client)
+- [Auth caching and session validation](https://supabase.com/docs/guides/auth/server-side/advanced-guide)
+- [Instagram Login API](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login)
