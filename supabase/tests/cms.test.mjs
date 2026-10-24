@@ -47,6 +47,20 @@ const actor = async (name) => {
 let passed=0;
 async function test(label,fn){await fn();passed++;console.log('PASS',label);}
 async function denied(sql,args=[],match=/CMS_|permission denied|row-level security/){await assert.rejects(db.query(sql,args),match);}
+const verifiedPath = id => `verified/${id}/${randomUUID()}.webp`;
+const digestA = 'a'.repeat(64), digestB = 'b'.repeat(64);
+async function finalizeFixture(id, actorId) {
+  const path = verifiedPath(id);
+  await db.query("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[path]);
+  await db.query('select public.cms_finalize_verified_media($1,100,$2,$3,$4)',[id,actorId,path,digestA]);
+  return path;
+}
+await test('every seeded page passes the final typed validator',async()=>{
+  await db.exec('reset role');
+  const rows=(await db.query("select module,slug,draft from public.cms_documents where module in ('pages','settings')")).rows;
+  assert.ok(rows.length >= 8);
+  for(const row of rows) await db.query('select cms_private.validate_content($1,$2,$3)',[row.module,row.slug,JSON.stringify(row.draft)]);
+});
 const news = {title:'Test news',category:'info',date:'2026-01-01',excerpt:'Excerpt',body:['Paragraph']};
 const id = randomUUID();
 const mutate = (action,version,data=news,request=randomUUID(),revision=null,module='news',slug='test-news') =>
@@ -117,7 +131,7 @@ await test('media reserve, authorized upload, finalize, private-by-default',asyn
   await actor('owner');path=(await db.query("select public.cms_mutate_media($1,'reserve','image.jpg','Description','image/webp',100) result",[mid])).rows[0].result.object_path;
   await actor('anon');await denied("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[path]);
   await actor('owner');await db.query("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[path]);
-  await denied("select public.cms_mutate_media($1,'finalize')",[mid],/CMS_TRUSTED_VERIFIER_REQUIRED/); await denied("select public.cms_finalize_verified_media($1,100,$2)",[mid,users.owner.id]); await actor('service'); await db.query("select public.cms_finalize_verified_media($1,100,$2)",[mid,users.owner.id]);
+  await denied("select public.cms_mutate_media($1,'finalize')",[mid],/CMS_TRUSTED_VERIFIER_REQUIRED/); await denied("select public.cms_finalize_verified_media($1,100,$2,$3,$4)",[mid,users.owner.id,verifiedPath(mid),digestA]); await actor('service'); path=await finalizeFixture(mid,users.owner.id);
   await actor('anon');assert.equal((await db.query('select * from storage.objects where name=$1',[path])).rows.length,0);
 });
 const wid=randomUUID();const work={title:'Test work',category:'store',type:'Renovation',summary:'Summary',cover:{media_id:mid,alt:'Cover'},shots:[{media_id:mid,alt:'After',state:'after'}]};
@@ -182,10 +196,10 @@ await test('unused media supports safe two-phase deletion through Storage RLS',a
   await actor('owner');const unused=randomUUID();
   const objectPath=(await db.query("select public.cms_mutate_media($1,'reserve','unused.jpg','Unused','image/webp',100) result",[unused])).rows[0].result.object_path;
   await db.query("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[objectPath]);
-  await actor('service'); await db.query("select public.cms_finalize_verified_media($1,100,$2)",[unused,users.owner.id]); await actor('owner');
+  await actor('service'); const finalObjectPath=await finalizeFixture(unused,users.owner.id); await actor('owner');
   await db.query("select public.cms_mutate_media($1,'delete')",[unused]);
   await denied("select public.cms_mutate_media($1,'purge')",[unused],/CMS_REMOVE_STORAGE_FIRST/);
-  assert.equal((await db.query('delete from storage.objects where name=$1 returning id',[objectPath])).rows.length,1);
+  assert.equal((await db.query('delete from storage.objects where name=$1 returning id',[finalObjectPath])).rows.length,1);
   await db.query("select public.cms_mutate_media($1,'purge')",[unused]);
 });
 await test('Instagram disabled state and invalid attribution reject imports',async()=>{
@@ -226,7 +240,7 @@ await test('unverified direct uploads cannot become ready or published through R
   const path=(await db.query("select public.cms_mutate_media($1,'reserve','unverified.webp','Unverified','image/webp',100) result",[unverified])).rows[0].result.object_path;
   await db.query("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[path]);
   await denied("select public.cms_mutate_media($1,'finalize')",[unverified],/CMS_TRUSTED_VERIFIER_REQUIRED/);
-  await denied('select public.cms_finalize_verified_media($1,100,$2)',[unverified,users.owner.id]);
+  await denied('select public.cms_finalize_verified_media($1,100,$2,$3,$4)',[unverified,users.owner.id,verifiedPath(unverified),digestA]);
   const row=(await db.query("select * from public.cms_documents where module='pages' and slug='home'")).rows[0];
   await assert.rejects(db.query('select public.cms_mutate_content($1,$2,$3,$4,$5,$6,$7)',[row.id,'pages','home','save',JSON.stringify({...row.draft,images:{image_text_ab7d0563:{media_id:unverified,alt:'Unverified'}}}),row.version,randomUUID()]),/CMS_MEDIA_NOT_READY/);
 });
@@ -234,11 +248,33 @@ await test('page image slots cannot self-authorize another private media UUID',a
   await actor('owner');const privateId=randomUUID();
   const path=(await db.query("select public.cms_mutate_media($1,'reserve','private.webp','Private','image/webp',100) result",[privateId])).rows[0].result.object_path;
   await actor('service');await db.query("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[path]);
-  await db.query('select public.cms_finalize_verified_media($1,100,$2)',[privateId,users.owner.id]);
+  await finalizeFixture(privateId,users.owner.id);
   await db.exec('reset role');await db.query("insert into public.cms_permissions values($1,'pages','read'),($1,'pages','edit')",[users.pageeditor.id]);
   await actor('pageeditor');const row=(await db.query("select * from public.cms_documents where module='pages' and slug='home'")).rows[0];
   await assert.rejects(db.query('select public.cms_mutate_content($1,$2,$3,$4,$5,$6,$7)',[row.id,'pages','home','save',JSON.stringify({...row.draft,images:{image_text_ab7d0563:{media_id:privateId,alt:'Private'}}}),row.version,randomUUID()]),/CMS_MEDIA_FORBIDDEN/);
   assert.equal((await db.query('select * from storage.objects where name=$1',[path])).rows.length,0);
+});
+await test('interleaved upload attempts cannot replace ready or published bytes',async()=>{
+  await actor('owner');const id=randomUUID();
+  await db.query("select public.cms_mutate_media($1,'reserve','race.webp','Race','image/webp',100)",[id]);
+  const a=verifiedPath(id), b=verifiedPath(id), retry=verifiedPath(id);
+  await denied("insert into storage.objects(bucket_id,name) values('cms-media',$1)",[a]);
+  await actor('service');
+  const upload=path=>db.query("insert into storage.objects(bucket_id,name,metadata) values('cms-media',$1,jsonb_build_object('mimetype','image/webp','size',100))",[path]);
+  const finish=(path,digest)=>db.query('select public.cms_finalize_verified_media($1,100,$2,$3,$4) path',[id,users.owner.id,path,digest]);
+  await upload(a);await finish(a,digestA);
+  await actor('owner');const docId=randomUUID();
+  const data={...work,cover:{media_id:id,alt:'Race'},shots:[{media_id:id,alt:'Race',state:'after'}]};
+  await db.query("select public.cms_mutate_content($1,'works','race-work','save',$2,0,$3)",[docId,JSON.stringify(data),randomUUID()]);
+  await db.query("select public.cms_mutate_content($1,'works','race-work','publish',$2,1,$3)",[docId,JSON.stringify(data),randomUUID()]);
+  await actor('service');
+  // B resumes after A is ready: equal size/MIME, different sanitized bytes.
+  await upload(b);await assert.rejects(finish(b,digestB),/CMS_MEDIA_ALREADY_VERIFIED/);
+  await assert.rejects(upload(a),/duplicate key/);
+  await upload(retry);assert.equal((await finish(retry,digestA)).rows[0].path,a);
+  await db.exec('reset role');
+  const winner=(await db.query('select object_path,verified_sha256 from public.cms_media where id=$1',[id])).rows[0];
+  assert.equal(winner.object_path,a);assert.equal(winner.verified_sha256,digestA);
 });
 console.log(`${passed} database tests passed. LOCAL PGlite; no hosted Supabase calls.`);
 await db.close();

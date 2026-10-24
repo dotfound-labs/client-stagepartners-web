@@ -1,3 +1,24 @@
+## Read-only dashboard findings (2026-10-24 UTC)
+
+Only project apkfyxfmsndwqjfetdad inspected. Site URL is
+http://localhost:3000; no Redirect URLs are registered. Custom SMTP is disabled.
+Emails use default templates; dashboard says custom SMTP is required to edit
+subject/body. No Auth setting changed, no message sent, no owner issued.
+The users grid reports no users (its estimated footer is inconsistent and is
+not accepted as authoritative evidence of real users).
+
+Standard dashboard invites can avoid template edits, but the app currently
+handles token_hash confirmation, not the standard fragment callback. That
+callback must be implemented/tested before requesting an invite. Minimum
+activation decisions: verified email-delivery provider/SMTP (unless intended
+recipient is already eligible for default delivery); exact callback URL and
+allowlist/Site URL; permission to send one invite to info@stagepartners.co.jp;
+then confirmation of verified Auth UUID before explicit owner bootstrap.
+Do not add an organization member just to bypass default SMTP restrictions.
+Local port 3102 is currently stopped: do not send a link pointing there yet.
+The earlier custom-template proposal below is superseded by this preferred
+standard-template approach; neither is activated.
+
 # Initial owner activation: proposal only, not executed
 
 Target exclusively `apkfyxfmsndwqjfetdad`, intended owner `info@stagepartners.co.jp`.

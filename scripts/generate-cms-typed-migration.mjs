@@ -34,7 +34,8 @@ sync=sync.replace('create function','create or replace function').replaceAll("un
 let media=original.slice(original.indexOf('create function cms_private.mutate_media('),original.indexOf('create function public.cms_mutate_media('));
 media=media.replace('create function','create or replace function').replace(/elsif p_action = 'finalize' then[\s\S]*?(?=  elsif p_action = 'describe')/,"elsif p_action = 'finalize' then\n    raise exception 'CMS_TRUSTED_VERIFIER_REQUIRED' using errcode = '42501';\n");
 const trusted=`
-create function public.cms_finalize_verified_media(p_id uuid,p_size bigint,p_actor uuid) returns void
+alter table public.cms_media add column verified_sha256 text check (verified_sha256 ~ '^[0-9a-f]{64}$');
+create function public.cms_finalize_verified_media(p_id uuid,p_size bigint,p_actor uuid,p_path text,p_sha256 text) returns text
 language plpgsql security definer set search_path = '' as $$
 declare m public.cms_media;
 begin
@@ -43,13 +44,20 @@ begin
     or m.mime_type <> 'image/webp' or m.size_bytes is distinct from p_size
     or not exists(select 1 from public.cms_members where user_id=p_actor and active
       and (is_owner or (select count(*) from public.cms_permissions where user_id=p_actor and module='media' and capability in ('read','edit'))=2))
-    or not exists(select 1 from storage.objects where bucket_id='cms-media' and name=m.object_path
+    or p_path is null or p_path !~ ('^verified/'||p_id::text||'/[0-9a-f-]{36}[.]webp$')
+    or p_sha256 is null or p_sha256 !~ '^[0-9a-f]{64}$'
+    or not exists(select 1 from storage.objects where bucket_id='cms-media' and name=p_path
       and metadata->>'mimetype'='image/webp' and (metadata->>'size')::bigint=p_size)
     then raise exception 'CMS_INVALID_VERIFIED_MEDIA'; end if;
-  update public.cms_media set ready=true where id=p_id;
+  if m.ready then
+    if m.verified_sha256 is distinct from p_sha256 then raise exception 'CMS_MEDIA_ALREADY_VERIFIED'; end if;
+    return m.object_path;
+  end if;
+  update public.cms_media set ready=true,object_path=p_path,verified_sha256=p_sha256 where id=p_id;
   insert into public.cms_audit(actor_id,action,target_id) values(p_actor,'media.verified',p_id::text);
+  return p_path;
 end $$;
-revoke all on function public.cms_finalize_verified_media(uuid,bigint,uuid) from public,anon,authenticated;
-grant execute on function public.cms_finalize_verified_media(uuid,bigint,uuid) to service_role;
+revoke all on function public.cms_finalize_verified_media(uuid,bigint,uuid,text,text) from public,anon,authenticated;
+grant execute on function public.cms_finalize_verified_media(uuid,bigint,uuid,text,text) to service_role;
 `;
 writeFileSync(target,['-- Additional reviewed schema only. No keys, users, jobs, or external requests.','begin;',validate,sync,media,trusted,'commit;',''].join('\n'));

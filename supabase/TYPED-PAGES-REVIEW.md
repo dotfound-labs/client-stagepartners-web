@@ -28,11 +28,20 @@ Authenticated `cms_mutate_media(...,'finalize')` now always rejects. A new
 `cms_finalize_verified_media` is executable only by service_role. It validates
 uploader, current active membership/media read+edit permissions, WebP metadata,
 expected size and Storage existence. The application verifies/normalizes bytes
-with Sharp, overwrites any prior untrusted object with that result using a
-separately approved server credential, rechecks the current user's session and
-permissions, then finalizes. Duplicate untrusted bytes are never accepted as an
-already-uploaded successful sanitized image. Without the private server key the
-handler stops before reservation. No key has been obtained or configured.
+with Sharp and uploads to a fresh `verified/<media-id>/<attempt-uuid>.webp`
+with overwrite disabled. The row-locked service-only finalizer records the
+SHA-256 digest and winning path atomically. Ready rows cannot change their path
+or digest: an identical-byte retry returns the winner, while different bytes
+are rejected. A delayed upload uses its own path and cannot overwrite published
+bytes. The user session is rechecked before finalization. Uncertain failures
+leave inaccessible orphan attempts for later reviewed cleanup; they are never
+blindly removed after a potentially successful RPC. No private key is configured.
+
+The phone-number label `tokushoho.text_bb393442` is text, not a phone input.
+Every seeded page/settings document is tested against the final validator.
+33 local SQL tests now pass, including deterministic A-finalizes/B-resumes
+interleaving, same-size different-digest rejection and immutable-path retry.
+This is fixture SQL execution, not live concurrent Storage testing.
 
 The DB trusts that service-only finalizer's caller actually performed the byte
 verification. Protecting that credential is therefore part of the trust boundary;

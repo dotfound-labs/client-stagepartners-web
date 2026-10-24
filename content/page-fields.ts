@@ -2020,7 +2020,7 @@ export const PAGE_TEMPLATES:Record<string,PageTemplate>={
         "label": "電話番号",
         "value": "電話番号",
         "section": "page",
-        "kind": "phone"
+        "kind": "text"
       },
       {
         "id": "tokushoho.text_1f2ef4c3",
