@@ -5,14 +5,16 @@
 
 ## 1. データベースと接続
 
-- [ ] 7本目 `20261024180000_cms_integration_runtime.sql` のレビューと適用を完了する。
-- [ ] 適用済みSQL本文とローカル本文の一致を確認する。
-- [ ] migration番号は `supabase/HOSTED-MIGRATION-MAPPING.md` に従って照合する。
+- [x] 全7本を対象DBへ適用済み。最終版は `20261024183541_cms_integration_runtime.sql`。
+- [x] 適用済みSQL本文とレビュー資料・ローカル本文の一致を確認済み。
+- [x] migration番号は `supabase/HOSTED-MIGRATION-MAPPING.md` に従って照合する。
       一致確認前の再適用・履歴修復・`--include-all` は行わない。
 - [ ] URLとpublishable keyが対象プロジェクトのものであることを確認する。
 - [ ] 承認済みの場合のみ、対象プロジェクトのサーバー用秘密鍵を
       Shinya_PCのGit管理外 `.env.local` の `SUPABASE_SECRET_KEY` に保存する。
       ブラウザ・Git・ログ・共有資料に出さない。Vercelへの保存は別途承認する。
+
+外部連携は無効・未設定です。DB適用はメール送信やInstagram取得の有効化を意味しません。
 
 ## 2. 初期オーナーと招待
 

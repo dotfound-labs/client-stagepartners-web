@@ -60,5 +60,6 @@ The app's image proxy uses current authorization and no-store. Directly issued
 Supabase signed URLs can remain valid until expiry; no blanket immediate URL
 revocation guarantee is made. The application itself does not mint signed URLs.
 
-Migration timestamps still need reconciliation with connector-generated hosted
-versions before any CLI push. No migration-history repair has been performed.
+All seven migration filenames now match the confirmed hosted versions; see
+HOSTED-MIGRATION-MAPPING.md. SQL bodies were preserved and no hosted history
+repair was performed. The pending wording above is historical review context.

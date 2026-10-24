@@ -1,6 +1,6 @@
 # Migration filenames reconciled
 
-Only target: apkfyxfmsndwqjfetdad. The six stored hosted SQL bodies were compared
+Only target: apkfyxfmsndwqjfetdad. The first six stored hosted SQL bodies were compared
 exactly with reviewed artifacts. Current local bodies were also compared against
 reviewed commit 19e865d (line endings normalized) before renaming. All matched.
 Only filenames and local references changed; SQL bodies and hosted history did not.
@@ -14,7 +14,10 @@ Only filenames and local references changed; SQL bodies and hosted history did n
 | 20261024174313 | 20261024164822 | cms_page_content |
 | 20261024174351 | 20261024170841 | cms_typed_pages_and_verified_media |
 
-20261024180000_cms_integration_runtime.sql remains unapplied and sorts after all
-six applied files. No db push, reset, repair, --include-all or hosted history
-mutation was executed. Before any future deployment, verify the exact project
-and current hosted migration list; migration application remains a separate step.
+| 20261024183541 | 20261024180000 | cms_integration_runtime |
+
+All seven migrations are applied to the target project. Migration 7 was applied
+from reviewed Library v8; the local body matched that artifact before renaming,
+and its bytes were preserved. External integrations remain disabled/unconfigured.
+No db push, reset, repair, --include-all or hosted history mutation was executed
+here. Before future migrations, verify the exact project and current hosted list.
