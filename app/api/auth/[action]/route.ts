@@ -31,7 +31,15 @@ export async function POST(request:Request,{params}:{params:Promise<{action:stri
       const {data:{user},error}=await client.auth.getUser();
       if(error||!user?.email_confirmed_at)throw new CmsError(401,"メールの設定リンクからやり直してください。");
       const result=await client.auth.updateUser({password});if(result.error)throw new CmsError(400,"パスワードを設定できませんでした。安全性の条件とリンクの期限を確認してください。");
-      await client.auth.signOut();return Response.json({ok:true},{headers});
+      // Saving the password and checking CMS access are separate outcomes.
+      // A later read/sign-out failure must never report the committed password as failed.
+      let access="unknown",signedOut=false;
+      try {
+        const member=await client.from("cms_members").select("active").eq("user_id",user.id).maybeSingle();
+        if(!member.error)access=member.data?.active?"enabled":"unavailable";
+      } catch { /* Access can be checked again at login. */ }
+      try { signedOut=!(await client.auth.signOut()).error; } catch { /* Password was still saved. */ }
+      return Response.json({ok:true,saved:true,access,signedOut},{headers});
     }
     throw new CmsError(404,"対象が見つかりません。");
   }catch(error){return Response.json({error:error instanceof CmsError?error.message:"入力内容と接続設定を確認してください。"},{status:error instanceof CmsError?error.status:400,headers});}

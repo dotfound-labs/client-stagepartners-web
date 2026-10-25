@@ -15,9 +15,8 @@ when the initiating browser has the verifier cookie. No email address or token
 claims grant CMS roles. Password entry remains the recipient's own action.
 
 Before sending: approve target-project Site URL / exact redirect allowlist,
-configure approved SMTP delivery (currently off), confirm the callback is live,
-and approve the one recipient invite. Use a verified Auth UUID for the separately
-authorized owner bootstrap. Do not put passwords or secrets in chat.
+confirm SMTP delivery and the callback are live before inviting any additional
+recipient. Use a verified Auth UUID for a separately authorized owner bootstrap. Do not put passwords or secrets in chat.
 After activation, admin email invitations use CMS_INVITATIONS_ENABLED=true,
 CMS_AUTH_CALLBACK_URL (exact approved /auth/callback URL) and the new project
 server key. Preview always disables sending. A DB claim rechecks the grantor's
@@ -200,7 +199,24 @@ key rotation needs an explicit decrypt/re-encrypt procedure or reauthorization,
 not blindly replacing the environment value. No live key, OAuth or job was enabled.
 
 Auth delivery status: localhost callback http://127.0.0.1:3102/auth/callback is
-registered in stagepartners-cms; Site URL was not changed. Custom SMTP is disabled
-and the initial owner's address is not an organization member, so default SMTP
-cannot deliver the invitation. Approve a verified SMTP sender/provider before
-the one initial invite. Do not grant organization access merely to bypass this.
+registered in stagepartners-cms; Site URL was not changed. Custom SMTP was configured
+by the operator and invitation delivery was confirmed. The initial owner completed
+email verification and the separately approved owner bootstrap. Full authenticated
+CMS editing/publishing QA remains a separate validation step.
+
+## Password completion feedback
+
+Password saving now stays on an explicit completion screen with a login link.
+CMS membership is read separately; unavailable or unverified access never implies
+the password failed to save. A post-save sign-out failure is also reported separately.
+No role is granted by this flow.
+
+Supabase supports the project-level `mailer_notifications_password_changed_enabled`
+notification, configured under Auth email templates. Current upstream Auth user-update
+code sends it for password updates, including a first password, when enabled and an
+email exists. The hosted version and current project flag still need read-only
+verification; this change does not enable notifications or add an application mail sender.
+Delivery failure does not invalidate password saving, so the UI makes no email-delivery
+claim. Use the native notification alone to avoid duplicate completion emails.
+Sources: https://supabase.com/docs/guides/auth/auth-email-templates and
+https://github.com/supabase/auth/blob/master/internal/api/user.go (UserUpdate).
