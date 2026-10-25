@@ -42,9 +42,12 @@ const permanentPublicImages = [
 const nextConfig: NextConfig = {
   images: {
     localPatterns: [
-      // Next permits at most 25 patterns. A brace set keeps the exact filename
-      // allowlist (rather than a root wildcard) in one picomatch pattern.
-      { pathname: `/{${permanentPublicImages.map(pathname => encodeURI(pathname.slice(1))).join(",")}}`, search: "" },
+      // Keep each exact-filename expression short for Vercel's output validator.
+      // Pairs stay below Next's 25-pattern limit, including its static-media entries.
+      ...Array.from({ length: Math.ceil(permanentPublicImages.length / 2) }, (_, index) => {
+        const names = permanentPublicImages.slice(index * 2, index * 2 + 2).map(pathname => encodeURI(pathname.slice(1)));
+        return { pathname: names.length === 1 ? `/${names[0]}` : `/{${names.join(",")}}`, search: "" };
+      }),
       { pathname: "/works/**", search: "" },
     ],
   },

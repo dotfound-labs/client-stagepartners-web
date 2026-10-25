@@ -38,5 +38,9 @@ test("SEO optimizer retains permanent public images while rejecting unlisted pat
     expect(validate(url), url).toHaveProperty("errorMessage");
   }
   expect(nextConfig.images?.localPatterns?.every(pattern => pattern.search === "")).toBe(true);
-  expect(nextConfig.images!.localPatterns!.length).toBeLessThanOrEqual(25);
+  // Next adds its own static-media entries during configuration normalization.
+  expect(nextConfig.images!.localPatterns!.length + 2).toBeLessThanOrEqual(25);
+  for (const pattern of nextConfig.images!.localPatterns!) {
+    expect(pattern.pathname!.length).toBeLessThan(128);
+  }
 });
