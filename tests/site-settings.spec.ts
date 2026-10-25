@@ -236,3 +236,26 @@ test('SEO preview identifies invalid in-progress values instead of disguising th
  expect(html).not.toContain('検索結果の表示イメージ（下書き）');
  expect(html).not.toContain('STAGE PARTNERS | 株式会社ステージパートナーズ');
 });
+
+test('SEO production noindex remains crawlable while Preview and private routes stay excluded',async()=>{
+ for(const indexing of ['index','noindex']){
+  let reads=0;
+  const site=settings.resolveSiteSettings(common({'common.seo_indexing':indexing,'common.seo_url':'https://published.example'}));
+  const api=load<typeof import('../app/robots')>('app/robots.ts',{'@/lib/cms/site-metadata':{getSiteSettings:async()=>{reads++;return site;}}});
+  const robots=await api.default();
+  expect(robots.rules).toEqual({userAgent:'*',allow:'/',disallow:['/admin','/api/','/auth/']});
+  expect(reads).toBe(1);
+  if(indexing==='index')expect(robots.sitemap).toBe('https://published.example/sitemap.xml');
+  else expect(robots).not.toHaveProperty('sitemap');
+ }
+ const preview=load<typeof import('../app/robots')>('app/robots.ts',{'@/lib/cms/site-metadata':{getSiteSettings:async()=>{throw Error('Preview must not need public settings');}}},{VERCEL_ENV:'preview'});
+ expect(await preview.default()).toEqual({rules:{userAgent:'*',disallow:'/'}});
+});
+
+test('SEO noindex and Preview omit sitemap entries without reading public content',async()=>{
+ for(const [env,indexing] of [[{},'noindex'],[{VERCEL_ENV:'preview'},'index']] as const){
+  const site=settings.resolveSiteSettings(common({'common.seo_indexing':indexing}));
+  const sitemap=load<typeof import('../app/sitemap')>('app/sitemap.ts',{'@/lib/cms/site-metadata':{getSiteSettings:async()=>site},'@/lib/cms/public':{getPublishedNews:async()=>{throw Error('Do not list noindex news');},getPublishedWorks:async()=>{throw Error('Do not list noindex works');}}},env);
+  expect(await sitemap.default()).toEqual([]);
+ }
+});
