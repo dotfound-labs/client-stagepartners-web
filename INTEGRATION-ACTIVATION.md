@@ -177,7 +177,7 @@ private row, RLS, and a service-role-only RPC; it does not store credentials or
 enable syncing. No existing content or Auth membership changes.
 
 The server encrypts the complete token envelope with AES-256-GCM, random 96-bit
-nonce and project/account/version-bound authenticated data. Only ciphertext is
+nonce and project/version-bound authenticated data with the account ID inside the encrypted payload. Only ciphertext is
 stored in cms_private. INSTAGRAM_TOKEN_ENCRYPTION_KEY must be a separately
 provisioned 32-byte key encoded as 64 hexadecimal characters, never NEXT_PUBLIC.
 Do not reuse the Supabase key or paste either key into chat. Provisioning this
@@ -191,7 +191,7 @@ no uncertain data: the lease simply expires. Read-only status returns only expir
 and connection state to authorized admins, never token/envelope/key.
 
 The operator must approve the Meta app/HTTPS redirect and credentials, retain a
-secure recoverable copy of the encryption key, then connect aim_architecture
+secure recoverable copy of the encryption key, then connect the owner-selected professional account
 through the owner-only OAuth screen. Initial connection leaves sync disabled;
 explicit start enables only #お知らせ imports. Run a real reconnect, refresh and
 initial-sync acceptance test before scheduling. Key loss requires reauthorization;
@@ -227,3 +227,21 @@ plan is required for this implementation. Optional company name is saved at the
 start of the CMS inquiry message and sent as a separate labeled notification field.
 Provider-controlled surrounding text/branding may remain in English; verify the
 actual received message before promising an entirely Japanese email.
+
+## Instagram導入担当者向け設定（顧客画面には表示しない）
+
+顧客画面は対象ユーザー名、接続状態、公式認証・取込の操作に限定する。
+アプリID等の準備メモ入力は削除した。ユーザー名は認証開始時に照合し、公式認証が完了するまで接続先として保存しない。
+
+- ローカル設定先はGit管理外の .env.local。本番は対象Vercelプロジェクトの Settings → Environment Variables（Production）。本番への秘密保存・再デプロイは別途承認が必要。
+- MetaのInstagram API setup with Instagram loginで確認したIDを INSTAGRAM_APP_ID、秘密を INSTAGRAM_APP_SECRET に設定する。
+- INSTAGRAM_REDIRECT_URI はHTTPSで /api/admin/instagram/oauth。Metaの有効なOAuthリダイレクトURIと完全一致させ、同一オリジンの管理画面から認証する。HTTP localhostとVercel Previewからは認証しない。
+- INSTAGRAM_API_VERSION はMetaアプリでサポートされる v数字.0。
+- 本番の保存先は INSTAGRAM_TOKEN_STORE=encrypted-db。INSTAGRAM_TOKEN_ENCRYPTION_KEY は独立した32バイト鍵を64桁16進数で設定。対象新規DB専用の SUPABASE_SECRET_KEY も必要。秘密に NEXT_PUBLIC_ を付けない。
+- INSTAGRAM_OAUTH_ENABLED=true は公式認証の準備完了後に有効化する。同期には別途 INSTAGRAM_SYNC_ENABLED=true と CRON_SECRET が必要。定期実行は別途承認・登録する。
+- Metaの instagram_business_basic と利用者に必要な役割・アクセスレベル／審査を確認する。APIキーやユーザー名だけでは接続できない。
+- 顧客画面が「初期設定が必要」と表示する場合、上記設定と接続オリジンを担当者が確認する。形式確認が成功してもMeta側の認可成功とはみなさない。
+- 任意の対象アカウントを公式認証で照合し、取得した実アカウントIDにトークンを紐付ける。切替後は同期停止状態で保存。既存記事は削除しない。
+- 暗号化形式はv2。旧v1／アカウント未紐付けトークンは再認証が必要。旧環境変数の直接トークンでは同期しない。OAuth callbackやMetaの交換・更新URLに含まれる秘密をアクセスログ・トレースに記録しない。
+
+現在この記載は手順であり、新たな資格情報の生成・保存・実認証・定期実行を実施したという意味ではない。

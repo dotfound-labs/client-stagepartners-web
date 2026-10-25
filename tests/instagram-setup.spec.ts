@@ -18,7 +18,7 @@ test('Instagram setup reports missing configuration without disclosing secrets',
  env.VERCEL_ENV='preview';expect(status('https://fixture.example').checks.environment).toBe(false);expect(config()).toBeNull();
 });
 
-for(const width of [1280,375])test(`Instagram setup worksheet ${width} never activates integration`,async({page})=>{
+for(const width of [1280,375])test(`Instagram customer setup ${width} never activates integration`,async({page})=>{
  let posts=0;
  await page.route('**/api/admin/**',route=>{if(route.request().method()==='POST')posts++;return route.abort();});
  await page.setViewportSize({width,height:720});
@@ -28,17 +28,13 @@ for(const width of [1280,375])test(`Instagram setup worksheet ${width} never act
   await expect(page.getByLabel('接続するInstagramユーザー名',{exact:true})).toHaveValue('');
   await page.getByLabel('接続するInstagramユーザー名',{exact:true}).fill('@another_business');
   await expect(page.getByLabel('接続するInstagramユーザー名',{exact:true})).toHaveValue('@another_business');
- await page.getByLabel('InstagramアプリID',{exact:true}).fill('123456');
- await page.getByLabel('HTTPSの認証戻り先',{exact:true}).fill('https://fixture.example/api/admin/instagram/oauth');
- await page.getByLabel('APIバージョン',{exact:true}).fill('v25.0');
- await page.getByRole('button',{name:'設定用の内容を確認',exact:true}).click();
- await expect(page.getByRole('status')).toContainText('まだサーバーには保存されていません');
- await expect(page.getByLabel('サーバー設定に転記する内容')).toHaveValue(/INSTAGRAM_APP_ID=123456/);
+ await expect(page.getByText('初期設定が必要です。サイト管理担当者にご連絡ください。設定が完了するまで接続できません。',{exact:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'Instagramで認可する・再接続'})).toBeDisabled();
+ await expect(page.getByLabel('InstagramアプリID',{exact:true})).toHaveCount(0);
+ await expect(page.locator('main')).not.toContainText(/\.env\.local|Git|Vercel|NEXT_PUBLIC_|INSTAGRAM_APP_SECRET|Environment Variables/);
+ await expect(page.getByText('Instagramで認証が完了するまで、入力内容は保存されません。入力したユーザー名と認証したアカウントが一致する場合だけ接続します。',{exact:true})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.getByLabel('HTTPSの認証戻り先',{exact:true}).fill('http://fixture.example/api/admin/instagram/oauth');
- await page.getByRole('button',{name:'設定用の内容を確認',exact:true}).click();
-  await expect(page.locator('.admin-instagram-setup').getByRole('alert')).toContainText('HTTPS');expect(posts).toBe(0);
+ expect(posts).toBe(0);
 });
 
 test('Instagram account switch refuses the old token before fetching posts',async()=>{
