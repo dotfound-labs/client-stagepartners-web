@@ -2144,7 +2144,7 @@ export const PAGE_TEMPLATES:Record<string,PageTemplate>={
     ]
   },
   "common": {
-    "title": "共通設定",
+    "title": "サイト情報・SEO・共通設定",
     "fields": [
       {
         "id": "common.text_6a49f7db",
@@ -2467,6 +2467,41 @@ export const PAGE_TEMPLATES:Record<string,PageTemplate>={
         "value": "/tokushoho",
         "section": "components/Footer.tsx",
         "kind": "link"
+      },
+      {
+        "id": "common.seo_site_name",
+        "label": "サイト名",
+        "value": "STAGE PARTNERS",
+        "section": "SEO・サイト情報",
+        "kind": "text"
+      },
+      {
+        "id": "common.seo_title",
+        "label": "検索結果の基本タイトル",
+        "value": "STAGE PARTNERS | 株式会社ステージパートナーズ",
+        "section": "SEO・サイト情報",
+        "kind": "text"
+      },
+      {
+        "id": "common.seo_description",
+        "label": "サイトの説明（検索結果・SNS共有）",
+        "value": "土地と建物に、次の価値を。STAGE PARTNERSは不動産の仲介・管理から建物のリフォームまで、オーナー様の資産の可能性を伴走して引き出すパートナーです。",
+        "section": "SEO・サイト情報",
+        "kind": "text"
+      },
+      {
+        "id": "common.seo_url",
+        "label": "サイトの正式URL",
+        "value": "https://www.stagepartners.co.jp",
+        "section": "SEO・サイト情報",
+        "kind": "link"
+      },
+      {
+        "id": "common.seo_indexing",
+        "label": "検索エンジンへの掲載",
+        "value": "index",
+        "section": "SEO・サイト情報",
+        "kind": "text"
       }
     ]
   }

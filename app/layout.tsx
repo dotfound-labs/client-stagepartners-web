@@ -1,3 +1,4 @@
+import {siteMetadata} from "@/lib/cms/site-metadata";
 import type { Metadata } from "next";
 import { Noto_Sans_JP, Shippori_Mincho, Inter } from "next/font/google";
 import SiteEffects from "@/components/SiteEffects";
@@ -31,23 +32,7 @@ const inter = Inter({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  ...(process.env.VERCEL_ENV === "preview" ? {robots:{index:false,follow:false}} : {}),
-  title: "STAGE PARTNERS | 株式会社ステージパートナーズ",
-  description:
-    "土地と建物に、次の価値を。STAGE PARTNERSは不動産の仲介・管理から建物のリフォームまで、オーナー様の資産の可能性を一貫して引き出すパートナーです。",
-  // ファビコンは app/favicon.ico・app/icon.png・app/apple-icon.png を
-  // Next.jsのファイル規約で自動配信する。ここでiconsを指定すると規約側が
-  // 上書きされるため書かない。
-  metadataBase: new URL("https://www.stagepartners.co.jp"),
-  openGraph: {
-    title: "STAGE PARTNERS | 株式会社ステージパートナーズ",
-    description:
-      "不動産の仲介・管理から建物のリフォームまで。土地と建物の可能性を一貫して引き出す、オーナー様のためのパートナー。",
-    locale: "ja_JP",
-    type: "website",
-  },
-};
+export async function generateMetadata():Promise<Metadata>{return siteMetadata();}
 
 export default function RootLayout({
   children,

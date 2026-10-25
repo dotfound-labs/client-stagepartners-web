@@ -1,4 +1,6 @@
 import {instagramOAuthConfig,instagramSetupStatus} from "@/lib/cms/instagram-oauth";
+import {validateSiteFields} from '@/lib/cms/site-settings';
+import sharp from 'sharp';
 import {instagramTokenMetadata} from "@/lib/cms/instagram-token-store";
 import {GET as runInstagramJob} from "@/app/api/jobs/instagram/route";
 import {invitationDeliveryConfig,invitationIntentMatches} from "@/lib/cms/invitation-readiness";
@@ -108,6 +110,19 @@ export async function POST(request: Request, context: Context) {
         const template = PAGE_TEMPLATES[value.slug];
         if (!template || (value.module === "settings") !== (value.slug === "common")) throw new CmsError(400, "ページの種類を確認してください。");
         const allowed = new Set(template.fields.map(f => f.id));
+        if(value.slug==='common'){
+          data.fields={...Object.fromEntries(template.fields.map(f=>[f.id,f.value])),...data.fields};
+          try{validateSiteFields(data.fields);}catch(e){throw new CmsError(400,(e as Error).message);}
+          const icon=data.images?.seo_icon;
+          if(icon?.media_id){
+            const row=await client.from('cms_media').select('object_path').eq('id',icon.media_id).eq('ready',true).eq('deletion_requested',false).maybeSingle();
+            if(row.error||!row.data)throw new CmsError(400,'利用できる画像を選んでください。');
+            const file=await client.storage.from('cms-media').download(row.data.object_path);
+            if(file.error||!file.data)throw new CmsError(400,'画像を確認できませんでした。');
+            const info=await sharp(Buffer.from(await file.data.arrayBuffer()),{limitInputPixels:40000000}).metadata();
+            if(!info.width||!info.height||info.width!==info.height||info.width<96)throw new CmsError(400,'ファビコンは96px以上の正方形画像を選んでください。');
+          }
+        }
         if (Object.keys(data.fields).some(key => !allowed.has(key))) throw new CmsError(400, "未対応の入力項目があります。");
         for(const field of template.fields){const entry=data.fields[field.id];if(entry===undefined)continue;if(field.kind==="link"&&!safeHref(entry)||field.kind==="phone"&&!/^\+?[0-9-]{6,20}$/.test(entry))throw new CmsError(400,"リンク先・電話番号の形式を確認してください。");}
         for(const [key,image] of Object.entries(data.images??{})){const slot=PAGE_ASSETS[value.slug]?.images.find(s=>s.id===key);if(!slot||image.legacy_path&&image.legacy_path!==slot.path)throw new CmsError(400,"画像の指定が正しくありません。");}

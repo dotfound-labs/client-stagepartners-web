@@ -95,6 +95,18 @@ export const PAGE_ASSETS:Record<string,{images:PageAsset[]}>= {
         "label": "フッターの画像 2",
         "path": "/logo-color-footer.png",
         "alt": "フッター"
+      },
+      {
+        "id": "seo_icon",
+        "label": "ファビコン（正方形・96px以上）",
+        "path": "/icon.png",
+        "alt": "STAGE PARTNERS"
+      },
+      {
+        "id": "seo_og",
+        "label": "SNS共有画像（OGP・推奨1200×630）",
+        "path": "/stagepartners-hero.jpg",
+        "alt": "STAGE PARTNERS — 土地と建物に、次の価値を。"
       }
     ]
   }

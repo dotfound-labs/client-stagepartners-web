@@ -1,3 +1,4 @@
+import {getSiteSettings} from "@/lib/cms/site-metadata";
 import PublishedPage from "@/components/PublishedPage";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -21,7 +22,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const posts = await getPublishedNews();
   const post = posts.find(p => p.slug === slug);
   if (!post) return {};
-  const title = `${post.title} | お知らせ | STAGE PARTNERS`;
+  const site=await getSiteSettings();
+  const title = `${post.title} | お知らせ | ${site.siteName}`;
   return {
     title,
     description: post.excerpt,
@@ -31,6 +33,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       description: post.excerpt,
       type: "article",
       locale: "ja_JP",
+      images:["/site-assets/og"],
+      siteName:site.siteName,
       publishedTime: post.firstPublishedAt ?? post.date,
       modifiedTime: post.contentUpdatedAt ?? undefined,
     },
