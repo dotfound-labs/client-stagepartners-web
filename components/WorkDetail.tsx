@@ -1,5 +1,6 @@
 "use client";
 
+import PublicationDates from "./PublicationDates";
 import Image from "next/image";
 import Link from "next/link";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
@@ -86,6 +87,7 @@ export default function WorkDetail({ work, prev, next }: Props) {
           <h1 data-hero-title className="t-heading mt-6 font-display font-normal text-on-dark">
             {work.title}
           </h1>
+          <PublicationDates firstPublishedAt={work.firstPublishedAt} contentUpdatedAt={work.contentUpdatedAt} />
 
           <dl className="mt-8 flex flex-wrap gap-x-12 gap-y-4">
             <div data-hero-meta>

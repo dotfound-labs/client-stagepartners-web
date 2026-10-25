@@ -14,6 +14,8 @@ export type WorkCategory = "store" | "facility";
 export type Shot = { alt?: string; file: string; state: "before" | "after" };
 
 export type Work = {
+  firstPublishedAt?: string | null;
+  contentUpdatedAt?: string | null;
   featured?: boolean;
   slug: string;
   title: string;

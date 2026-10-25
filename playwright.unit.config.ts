@@ -1,0 +1,1 @@
+import {defineConfig} from "@playwright/test"; export default defineConfig({testDir:"./tests",workers:1,grep:/Instagram|invitation readiness|password page|publication dates|common navigation|typed link|telephone|metadata|historical hero/});

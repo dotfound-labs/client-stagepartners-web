@@ -37,7 +37,7 @@ test("official Instagram adapter handles photos, expired tokens, limits and disa
  const sync=exports.syncInstagram as typeof import('../lib/cms/instagram-worker').syncInstagram;
  const config={enabled:true,accountId:'123',apiVersion:'v25.0',accessToken:'fixture-only'};
  let calls=0,health='';const posts:unknown[]=[];
- const dependencies={fetch:async()=>{calls++;return Response.json({data:[{id:'456',media_type:'IMAGE',media_url:'https://scontent.cdninstagram.com/photo.jpg',permalink:'https://www.instagram.com/p/ABC/',timestamp:'2026-01-01T00:00:00Z'}]});},importPost:async(post:unknown)=>{posts.push(post);},health:async(status:string)=>{health=status;}};
+ const dependencies={fetch:async()=>{calls++;return Response.json({data:[{id:'456',caption:'#お知らせ',media_type:'IMAGE',media_url:'https://scontent.cdninstagram.com/photo.jpg',permalink:'https://www.instagram.com/p/ABC/',timestamp:'2026-01-01T00:00:00Z'}]});},importPost:async(post:unknown)=>{posts.push(post);},health:async(status:string)=>{health=status;}};
  expect((await sync({...config,enabled:false},dependencies)).status).toBe('skipped');expect(calls).toBe(0);
  expect((await sync(config,dependencies)).status).toBe('ok');expect(posts).toHaveLength(1);expect(posts[0]).toHaveProperty('imageUrl','https://scontent.cdninstagram.com/photo.jpg');
  await sync(config,{...dependencies,fetch:async()=>Response.json({error:{code:190}},{status:401})});expect(health).toBe('token-expired');
@@ -63,3 +63,45 @@ test("password page uses verified server email and rejects unverified identity",
  email='other-verified@example.test';expect((await page()).props.verifiedEmail).toBe(email);
  confirmed=false;expect(await page().then(()=>'',error=>error.message)).toBe('REDIRECT');
 });
+
+
+test("Instagram exact news hashtag boundaries and ten-post selection",async()=>{
+ const exports:Record<string,unknown>={};const require=createRequire(process.cwd()+"/package.json");
+ vm.runInNewContext(ts.transpileModule(readFileSync('lib/cms/instagram-worker.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>n==='server-only'?{}:require(n),URL,AbortSignal,Date});
+ const match=exports.isNewsCaption as (s:string)=>boolean;
+ for(const s of ['#お知らせ','本文 #お知らせ。','📣#お知らせ\n'])expect(match(s)).toBe(true);
+ for(const s of ['お知らせ','＃お知らせ','#お知らせ一覧','#お知らせ_','#お知らせ1','本文#お知らせ','##お知らせ','#お知らせ\u0301'])expect(match(s)).toBe(false);
+ const sync=exports.syncInstagram as typeof import('../lib/cms/instagram-worker').syncInstagram;
+ const imported:string[]=[];const data=Array.from({length:10},(_,i)=>({id:String(i+1),caption:i<2?'#お知らせ':'日常',media_type:'IMAGE',permalink:'https://www.instagram.com/p/ABC/',timestamp:'2026-01-01T00:00:00Z'}));
+ const result=await sync({enabled:true,accountId:'123',apiVersion:'v25.0',accessToken:'fixture'},{fetch:async()=>Response.json({data}),importPost:async p=>{imported.push(p.mediaId);},health:async()=>{}});
+ expect(result.imported).toBe(2);expect(imported).toEqual(['1','2']);
+});
+
+test("Instagram long-lived refresh saves rotation before use and refuses unsupported tokens",async()=>{
+ const exports:Record<string,unknown>={};const require=createRequire(process.cwd()+"/package.json");
+ vm.runInNewContext(ts.transpileModule(readFileSync('lib/cms/instagram-token.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>n==='server-only'?{}:require(n),URL,AbortSignal,Date});
+ const maintain=exports.maintainInstagramToken as typeof import('../lib/cms/instagram-token').maintainInstagramToken;
+ const now=Date.parse('2026-10-25T00:00:00Z'),token={accessToken:'fixture-old',kind:'instagram-login-long-lived' as const,issuedAt:'2026-09-01T00:00:00Z',expiresAt:'2026-10-30T00:00:00Z'};
+ let saved='';let calls=0;const deps={now:()=>now,fetch:async()=>{calls++;return Response.json({access_token:'fixture-new',expires_in:5184000});},save:async(t:typeof token)=>{saved=t.accessToken;}};
+ expect((await maintain(token,deps)).status).toBe('refreshed');expect(saved).toBe('fixture-new');expect(calls).toBe(1);
+ expect((await maintain({...token,expiresAt:'2026-10-24T00:00:00Z'},deps)).status).toBe('reauthorization-required');expect(calls).toBe(1);
+ expect((await maintain({...token,issuedAt:'2026-10-24T12:00:00Z'},deps)).status).toBe('expiring');expect(calls).toBe(1);
+ expect((await maintain(token,{...deps,save:async()=>{throw Error('fixture');}})).token).toBeUndefined();
+ expect((await maintain(token,{...deps,fetch:async()=>Response.json({error:{code:190}},{status:401})})).status).toBe('reauthorization-required');
+ const limited=await maintain(token,{...deps,fetch:async()=>Response.json({error:{code:4}},{status:429,headers:{'retry-after':'7200'}})});expect(limited.status).toBe('rate-limited');expect(limited.retrySeconds).toBe(7200);
+ expect((await maintain(token,{...deps,fetch:async()=>{throw Error('fixture');}})).status).toBe('refresh-error');
+});
+
+ test("design fixture route is unavailable in production",async({request})=>{expect((await request.get(base+'/admin-design-preview')).status()).toBe(404);});
+
+ test("Instagram OAuth verifies target identity and never enables on Vercel",async()=>{
+ const exports:Record<string,unknown>={};const require=createRequire(process.cwd()+"/package.json");const env:Record<string,string>={INSTAGRAM_OAUTH_ENABLED:'true',INSTAGRAM_TOKEN_STORE:'local-file',INSTAGRAM_APP_ID:'123',INSTAGRAM_APP_SECRET:'fixture',INSTAGRAM_REDIRECT_URI:'https://test.example/api/admin/instagram/oauth',INSTAGRAM_API_VERSION:'v25.0'};
+ vm.runInNewContext(ts.transpileModule(readFileSync('lib/cms/instagram-oauth.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>n==='server-only'?{}:require(n),URL,URLSearchParams,AbortSignal,Date,process:{env}});
+ const config=exports.instagramOAuthConfig as typeof import('../lib/cms/instagram-oauth').instagramOAuthConfig;
+ expect(config()).not.toBeNull();env.VERCEL='1';expect(config()).toBeNull();delete env.VERCEL;
+ env.INSTAGRAM_REDIRECT_URI='http://test.example/api/admin/instagram/oauth';expect(config()).toBeNull();env.INSTAGRAM_REDIRECT_URI='https://test.example/api/admin/instagram/oauth';
+ const exchange=exports.exchangeInstagramCode as typeof import('../lib/cms/instagram-oauth').exchangeInstagramCode;
+ let i=0;const responses=[{access_token:'fixture-short'},{access_token:'fixture-long',expires_in:5184000},{user_id:'123',username:'aim_architecture'}];
+ const result=await exchange('fixture-code',config()!,async()=>Response.json(responses[i++]));expect(result.username).toBe('aim_architecture');expect(result.token.kind).toBe('instagram-login-long-lived');
+ i=0;responses[2]={user_id:'123',username:'wrong_account'};expect(await exchange('fixture-code',config()!,async()=>Response.json(responses[i++])).then(()=>'',e=>e.message)).toBe('ACCOUNT_MISMATCH');
+ });

@@ -25,6 +25,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       title,
       description: work.summary,
       type: "article",
+      publishedTime: work.firstPublishedAt ?? undefined,
+      modifiedTime: work.contentUpdatedAt ?? undefined,
       locale: "ja_JP",
       images: [workImage(work, work.cover)],
     },

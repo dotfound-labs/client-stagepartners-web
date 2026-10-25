@@ -1,5 +1,7 @@
 import "server-only";
 import { z } from "zod";
+// Exact ASCII # and Unicode hashtag boundaries. No NFKC/fullwidth conversion.
+export function isNewsCaption(caption:string){return /(?<![\p{L}\p{M}\p{N}_#＃])#お知らせ(?![\p{L}\p{M}\p{N}_])/u.test(caption);}
 // Runs only through the explicitly enabled server job; tokens never reach the browser.
 const media = z.object({ id: z.string().regex(/^\d+$/), caption: z.string().max(20000).optional(), media_type:z.enum(["IMAGE","VIDEO","CAROUSEL_ALBUM"]), media_url:z.url().optional(), thumbnail_url:z.url().optional(), permalink: z.url().refine(url => /^https:\/\/www\.instagram\.com\/(p|reel)\/[A-Za-z0-9_-]+\/?$/.test(url)), timestamp: z.iso.datetime({ offset: true }) });
 export type InstagramDependencies = {
@@ -25,6 +27,7 @@ export async function syncInstagram(config: { enabled: boolean; accountId: strin
     }
     const posts = z.object({ data: z.array(media).max(50) }).parse(body);
     for (const post of posts.data) {
+      if(!isNewsCaption(post.caption??""))continue;
       await dependencies.importPost({ accountId: config.accountId, mediaId: post.id, permalink: post.permalink, caption: post.caption ?? "", timestamp: post.timestamp, imageUrl:post.media_type==="VIDEO"?post.thumbnail_url:post.media_url }); imported++;
     }
     await dependencies.health("ok", 3600); return { status: "ok", imported };

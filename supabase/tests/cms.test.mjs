@@ -29,6 +29,7 @@ for (const file of (await readdir(new URL('../migrations/',import.meta.url))).fi
   await db.exec(await readFile(new URL('../migrations/'+file,import.meta.url),'utf8'));
   console.log('APPLIED',file);
 }
+assert.equal((await db.query('select count(*)::int n from public.cms_published where first_published_at is not null or content_updated_at is not null')).rows[0].n,0);
 const users = {};
 for (const name of ['owner','editor','publisher','manager','outsider','invitee','pageeditor']) {
   users[name] = { id:randomUUID(),sid:randomUUID(),email:name+'@example.test' };
@@ -322,6 +323,32 @@ await test('home imported entity is corrected with stable field identity and rec
  assert.ok((await db.query("select * from public.cms_revisions where document_id=$1 and action='migration.entity_text'",[row.id])).rows.length);
  await actor('anon');const published=(await db.query("select data from public.cms_published where module='pages' and slug='home'")).rows[0];
  assert.equal(published.data.fields['home.text_579bb17d'],'REAL ESTATE & ARCHITECTURE');
+});
+
+await test('publication dates ignore migration dates, drafts and unchanged republishes',async()=>{
+ await actor('owner');
+ const docId=randomUUID();const slug='publication-dates-fixture';
+ const command=async(action,data,version)=>db.query('select public.cms_mutate_content($1,$2,$3,$4,$5,$6,$7)',[docId,'news',slug,action,JSON.stringify(data),version,randomUUID()]);
+ const snapshot=async()=> (await db.query('select * from public.cms_published where document_id=$1',[docId])).rows[0];
+ const site=async()=> (await db.query('select updated_at from public.cms_site_publication')).rows[0].updated_at;
+ await command('save',news,0);const before=await site();await command('save',{...news,title:'Draft'},1);assert.deepEqual(await site(),before);
+ const draftSaved=(await db.query('select draft_saved_at from public.cms_documents where id=$1',[docId])).rows[0].draft_saved_at;assert.ok(draftSaved);await command('publish',news,2);assert.deepEqual((await db.query('select draft_saved_at from public.cms_documents where id=$1',[docId])).rows[0].draft_saved_at,draftSaved);const first=await snapshot();assert.ok(first.first_published_at);assert.ok(first.content_updated_at);
+ const publishedTime=await site();await command('save',{...news,title:'Later draft'},3);assert.deepEqual(await snapshot(),first);assert.deepEqual(await site(),publishedTime);
+ await command('publish',news,4);const changed=await snapshot();assert.deepEqual(changed.first_published_at,first.first_published_at);assert.notDeepEqual(changed.content_updated_at,first.content_updated_at);
+ const changedTime=await site();await command('publish',news,5);assert.deepEqual((await snapshot()).content_updated_at,changed.content_updated_at);assert.deepEqual(await site(),changedTime);
+ await command('unpublish',news,6);assert.equal(await snapshot(),undefined);assert.notDeepEqual(await site(),changedTime);
+ await command('publish',news,7);assert.deepEqual((await snapshot()).first_published_at,first.first_published_at);
+ await actor('anon');await denied('select * from public.cms_site_publication');await denied('select * from cms_private.publication_dates');
+ await actor('owner');await denied('update public.cms_site_publication set updated_at=now()');
+});
+await test('fixed-page input survives reread without changing public content or descriptor identity',async()=>{
+ await actor('owner');const row=(await db.query("select * from public.cms_documents where module='pages' and slug='home'")).rows[0];
+ const before=(await db.query('select * from public.cms_published where document_id=$1',[row.id])).rows[0];
+ const edited={...row.draft,fields:{...row.draft.fields,'home.text_579bb17d':'Persisted draft fixture'}};
+ await db.query('select public.cms_mutate_content($1,$2,$3,$4,$5,$6,$7)',[row.id,'pages','home','save',JSON.stringify(edited),row.version,randomUUID()]);
+ const loaded=(await db.query('select draft from public.cms_documents where id=$1',[row.id])).rows[0];
+ assert.equal(loaded.draft.fields['home.text_579bb17d'],'Persisted draft fixture');
+ assert.deepEqual((await db.query('select * from public.cms_published where document_id=$1',[row.id])).rows[0],before);
 });
 console.log(`${passed} database tests passed. LOCAL PGlite; no hosted Supabase calls.`);
 await db.close();

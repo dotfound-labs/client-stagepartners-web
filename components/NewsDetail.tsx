@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import PublicationDates from "./PublicationDates";
 import InstagramImage from "./InstagramImage";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { prefersReducedMotion, drawLine } from "@/lib/animations";
@@ -81,6 +82,7 @@ export default function NewsDetail({ post, prev, next }: Props) {
           >
             {post.title}
           </h1>
+          <PublicationDates firstPublishedAt={post.firstPublishedAt} contentUpdatedAt={post.contentUpdatedAt} />
         </div>
       </section>
 

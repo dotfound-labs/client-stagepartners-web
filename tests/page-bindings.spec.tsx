@@ -27,3 +27,12 @@ test('restored historical hero default does not double-encode its ampersand',()=
  const html=renderToStaticMarkup(<PageFieldsProvider scope="home" common={{title:'Common',fields:{}}} page={{title:'Home',fields:{'home.text_579bb17d':'REAL ESTATE &amp; ARCHITECTURE'}}}><CmsText fieldId="text_579bb17d">REAL ESTATE &amp; ARCHITECTURE</CmsText></PageFieldsProvider>);
  expect(html).toContain('REAL ESTATE &amp; ARCHITECTURE');expect(html).not.toContain('&amp;amp;');
 });
+
+import PublicationDates from "../components/PublicationDates";
+import {publicationDate} from "../lib/cms/publication-dates";
+test("publication dates omit unknown imports and format midnight in Japan",()=>{
+ expect(renderToStaticMarkup(<PublicationDates/>)).toBe("");
+ expect(publicationDate("2026-10-24T16:00:00Z")).toBe("2026/10/25");
+ const html=renderToStaticMarkup(<PublicationDates firstPublishedAt="2026-10-24T16:00:00Z" contentUpdatedAt="2026-10-25T16:00:00Z"/>);
+ expect(html).toContain("2026/10/25");expect(html).toContain("2026/10/26");expect(html).toContain("dateTime=\"2026-10-24T16:00:00Z\"");
+});

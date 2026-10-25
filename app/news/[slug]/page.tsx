@@ -31,7 +31,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       description: post.excerpt,
       type: "article",
       locale: "ja_JP",
-      publishedTime: post.date,
+      publishedTime: post.firstPublishedAt ?? post.date,
+      modifiedTime: post.contentUpdatedAt ?? undefined,
     },
   };
 }

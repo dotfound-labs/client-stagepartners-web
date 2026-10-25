@@ -31,7 +31,7 @@ export type NewsData = z.infer<typeof newsSchema>;
 export type PageData = z.infer<typeof pageSchema>;
 export type ContentData = WorkData | NewsData | PageData;
 export type ContentModule = "works" | "news" | "pages" | "settings";
-export type Document = { id: string; module: ContentModule; slug: string; draft: ContentData; version: number; archived: boolean; source: "manual" | "instagram"; source_url: string | null; updated_at: string; published?: { version: number } | null };
+export type Document = { id: string; module: ContentModule; slug: string; draft: ContentData; version: number; archived: boolean; source: "manual" | "instagram"; source_url: string | null; updated_at: string; draft_saved_at?: string | null; published?: { version: number } | null };
 export type Media = { id: string; original_name: string; alt: string; ready: boolean; deletion_requested: boolean; mime_type: string; size_bytes: number };
 export type Revision = { id: number; version: number; action: string; data: ContentData; created_at: string };
 export function parseContent(module: ContentModule, data: unknown) { return (module === "works" ? workSchema : module === "news" ? newsSchema : pageSchema).parse(data); }

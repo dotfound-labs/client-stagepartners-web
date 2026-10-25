@@ -1,3 +1,6 @@
+import {instagramOAuthConfig} from "@/lib/cms/instagram-oauth";
+import {instagramTokenMetadata} from "@/lib/cms/instagram-token-file";
+import {GET as runInstagramJob} from "@/app/api/jobs/instagram/route";
 import {invitationDeliveryConfig,invitationIntentMatches} from "@/lib/cms/invitation-readiness";
 import {deliverInvitation} from "@/lib/cms/invitation-delivery";
 import {instagramReady,contactReady} from "@/lib/cms/integration-config";
@@ -31,6 +34,11 @@ export async function GET(request: Request, context: Context) {
     const path = (await context.params).path.join("/");
     const { client, identity } = await requireIdentity();
     const query = new URL(request.url).searchParams;
+    if (path === "publication-status") {
+      const result=await client.from("cms_site_publication").select("updated_at").single();
+      if(result.error?.code === "PGRST205" || result.error?.code === "42P01")return reply({updatedAt:null,available:false});
+      databaseError(result.error);return reply({updatedAt:result.data?.updated_at??null,available:true});
+    }
     if (path === "bootstrap") return reply({ identity });
     if (path === "documents") {
       const selectedModule = contentModule.parse(query.get("module")); requirePermission(identity, selectedModule, "read");
@@ -66,7 +74,7 @@ export async function GET(request: Request, context: Context) {
     if (path === "instagram") {
       requirePermission(identity, "settings", "read");
       const { data, error } = await client.from("cms_instagram_config").select("*").single(); databaseError(error);
-      return reply({ config: data, authorizationConfigured: instagramReady() });
+      return reply({ config: data, authorizationConfigured: instagramReady(), connectionAvailable: Boolean(instagramOAuthConfig()), token: await instagramTokenMetadata() });
     }
     throw new CmsError(404, "対象が見つかりません。");
   } catch (error) { return failure(error); }
@@ -140,7 +148,12 @@ export async function POST(request: Request, context: Context) {
       requirePermission(identity, "inquiries", value.action === "delete" ? "delete" : "edit");
       const { error } = await client.rpc("cms_mutate_inquiry", { p_id: value.id, p_action: value.action, p_status: value.status, p_note: value.note, p_version: value.version }); databaseError(error); return reply({ ok: true });
     }
-    if (path === "instagram") {
+    if(path==="instagram/sync"){
+ if(!identity.owner)throw new CmsError(403,"オーナーのみ同期できます。");
+ if(!instagramReady())throw new CmsError(503,"認可・保存先・同期設定を確認してください。");
+ return runInstagramJob(new Request(new URL("/api/jobs/instagram",request.url),{headers:{Authorization:"Bearer "+process.env.CRON_SECRET}}));
+ }
+ if (path === "instagram") {
       if (!identity.owner) throw new CmsError(403, "オーナーのみ変更できます。");
       const value = z.object({ accountId: z.string().regex(/^\d+$/).nullable(), username: z.string().regex(/^[A-Za-z0-9_.]{1,30}$/).nullable(), enabled: z.boolean(), autoPublish: z.boolean() }).strict().parse(input);
       // OAuth and secret provisioning have not been authorized/configured yet.

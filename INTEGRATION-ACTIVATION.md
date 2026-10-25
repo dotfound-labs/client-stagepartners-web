@@ -2,8 +2,7 @@
 
 All activation flags default off. Vercel Preview forcibly disables contact intake
 and Instagram sync/image fetching even if flags are accidentally set. No cron
-schedule or cleanup task is installed by this branch. Migration 7 is pending
-review and must follow migrations 5 and 6. Existing applied files are unchanged.
+schedule or cleanup task is installed by this branch. All seven migrations are applied. Existing applied files are unchanged.
 
 ## Standard invite / recovery
 
@@ -90,3 +89,61 @@ Notification status `accepted` means the provider accepted the submission, not
 that the recipient received email. The provider submission ID is stored for
 reconciliation. Honeypot and email/global caps do not prevent quota-exhaustion
 denial of service; evaluate stronger abuse controls before public activation.
+
+## Instagram lifecycle and tagged-news update (not activated)
+
+Only an exact standalone ASCII #お知らせ hashtag imports news. Fullwidth ＃,
+#お知らせ一覧, combining-mark suffixes and embedded word fragments do not match.
+No Unicode normalization is performed. Missing/removed tags skip the post;
+existing imported content is retained, never deleted or automatically hidden.
+
+The official refresh endpoint supports unexpired Instagram Login long-lived
+tokens aged at least 24 hours, renewing for up to 60 days. The worker refreshes
+within seven days of expiry, validates expires_in, saves before using new tokens,
+and backs off on rate limits/timeouts. Expired/revoked tokens require OAuth again.
+Short-lived, Facebook Login and unknown tokens are not automatically refreshed.
+No provider error body, request URL or token may be logged.
+
+The optional local-file adapter uses an exclusive lock and atomic replacement.
+Provision .cms-secrets with owner-only ACLs, outside cloud sync/backups, before
+setting INSTAGRAM_TOKEN_STORE=local-file. Its JSON contains accessToken, kind
+instagram-login-long-lived, issuedAt and expiresAt. No file is provisioned by
+this change. A stale lock after crash requires reviewed manual recovery; do not
+remove a live lock. Failed replacement can leave a protected temporary file.
+
+OAuth uses owner-only same-origin POST, random HttpOnly Secure state bound to
+the current owner, ten-minute expiry, one-use provider code, and verifies the
+returned username is aim_architecture. Configure INSTAGRAM_OAUTH_ENABLED,
+INSTAGRAM_APP_ID, INSTAGRAM_APP_SECRET, INSTAGRAM_REDIRECT_URI and API version
+only after approval. Redirect must be HTTPS /api/admin/instagram/oauth on the
+app origin and registered with Meta. Suppress callback query-string and outbound
+refresh URL logging before activation; both can contain credentials.
+
+IMPORTANT: this file adapter and OAuth flow explicitly refuse Vercel (including
+Production). Vercel has no durable local credential filesystem. Production
+unattended refresh remains blocked until a reviewed durable secret-store adapter
+is implemented and approved/provisioned; environment-only tokens are not silently
+rotated. The UI reports unconnected/expired/expiring and job responses warn when
+environment token expiry is untracked. This is not a completed live integration.
+No OAuth grants, keys, schedules or SMTP changes were made.
+
+Official reference: https://developers.facebook.com/documentation/instagram-platform/reference/refresh_access_token
+
+## Publication dates (pending migration review)
+
+Migration 20261025025557_cms_publication_dates is prepared and locally tested,
+not applied to the hosted project. The first seven migrations remain unchanged.
+Existing publication times stay unknown; migration timestamps are never shown as
+original publication dates. New publications record first_published_at, retained
+across unpublish/republish. content_updated_at changes only when public content
+changes or becomes visible again. Version-only republishes do not advance it.
+The admin site timestamp also includes unpublication; draft saves/restores do not
+advance it. Dates are displayed in Asia/Tokyo. Unconfigured older DBs omit these
+public dates and report the dashboard timing feature as awaiting setup.
+
+Local PostgreSQL regression now includes page save/reread persistence, unchanged
+public snapshots after draft changes, date privacy and publication transitions.
+Real Auth UI editing/publishing remains unverified until initial owner setup.
+Low-level real target-project Storage upload/download/duplicate rejection, anon
+read denial and cleanup of the uniquely named synthetic object were verified;
+this does not replace administrator upload UI E2E.
