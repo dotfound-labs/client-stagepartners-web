@@ -84,6 +84,7 @@ test("Instagram long-lived refresh saves rotation before use and refuses unsuppo
  const now=Date.parse('2026-10-25T00:00:00Z'),token={accessToken:'fixture-old',kind:'instagram-login-long-lived' as const,issuedAt:'2026-09-01T00:00:00Z',expiresAt:'2026-10-30T00:00:00Z'};
  let saved='';let calls=0;const deps={now:()=>now,fetch:async()=>{calls++;return Response.json({access_token:'fixture-new',expires_in:5184000});},save:async(t:typeof token)=>{saved=t.accessToken;}};
  expect((await maintain(token,deps)).status).toBe('refreshed');expect(saved).toBe('fixture-new');expect(calls).toBe(1);
+ const bound=await maintain({...token,accountId:'456',username:'another_business'},{...deps,fetch:async()=>Response.json({access_token:'fixture-new',expires_in:5184000})});expect(bound.token?.accountId).toBe('456');expect(bound.token?.username).toBe('another_business');
  expect((await maintain({...token,expiresAt:'2026-10-24T00:00:00Z'},deps)).status).toBe('reauthorization-required');expect(calls).toBe(1);
  expect((await maintain({...token,issuedAt:'2026-10-24T12:00:00Z'},deps)).status).toBe('expiring');expect(calls).toBe(1);
  expect((await maintain(token,{...deps,save:async()=>{throw Error('fixture');}})).token).toBeUndefined();
@@ -102,9 +103,11 @@ test("Instagram long-lived refresh saves rotation before use and refuses unsuppo
  env.INSTAGRAM_REDIRECT_URI='http://test.example/api/admin/instagram/oauth';expect(config()).toBeNull();env.INSTAGRAM_REDIRECT_URI='https://test.example/api/admin/instagram/oauth';
  const exchange=exports.exchangeInstagramCode as typeof import('../lib/cms/instagram-oauth').exchangeInstagramCode;
  let i=0;const responses=[{access_token:'fixture-short'},{access_token:'fixture-long',expires_in:5184000},{user_id:'123',username:'aim_architecture'}];
- const result=await exchange('fixture-code',config()!,async()=>Response.json(responses[i++]));expect(result.username).toBe('aim_architecture');expect(result.token.kind).toBe('instagram-login-long-lived');
+ const result=await exchange('fixture-code',config()!,async()=>Response.json(responses[i++]),'aim_architecture');expect(result.username).toBe('aim_architecture');expect(result.token.accountId).toBe('123');expect(result.token.kind).toBe('instagram-login-long-lived');
  env.VERCEL='1';env.INSTAGRAM_TOKEN_STORE='encrypted-db';env.INSTAGRAM_TOKEN_ENCRYPTION_KEY='11'.repeat(32);env.SUPABASE_SECRET_KEY='synthetic-server-config';expect(config()).not.toBeNull();env.VERCEL_ENV='preview';expect(config()).toBeNull();delete env.VERCEL_ENV;delete env.VERCEL;env.INSTAGRAM_TOKEN_STORE='local-file';
- i=0;responses[2]={user_id:'123',username:'wrong_account'};expect(await exchange('fixture-code',config()!,async()=>Response.json(responses[i++])).then(()=>'',e=>e.message)).toBe('ACCOUNT_MISMATCH');
+ i=0;responses[2]={user_id:'456',username:'another_business'};expect((await exchange('fixture-code',config()!,async()=>Response.json(responses[i++]),'another_business')).token.accountId).toBe('456');
+ i=0;responses[2]={user_id:'123',username:'wrong_account'};expect(await exchange('fixture-code',config()!,async()=>Response.json(responses[i++]),'another_business').then(()=>'',e=>e.message)).toBe('ACCOUNT_MISMATCH');
+ expect(await exchange('fixture-code',config()!,async()=>{throw Error('must not fetch');}).then(()=>'',e=>e.message)).toBe('TARGET_REQUIRED');
  });
 
 test('Instagram encrypted envelope authenticates ciphertext and wrong keys fail closed',()=>{
@@ -116,7 +119,7 @@ test('Instagram encrypted envelope authenticates ciphertext and wrong keys fail 
  const a=seal(token,key),b=seal(token,key);expect(a).not.toBe(b);expect(a).not.toContain(token.accessToken);expect(open(a,key)).toEqual(token);
  expect(()=>open(a,Buffer.alloc(32,18))).toThrow('TOKEN_DECRYPTION_FAILED');
  const parts=a.split('.');parts[3]=(parts[3][0]==='a'?'b':'a')+parts[3].slice(1);expect(()=>open(parts.join('.'),key)).toThrow('TOKEN_DECRYPTION_FAILED');
- expect(()=>open('v2.'+a.slice(3),key)).toThrow('TOKEN_DECRYPTION_FAILED');
+ expect(()=>open('v1.'+a.slice(3),key)).toThrow('TOKEN_DECRYPTION_FAILED');
  const parse=exports.tokenEncryptionKey as typeof import('../lib/cms/instagram-token-crypto').tokenEncryptionKey;expect(()=>parse('short')).toThrow('TOKEN_KEY_UNCONFIGURED');
 });
 
@@ -169,10 +172,10 @@ test('Web3Forms API validates, suppresses repeat attempts and reports PRO failur
 
 test('Instagram OAuth rejects mismatched state, replay, revoked owner and uncertain persistence',async()=>{
  const require=createRequire(process.cwd()+"/package.json"),exports:Record<string,unknown>={},jar=new Map<string,string>();let revoked=false,failSave=false,exchanges=0,saves=0;
- const mods:Record<string,unknown>={'next/headers':{cookies:async()=>({get:(name:string)=>jar.has(name)?{value:jar.get(name)}:undefined,set:(name:string,value:string)=>jar.set(name,value),delete:({name}:{name:string})=>jar.delete(name)})},'next/server':{NextResponse:{redirect:(url:URL)=>new Response(null,{status:307,headers:{Location:url.href}})}},'@/lib/cms/server':{requireIdentity:async()=>{if(revoked)throw Error('fixture revoked');return {identity:{id:'fixture-owner',owner:true},client:{rpc:async()=>({error:null})}};}},'@/lib/cms/csrf':{sameOrigin:()=>true},'@/lib/cms/instagram-oauth':{instagramOAuthConfig:()=>({appId:'123',redirect:'https://fixture.example/api/admin/instagram/oauth'}),exchangeInstagramCode:async()=>{exchanges++;return {accountId:'123',username:'aim_architecture',token:{accessToken:'synthetic-oauth-token'}};}},'@/lib/cms/instagram-token-store':{saveInstagramConnection:async()=>{saves++;if(failSave)throw Error('fixture uncertain write');}}};
- vm.runInNewContext(ts.transpileModule(readFileSync('app/api/admin/instagram/oauth/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>mods[n]??require(n),Buffer,Response,URL,URLSearchParams});
+ const mods:Record<string,unknown>={'@/lib/cms/request-body':{limitedText:(r:Request)=>r.text()},'next/headers':{cookies:async()=>({get:(name:string)=>jar.has(name)?{value:jar.get(name)}:undefined,set:(name:string,value:string)=>jar.set(name,value),delete:({name}:{name:string})=>jar.delete(name)})},'next/server':{NextResponse:{redirect:(url:URL)=>new Response(null,{status:307,headers:{Location:url.href}})}},'@/lib/cms/server':{requireIdentity:async()=>{if(revoked)throw Error('fixture revoked');return {identity:{id:'fixture-owner',owner:true},client:{rpc:async()=>({error:null})}};}},'@/lib/cms/csrf':{sameOrigin:()=>true},'@/lib/cms/instagram-oauth':{instagramOAuthConfig:()=>({appId:'123',redirect:'https://fixture.example/api/admin/instagram/oauth'}),exchangeInstagramCode:async(_code:unknown,_config:unknown,_fetch:unknown,target:string)=>{expect(target).toBe('fixture_business');exchanges++;return {accountId:'123',username:'aim_architecture',token:{accessToken:'synthetic-oauth-token'}};}},'@/lib/cms/instagram-token-store':{saveInstagramConnection:async()=>{saves++;if(failSave)throw Error('fixture uncertain write');}}};
+ vm.runInNewContext(ts.transpileModule(readFileSync('app/api/admin/instagram/oauth/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>mods[n]??require(n),Buffer,Response,URL,URLSearchParams,fetch});
  const post=exports.POST as (r:Request)=>Promise<Response>,get=exports.GET as (r:Request)=>Promise<Response>,base='https://fixture.example/api/admin/instagram/oauth';
- const start=async()=>new URL((await (await post(new Request(base,{method:'POST'}))).json()).url).searchParams.get('state')!;
+ const start=async()=>new URL((await (await post(new Request(base,{method:'POST',body:JSON.stringify({username:'fixture_business'})}))).json()).url).searchParams.get('state')!;
  let state=await start();expect((await get(new Request(base+'?state='+('0'.repeat(64))+'&code=fixture'))).status).toBe(400);expect(exchanges).toBe(0);
  state=await start();expect((await get(new Request(base+'?state='+state+'&code=fixture'))).status).toBe(307);expect(exchanges).toBe(1);expect(saves).toBe(1);expect((await get(new Request(base+'?state='+state+'&code=fixture'))).status).toBe(400);expect(exchanges).toBe(1);
  state=await start();revoked=true;expect((await get(new Request(base+'?state='+state+'&code=fixture'))).status).toBe(400);expect(exchanges).toBe(1);

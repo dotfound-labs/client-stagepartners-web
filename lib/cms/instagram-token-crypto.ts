@@ -1,7 +1,7 @@
 import "server-only";
 import {createCipheriv,createDecipheriv,randomBytes} from "node:crypto";
 import type {InstagramToken} from "./instagram-token";
-const aad=Buffer.from("stagepartners:apkfyxfmsndwqjfetdad:aim_architecture:instagram-token:v1");
+const aad=Buffer.from("stagepartners:apkfyxfmsndwqjfetdad:instagram-token:v2");
 export function tokenEncryptionKey(value=process.env.INSTAGRAM_TOKEN_ENCRYPTION_KEY){
  if(!value||! /^[0-9a-f]{64}$/i.test(value))throw Error("TOKEN_KEY_UNCONFIGURED");
  return Buffer.from(value,"hex");
@@ -9,12 +9,12 @@ export function tokenEncryptionKey(value=process.env.INSTAGRAM_TOKEN_ENCRYPTION_
 export function sealInstagramToken(token:InstagramToken,key:Buffer){
  const iv=randomBytes(12),cipher=createCipheriv("aes-256-gcm",key,iv);cipher.setAAD(aad);
  const data=Buffer.concat([cipher.update(JSON.stringify(token),"utf8"),cipher.final()]);
- return ["v1",iv.toString("base64url"),cipher.getAuthTag().toString("base64url"),data.toString("base64url")].join(".");
+ return ["v2",iv.toString("base64url"),cipher.getAuthTag().toString("base64url"),data.toString("base64url")].join(".");
 }
 export function openInstagramToken(envelope:string,key:Buffer):InstagramToken{
  try{
   if(envelope.length>65536)throw Error();const parts=envelope.split(".");
-  if(parts.length!==4||parts[0]!=="v1"||parts.slice(1).some(p=>! /^[A-Za-z0-9_-]+$/.test(p)))throw Error();
+  if(parts.length!==4||parts[0]!=="v2"||parts.slice(1).some(p=>! /^[A-Za-z0-9_-]+$/.test(p)))throw Error();
   const iv=Buffer.from(parts[1],"base64url"),tag=Buffer.from(parts[2],"base64url");if(iv.length!==12||tag.length!==16)throw Error();
   const decipher=createDecipheriv("aes-256-gcm",key,iv);decipher.setAAD(aad);decipher.setAuthTag(tag);
   const token=JSON.parse(Buffer.concat([decipher.update(Buffer.from(parts[3],"base64url")),decipher.final()]).toString("utf8"));

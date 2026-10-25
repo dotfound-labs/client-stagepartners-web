@@ -30,14 +30,21 @@
 
 ## 3. Instagram
 
-- [ ] 公式プロフィールURLとBusiness／Creator資格を確認する。
-- [ ] 公式APIの必要権限・OAuthを承認し、対象アカウントを確認する。
-- [ ] `INSTAGRAM_ACCESS_TOKEN`、`INSTAGRAM_API_VERSION`、`CRON_SECRET`を
-      承認済みサーバー環境へ安全に設定する。
-- [ ] アカウント設定と `INSTAGRAM_SYNC_ENABLED=true` を設定し、明示した自動公開方針を確認する。
+- [ ] 対象アカウントを確定する。特定ユーザー名への固定はない。Business／Creator資格を本人が確認する。
+- [ ] Metaアプリの Instagram API with Instagram Login を設定し、instagram_business_basic の必要なアクセスレベル・審査を確認する。
+- [ ] 管理画面の「接続の準備」でアプリID・HTTPS戻り先・APIバージョンを確認する。ここは入力の準備用で、保存・認証はしない。
+- [ ] 承認済みのサーバー専用設定へ INSTAGRAM_APP_ID / INSTAGRAM_APP_SECRET / INSTAGRAM_REDIRECT_URI / INSTAGRAM_API_VERSION を保存する。
+- [ ] 本番では INSTAGRAM_TOKEN_STORE=encrypted-db と INSTAGRAM_TOKEN_ENCRYPTION_KEY（64桁16進数）、対象DBの SUPABASE_SECRET_KEY を準備する。秘密に NEXT_PUBLIC_ を付けない。
+- [ ] Metaの有効なリダイレクトURIとサーバー設定を完全一致させ、同じHTTPSドメインの管理画面を開く。戻り先パスは /api/admin/instagram/oauth。HTTP localhostとVercel Previewでは実認証しない。
+- [ ] 承認後 INSTAGRAM_OAUTH_ENABLED=true とし、管理画面で対象ユーザー名を入力して公式認証する。サーバーは認証開始時の指定名を照合し、実アカウントIDへトークンを紐付ける。
+- [ ] 切替は新しいユーザー名で公式再認証する。接続後は同期停止状態となる。既存の記事は削除しない。認証失敗時は接続状態を再確認する。
+- [ ] INSTAGRAM_SYNC_ENABLED=true と CRON_SECRET を設定し、対象を確認して自動取込・公開を開始する。独立したASCII #お知らせ のみ対象。全角＃や #お知らせ一覧 は除外。
 - [ ] 取得・出典・画像・重複防止・手動非公開・期限切れ／回数制限を実APIで検証する。
-- [ ] 定期実行の承認後にだけ、1時間ごとのジョブを設定する。
-      `deployment/instagram-cron.example.json` は見本で、現在は実行設定ではない。
+- [ ] 定期実行の承認後にだけ、1時間ごとのジョブを設定する。deployment/instagram-cron.example.json は見本で、現在は実行設定ではない。
+
+トークンは暗号化形式v2で保存し、更新後もアカウントIDとの紐付けを保持する。旧v1やアカウント未紐付けのトークンは再認証が必要。手入力の環境変数トークンでは同期しない。Metaの交換・更新リクエストURLとOAuth callbackには秘密が含まれるため、ホスティングのログ・トレースでもqueryを記録しない設定を実認証前に確認する。
+
+公式資料: https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/business-login
 
 ## 4. 問い合わせ
 

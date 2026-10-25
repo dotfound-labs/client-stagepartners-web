@@ -1,4 +1,4 @@
-import {instagramOAuthConfig} from "@/lib/cms/instagram-oauth";
+import {instagramOAuthConfig,instagramSetupStatus} from "@/lib/cms/instagram-oauth";
 import {instagramTokenMetadata} from "@/lib/cms/instagram-token-store";
 import {GET as runInstagramJob} from "@/app/api/jobs/instagram/route";
 import {invitationDeliveryConfig,invitationIntentMatches} from "@/lib/cms/invitation-readiness";
@@ -74,7 +74,8 @@ export async function GET(request: Request, context: Context) {
     if (path === "instagram") {
       requirePermission(identity, "settings", "read");
       const { data, error } = await client.from("cms_instagram_config").select("*").single(); databaseError(error);
-      return reply({ config: data, authorizationConfigured: instagramReady(), connectionAvailable: Boolean(instagramOAuthConfig()), token: await instagramTokenMetadata() });
+      const setup=instagramSetupStatus(new URL(request.url).origin);
+      return reply({ config: data, authorizationConfigured: instagramReady(), connectionAvailable: Boolean(instagramOAuthConfig())&&setup.checks.origin, token: await instagramTokenMetadata(), ...(identity.owner?{setup}:{}) });
     }
     throw new CmsError(404, "対象が見つかりません。");
   } catch (error) { return failure(error); }

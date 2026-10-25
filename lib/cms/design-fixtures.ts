@@ -7,6 +7,6 @@ export function designFixture(path:string){
  if(path.startsWith("media"))return {media:[]};
  if(path.startsWith("users"))return {members:[],invitations:[],deliveryEnabled:false};
  if(path.startsWith("inquiries"))return {inquiries:[],intakeEnabled:false};
- if(path==="instagram")return {config:{account_id:null,username:"aim_architecture",enabled:false,auto_publish:false,health:"not-configured",last_success_at:null},authorizationConfigured:false,connectionAvailable:false,token:{state:"unconnected",expiresAt:null}};
+ if(path==="instagram")return {config:{account_id:null,username:null,enabled:false,auto_publish:false,health:"not-configured",last_success_at:null},authorizationConfigured:false,connectionAvailable:false,token:{state:"unconnected",expiresAt:null}};
  return {};
 }
