@@ -1,5 +1,5 @@
 import {instagramOAuthConfig} from "@/lib/cms/instagram-oauth";
-import {instagramTokenMetadata} from "@/lib/cms/instagram-token-file";
+import {instagramTokenMetadata} from "@/lib/cms/instagram-token-store";
 import {GET as runInstagramJob} from "@/app/api/jobs/instagram/route";
 import {invitationDeliveryConfig,invitationIntentMatches} from "@/lib/cms/invitation-readiness";
 import {deliverInvitation} from "@/lib/cms/invitation-delivery";

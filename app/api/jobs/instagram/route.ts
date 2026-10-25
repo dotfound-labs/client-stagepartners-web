@@ -2,7 +2,7 @@ import {timingSafeEqual} from "node:crypto";
 import {trustedServerClient} from "@/lib/cms/trusted-server";
 import {syncInstagram} from "@/lib/cms/instagram-worker";
 import {integrationEnabled,safeInstagramImage} from "@/lib/cms/integration-config";
-import {localInstagramToken} from "@/lib/cms/instagram-token-file";
+import {storedInstagramToken} from "@/lib/cms/instagram-token-store";
 export const dynamic="force-dynamic";
 export const maxDuration=60;
 export async function GET(request:Request){
@@ -12,15 +12,15 @@ export async function GET(request:Request){
  let token=process.env.INSTAGRAM_ACCESS_TOKEN;
  const supplied=request.headers.get("authorization")??"",expected=`Bearer ${secret}`;
  if(!secret||secret.length<32||Buffer.byteLength(supplied)!==Buffer.byteLength(expected)||!timingSafeEqual(Buffer.from(supplied),Buffer.from(expected)))return new Response(null,{status:401,headers});
- if((!token&&process.env.INSTAGRAM_TOKEN_STORE!=="local-file")||!version)return Response.json({status:"unconfigured"},{status:503,headers});
+ if((!token&&!["local-file","encrypted-db"].includes(process.env.INSTAGRAM_TOKEN_STORE??""))||!version)return Response.json({status:"unconfigured"},{status:503,headers});
  try{
   const db=trustedServerClient();const config=await db.from("cms_instagram_config").select("enabled,account_id").eq("singleton",true).single();
   if(config.error)throw new Error();
   const claim=await db.rpc("cms_claim_instagram_sync");if(claim.error)throw new Error();
   if(!claim.data)return Response.json({status:"skipped"},{headers});
   let tokenStatus="environment-token-expiry-untracked";
-  if(process.env.INSTAGRAM_TOKEN_STORE==="local-file"){
-   const credential=await localInstagramToken();tokenStatus=credential.status;
+  if(["local-file","encrypted-db"].includes(process.env.INSTAGRAM_TOKEN_STORE??"")){
+   const credential=await storedInstagramToken();tokenStatus=credential.status;
    if(!credential.token||!["ok","refreshed","expiring"].includes(credential.status)){
     await db.rpc("cms_instagram_health",{p_status:credential.status==="reauthorization-required"?"token-expired":credential.status==="rate-limited"?"rate-limited":"error",p_retry_after_seconds:credential.retrySeconds});
     return Response.json({status:credential.status},{status:503,headers});

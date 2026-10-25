@@ -94,7 +94,7 @@ test("Instagram long-lived refresh saves rotation before use and refuses unsuppo
 
  test("design fixture route is unavailable in production",async({request})=>{expect((await request.get(base+'/admin-design-preview')).status()).toBe(404);});
 
- test("Instagram OAuth verifies target identity and never enables on Vercel",async()=>{
+ test("Instagram OAuth verifies target identity and gates durable Vercel setup",async()=>{
  const exports:Record<string,unknown>={};const require=createRequire(process.cwd()+"/package.json");const env:Record<string,string>={INSTAGRAM_OAUTH_ENABLED:'true',INSTAGRAM_TOKEN_STORE:'local-file',INSTAGRAM_APP_ID:'123',INSTAGRAM_APP_SECRET:'fixture',INSTAGRAM_REDIRECT_URI:'https://test.example/api/admin/instagram/oauth',INSTAGRAM_API_VERSION:'v25.0'};
  vm.runInNewContext(ts.transpileModule(readFileSync('lib/cms/instagram-oauth.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>n==='server-only'?{}:require(n),URL,URLSearchParams,AbortSignal,Date,process:{env}});
  const config=exports.instagramOAuthConfig as typeof import('../lib/cms/instagram-oauth').instagramOAuthConfig;
@@ -103,5 +103,34 @@ test("Instagram long-lived refresh saves rotation before use and refuses unsuppo
  const exchange=exports.exchangeInstagramCode as typeof import('../lib/cms/instagram-oauth').exchangeInstagramCode;
  let i=0;const responses=[{access_token:'fixture-short'},{access_token:'fixture-long',expires_in:5184000},{user_id:'123',username:'aim_architecture'}];
  const result=await exchange('fixture-code',config()!,async()=>Response.json(responses[i++]));expect(result.username).toBe('aim_architecture');expect(result.token.kind).toBe('instagram-login-long-lived');
+ env.VERCEL='1';env.INSTAGRAM_TOKEN_STORE='encrypted-db';env.INSTAGRAM_TOKEN_ENCRYPTION_KEY='11'.repeat(32);env.SUPABASE_SECRET_KEY='synthetic-server-config';expect(config()).not.toBeNull();env.VERCEL_ENV='preview';expect(config()).toBeNull();delete env.VERCEL_ENV;delete env.VERCEL;env.INSTAGRAM_TOKEN_STORE='local-file';
  i=0;responses[2]={user_id:'123',username:'wrong_account'};expect(await exchange('fixture-code',config()!,async()=>Response.json(responses[i++])).then(()=>'',e=>e.message)).toBe('ACCOUNT_MISMATCH');
  });
+
+test('Instagram encrypted envelope authenticates ciphertext and wrong keys fail closed',()=>{
+ const exports:Record<string,unknown>={};const require=createRequire(process.cwd()+"/package.json");
+ vm.runInNewContext(ts.transpileModule(readFileSync('lib/cms/instagram-token-crypto.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>n==='server-only'?{}:require(n),Buffer,Date,process:{env:{}}});
+ const seal=exports.sealInstagramToken as typeof import('../lib/cms/instagram-token-crypto').sealInstagramToken;
+ const open=exports.openInstagramToken as typeof import('../lib/cms/instagram-token-crypto').openInstagramToken;
+ const key=Buffer.alloc(32,17),token={accessToken:'synthetic-test-token',kind:'instagram-login-long-lived' as const,issuedAt:'2026-01-01T00:00:00Z',expiresAt:'2026-02-01T00:00:00Z'};
+ const a=seal(token,key),b=seal(token,key);expect(a).not.toBe(b);expect(a).not.toContain(token.accessToken);expect(open(a,key)).toEqual(token);
+ expect(()=>open(a,Buffer.alloc(32,18))).toThrow('TOKEN_DECRYPTION_FAILED');
+ const parts=a.split('.');parts[3]=(parts[3][0]==='a'?'b':'a')+parts[3].slice(1);expect(()=>open(parts.join('.'),key)).toThrow('TOKEN_DECRYPTION_FAILED');
+ expect(()=>open('v2.'+a.slice(3),key)).toThrow('TOKEN_DECRYPTION_FAILED');
+ const parse=exports.tokenEncryptionKey as typeof import('../lib/cms/instagram-token-crypto').tokenEncryptionKey;expect(()=>parse('short')).toThrow('TOKEN_KEY_UNCONFIGURED');
+});
+
+test('Instagram durable adapter saves ciphertext, sanitizes status and blocks Preview',async()=>{
+ const require=createRequire(process.cwd()+"/package.json"),env:Record<string,string>={VERCEL:'1',VERCEL_ENV:'production',INSTAGRAM_TOKEN_STORE:'encrypted-db',INSTAGRAM_TOKEN_ENCRYPTION_KEY:'11'.repeat(32),SUPABASE_SECRET_KEY:'synthetic-server-config'};
+ let ciphertext:string|null=null,calls=0,failCommit=false;
+ const rpc=async(_name:string,args:{p_action:string;p_ciphertext:string})=>{calls++;if(args.p_action==='commit'){if(failCommit)return {data:null,error:{message:'fixture lease expired'}};ciphertext=args.p_ciphertext;}return {data:args.p_action==='claim'?{lease:'fixture-lease',ciphertext}:args.p_action==='read'?{ciphertext}:{},error:null};};
+ const modules:Record<string,unknown>={};
+ const load=(file:string)=>{const exports:Record<string,unknown>={};vm.runInNewContext(ts.transpileModule(readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>n==='server-only'?{}:modules[n]??require(n),Buffer,Date,URL,AbortSignal,fetch,process:{env}});return exports;};
+ modules['./instagram-token']=load('lib/cms/instagram-token.ts');modules['./instagram-token-crypto']=load('lib/cms/instagram-token-crypto.ts');modules['./trusted-server']={trustedServerClient:()=>({rpc})};modules['./instagram-token-file']={};
+ const store=load('lib/cms/instagram-token-store.ts') as unknown as typeof import('../lib/cms/instagram-token-store');
+ const token={accessToken:'synthetic-fixture-token',kind:'instagram-login-long-lived' as const,issuedAt:new Date(Date.now()-86400000).toISOString(),expiresAt:new Date(Date.now()+30*86400000).toISOString()};
+ await store.saveInstagramConnection(token);expect(ciphertext).not.toContain(token.accessToken);expect((await store.storedInstagramToken()).token).toEqual(token);
+ const metadata=await store.instagramTokenMetadata();expect(metadata).toEqual({state:'connected',expiresAt:token.expiresAt});expect(JSON.stringify(metadata)).not.toContain(token.accessToken);
+ failCommit=true;expect(await store.saveInstagramConnection(token).then(()=>'',e=>e.message)).toBe('TOKEN_STORE_FAILED');
+ env.VERCEL_ENV='preview';const before=calls;expect(await store.instagramTokenMetadata()).toEqual({state:'unconnected',expiresAt:null});expect(await store.saveInstagramConnection(token).then(()=>'',e=>e.message)).toBe('STORE_UNAVAILABLE');expect((await store.storedInstagramToken()).token).toBeUndefined();expect(calls).toBe(before);
+});

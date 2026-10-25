@@ -350,5 +350,19 @@ await test('fixed-page input survives reread without changing public content or 
  assert.equal(loaded.draft.fields['home.text_579bb17d'],'Persisted draft fixture');
  assert.deepEqual((await db.query('select * from public.cms_published where document_id=$1',[row.id])).rows[0],before);
 });
+
+await test('encrypted Instagram store rejects users, serializes claims and fences expired writers',async()=>{
+ for(const name of ['anon','owner','outsider']){await actor(name);await denied("select public.cms_instagram_token_operation('read')");await denied("select cms_private.instagram_token_operation('read',null,null)");}
+ await actor('service');await denied('select * from cms_private.instagram_token_store');
+ const op=async(action,lease=null,ciphertext=null)=>(await db.query('select public.cms_instagram_token_operation($1,$2,$3) result',[action,lease,ciphertext])).rows[0].result;
+ const a=await op('claim');assert.ok(a.lease);assert.equal(await op('claim'),null);
+ await op('commit',a.lease,'fixture-encrypted-envelope-a');assert.equal((await op('read')).ciphertext,'fixture-encrypted-envelope-a');
+ await assert.rejects(op('commit',randomUUID(),'wrong'),/CMS_TOKEN_LEASE_LOST/);
+ await db.exec("reset role; update cms_private.instagram_token_store set lease_until=clock_timestamp()-interval '1 second'");
+ await actor('service');const b=await op('claim');assert.notEqual(b.lease,a.lease);
+ await assert.rejects(op('commit',a.lease,'stale'),/CMS_TOKEN_LEASE_LOST/);await assert.rejects(op('release',a.lease),/CMS_TOKEN_LEASE_LOST/);
+ await op('commit',b.lease,'fixture-encrypted-envelope-b');await op('release',b.lease);
+ assert.equal((await op('read')).ciphertext,'fixture-encrypted-envelope-b');
+});
 console.log(`${passed} database tests passed. LOCAL PGlite; no hosted Supabase calls.`);
 await db.close();

@@ -21,3 +21,10 @@ from reviewed Library v8; the local body matched that artifact before renaming,
 and its bytes were preserved. External integrations remain disabled/unconfigured.
 No db push, reset, repair, --include-all or hosted history mutation was executed
 here. Before future migrations, verify the exact project and current hosted list.
+
+| 20261025030912 | 20261025025557 | cms_publication_dates |
+
+Migration 8 is applied. Its local Git blob was verified as
+e4d8959bf7c93a6d18d79d0ed8a7daf231da986c before the filename-only rename.
+All eight applied bodies are immutable. The encrypted-token migration remains
+pending review/application and does not enable any external integration.

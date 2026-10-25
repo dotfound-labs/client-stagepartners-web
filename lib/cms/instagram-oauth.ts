@@ -1,6 +1,7 @@
 import "server-only";
 export function instagramOAuthConfig(){
- if(process.env.VERCEL||process.env.INSTAGRAM_OAUTH_ENABLED!=="true"||process.env.INSTAGRAM_TOKEN_STORE!=="local-file")return null;
+ const storeReady=process.env.INSTAGRAM_TOKEN_STORE==="encrypted-db"?/^[0-9a-f]{64}$/i.test(process.env.INSTAGRAM_TOKEN_ENCRYPTION_KEY??"")&&Boolean(process.env.SUPABASE_SECRET_KEY):!process.env.VERCEL&&process.env.INSTAGRAM_TOKEN_STORE==="local-file";
+ if(process.env.VERCEL_ENV==="preview"||process.env.INSTAGRAM_OAUTH_ENABLED!=="true"||!storeReady)return null;
  const appId=process.env.INSTAGRAM_APP_ID,secret=process.env.INSTAGRAM_APP_SECRET,redirect=process.env.INSTAGRAM_REDIRECT_URI,version=process.env.INSTAGRAM_API_VERSION;
  if(!appId||!/^\d+$/.test(appId)||!secret||!redirect||!version||!/^v\d+\.0$/.test(version))return null;
  try{const url=new URL(redirect);if(url.protocol!=="https:"||url.pathname!=="/api/admin/instagram/oauth"||url.search||url.hash||url.username||url.password)return null;}catch{return null;}

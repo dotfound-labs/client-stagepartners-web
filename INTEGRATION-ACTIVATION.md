@@ -119,20 +119,20 @@ only after approval. Redirect must be HTTPS /api/admin/instagram/oauth on the
 app origin and registered with Meta. Suppress callback query-string and outbound
 refresh URL logging before activation; both can contain credentials.
 
-IMPORTANT: this file adapter and OAuth flow explicitly refuse Vercel (including
+IMPORTANT: the local-file adapter and local-file OAuth configuration refuse Vercel (including
 Production). Vercel has no durable local credential filesystem. Production
-unattended refresh remains blocked until a reviewed durable secret-store adapter
-is implemented and approved/provisioned; environment-only tokens are not silently
-rotated. The UI reports unconnected/expired/expiring and job responses warn when
+unattended refresh uses the encrypted-db adapter described below after its
+migration and separately approved provisioning; environment-only tokens are not
+silently rotated. The UI reports unconnected/expired/expiring and job responses warn when
 environment token expiry is untracked. This is not a completed live integration.
 No OAuth grants, keys, schedules or SMTP changes were made.
 
 Official reference: https://developers.facebook.com/documentation/instagram-platform/reference/refresh_access_token
 
-## Publication dates (pending migration review)
+## Publication dates (applied)
 
-Migration 20261025025557_cms_publication_dates is prepared and locally tested,
-not applied to the hosted project. The first seven migrations remain unchanged.
+Migration 20261025030912_cms_publication_dates is applied to stagepartners-cms.
+All eight applied migration bodies remain unchanged.
 Existing publication times stay unknown; migration timestamps are never shown as
 original publication dates. New publications record first_published_at, retained
 across unpublish/republish. content_updated_at changes only when public content
@@ -147,3 +147,38 @@ Real Auth UI editing/publishing remains unverified until initial owner setup.
 Low-level real target-project Storage upload/download/duplicate rejection, anon
 read denial and cleanup of the uniquely named synthetic object were verified;
 this does not replace administrator upload UI E2E.
+
+## Encrypted database token store (code complete, not activated)
+
+INSTAGRAM_TOKEN_STORE=encrypted-db supports Vercel Production. Preview is always
+blocked. The pending cms_encrypted_instagram_tokens migration creates one empty
+private row, RLS, and a service-role-only RPC; it does not store credentials or
+enable syncing. No existing content or Auth membership changes.
+
+The server encrypts the complete token envelope with AES-256-GCM, random 96-bit
+nonce and project/account/version-bound authenticated data. Only ciphertext is
+stored in cms_private. INSTAGRAM_TOKEN_ENCRYPTION_KEY must be a separately
+provisioned 32-byte key encoded as 64 hexadecimal characters, never NEXT_PUBLIC.
+Do not reuse the Supabase key or paste either key into chat. Provisioning this
+key and Supabase server secret in Vercel still needs specific approval.
+
+Claim/commit/release RPCs use row locks and a 120-second expiring lease with a
+random fencing identifier. Concurrent refreshes cannot claim the same lease;
+stale or expired writers cannot overwrite a successor. Successful refresh is
+persisted before use. Uncertain persistence errors stop syncing. A crash releases
+no uncertain data: the lease simply expires. Read-only status returns only expiry
+and connection state to authorized admins, never token/envelope/key.
+
+The operator must approve the Meta app/HTTPS redirect and credentials, retain a
+secure recoverable copy of the encryption key, then connect aim_architecture
+through the owner-only OAuth screen. Initial connection leaves sync disabled;
+explicit start enables only #お知らせ imports. Run a real reconnect, refresh and
+initial-sync acceptance test before scheduling. Key loss requires reauthorization;
+key rotation needs an explicit decrypt/re-encrypt procedure or reauthorization,
+not blindly replacing the environment value. No live key, OAuth or job was enabled.
+
+Auth delivery status: localhost callback http://127.0.0.1:3102/auth/callback is
+registered in stagepartners-cms; Site URL was not changed. Custom SMTP is disabled
+and the initial owner's address is not an organization member, so default SMTP
+cannot deliver the invitation. Approve a verified SMTP sender/provider before
+the one initial invite. Do not grant organization access merely to bypass this.

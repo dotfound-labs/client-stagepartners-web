@@ -4,7 +4,7 @@ import {NextResponse} from "next/server";
 import {requireIdentity} from "@/lib/cms/server";
 import {sameOrigin} from "@/lib/cms/csrf";
 import {instagramOAuthConfig,exchangeInstagramCode} from "@/lib/cms/instagram-oauth";
-import {saveInstagramConnection} from "@/lib/cms/instagram-token-file";
+import {saveInstagramConnection} from "@/lib/cms/instagram-token-store";
 export const dynamic="force-dynamic";
 const cookie="cms_instagram_oauth_state",headers={"Cache-Control":"private, no-store","Referrer-Policy":"no-referrer"};
 export async function POST(request:Request){
