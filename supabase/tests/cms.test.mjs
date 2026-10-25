@@ -366,13 +366,14 @@ await test('encrypted Instagram store rejects users, serializes claims and fence
 });
 await test('SEO fields and image slots validate without exposing drafts or accepting unsafe origins',async()=>{
  await actor('owner');
- const validate=async fields=>db.query('select cms_private.validate_content($1,$2,$3)', ['settings','common',{title:'Site settings fixture',fields}]);
+ const save=async data=>{const row=(await db.query("select id,version from public.cms_documents where module='settings' and slug='common'")).rows[0];return db.query('select public.cms_mutate_content($1,$2,$3,$4,$5,$6,$7)',[row.id,'settings','common','save',JSON.stringify(data),row.version,randomUUID()]);};
+ const validate=async fields=>save({title:'Site settings fixture',fields});
  await validate({'common.seo_site_name':'Fixture','common.seo_title':'Fixture title','common.seo_description':'Fixture description','common.seo_url':'https://www.example.com','common.seo_indexing':'index'});
  for(const value of ['http://example.com','https://localhost','https://example.com/path','https://example.com?x=1','https://user:pass@example.com','javascript:alert(1)'])await assert.rejects(validate({'common.seo_url':value}));
  await assert.rejects(validate({'common.seo_indexing':'allow-all'}));await assert.rejects(validate({'common.seo_title':''}));
  await assert.rejects(validate({'common.seo_description':'x'.repeat(501)}));
- await db.query('select cms_private.validate_content($1,$2,$3)',['settings','common',{title:'Fixture',fields:{},images:{seo_icon:{legacy_path:'/icon.png',alt:'Fixture'},seo_og:{legacy_path:'/stagepartners-hero.jpg',alt:'Fixture'}}}]);
- await assert.rejects(db.query('select cms_private.validate_content($1,$2,$3)',['settings','common',{title:'Fixture',fields:{},images:{seo_icon:{legacy_path:'/arbitrary.png',alt:'Fixture'}}}]));
+ await save({title:'Fixture',fields:{},images:{seo_icon:{legacy_path:'/icon.png',alt:'Fixture'},seo_og:{legacy_path:'/stagepartners-hero.jpg',alt:'Fixture'}}});
+ await assert.rejects(save({title:'Fixture',fields:{},images:{seo_icon:{legacy_path:'/arbitrary.png',alt:'Fixture'}}}));
 });
 console.log(`${passed} database tests passed. LOCAL PGlite; no hosted Supabase calls.`);
 await db.close();

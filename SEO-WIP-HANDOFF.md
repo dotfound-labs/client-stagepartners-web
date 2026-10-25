@@ -1,5 +1,17 @@
 # SEO settings cloud continuation handoff
 
+## PC verification checkpoint (2026-10-25 UTC)
+
+- Cloud bundle SHA256 and Git prerequisites verified; fast-forwarded to 15dbf91.
+- Migration 10 was applied by the coordinating operator as 20261025144917. Local filename aligned; Git SQL body SHA256 remains d301f00daabc19cbfb8d1db1be8d2969c32e7a1d8e5d5c0b93b8451e1f1af656. Do not reapply.
+- Actual Google Fonts webpack build and included TypeScript check passed on Shinya_PC. Local PGlite passed all 42 tests; SEO regression now calls the public mutation RPC rather than the intentionally inaccessible private validator.
+- Actual owner session saved existing SEO defaults into common draft version 2, reloaded and revisited successfully. Anonymous published common snapshot hash was unchanged. No publication action was performed.
+- Desktop editor and 390px viewport inspected; no horizontal overflow, all six preview/editor images loaded. Favicon picker opens and closes; no selectable uploaded fixtures remained, so no replacement image was selected.
+- Search Console ownership success reported by the user through the coordinating thread. Do not repeat verification. Submit sitemap only after successful production deployment and HTTP 200.
+- Remaining: latest branch Preview/CI, exact Production configuration inventory and separately approved persistent server credentials, production Auth callbacks and post-deploy checks. No production merge/deployment performed at this checkpoint.
+
+The historical outstanding items below are superseded by this checkpoint where explicitly completed. Local Web3Forms delivery was previously accepted and receipt confirmed by the user; no new test email is required by this checkpoint. Instagram remains deferred.
+
 Saved for continuation without access to the original PC. Do not merge or deploy production.
 
 ## Cloud continuation checkpoint (2026-10-25 UTC)
