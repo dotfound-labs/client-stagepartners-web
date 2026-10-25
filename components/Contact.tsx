@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {submitContact,type ContactFields} from "@/lib/contact-submit";
 import CmsText, {useCmsText} from "@/components/CmsText";
 import Image from "next/image";
@@ -18,6 +18,15 @@ export default function Contact() {
   const submission=useRef<{id:string;payload:string}|null>(null);
   useEffect(()=>{fetch("/api/contact").then(r=>r.json()).then(data=>setEnabled(data.enabled===true)).catch(()=>setEnabled(false));},[]);
   const [status, setStatus] = useState<Status>("idle");
+  const completionDialog = useRef<HTMLDialogElement>(null);
+  const completionStatus = useRef<HTMLParagraphElement>(null);
+  const completionTitleId = useId();
+  const completionDescriptionId = useId();
+  useEffect(() => {
+    if (status === "success" && !completionDialog.current?.open) {
+      completionDialog.current?.showModal();
+    }
+  }, [status]);
 
   const sectionRef = useScopedGsap<HTMLElement>(({ scope }) => {
     gsap.from("[data-contact-fade]", {
@@ -204,7 +213,8 @@ export default function Contact() {
             </button>
 
             {status === "success" && (
-              <p role="status" className="text-xs leading-relaxed text-ink">
+              <p ref={completionStatus} tabIndex={-1} role="status" className="text-xs leading-relaxed text-ink">
+                お問い合わせありがとうございます。
                 送信サービスがフォームを受け付けました。メールの到着を保証する表示ではありません。担当者からの連絡をお待ちください。
               </p>
             )}
@@ -216,6 +226,18 @@ export default function Contact() {
           </div>
         </form>
       </div>
+      <dialog
+        ref={completionDialog}
+        aria-labelledby={completionTitleId}
+        aria-describedby={completionDescriptionId}
+        onClose={() => completionStatus.current?.focus()}
+        className="fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto border border-line bg-paper p-6 text-ink shadow-xl backdrop:bg-black/60 sm:p-10"
+      >
+        <h2 id={completionTitleId} className="text-xl font-medium leading-relaxed">お問い合わせありがとうございます</h2>
+        <p id={completionDescriptionId} className="mt-4 text-sm leading-relaxed">送信サービスがフォームを受け付けました。担当者からの連絡をお待ちください。</p>
+        <p className="mt-3 text-xs leading-relaxed text-ink-muted">メールの到着や自動返信を保証する表示ではありません。</p>
+        <button type="button" onClick={() => completionDialog.current?.close()} className="mt-6 w-full bg-navy-mid px-6 py-3 text-sm text-on-dark focus-visible:outline-2 focus-visible:outline-offset-4">閉じる</button>
+      </dialog>
     </section>
   );
 }
