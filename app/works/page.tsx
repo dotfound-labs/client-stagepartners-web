@@ -1,10 +1,13 @@
+import { publicPageMetadata } from "@/lib/cms/site-metadata";
+import PublishedPage from "@/components/PublishedPage";
+import { getPublishedWorks } from "@/lib/cms/public";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WorksIndex from "@/components/WorksIndex";
 import { WORKS } from "@/content/works";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> { return publicPageMetadata({
   title: "施工実績｜店舗の内装工事・リノベーション・解体 | STAGE PARTNERS",
   description: `飲食店・美容室・クリニック・学習塾などの店舗新装から、住まいのリノベーション、施設の営繕と解体まで。STAGE PARTNERSが手がけた${WORKS.length}件の施工実績を、施工前後の写真とあわせてご紹介します。`,
   alternates: { canonical: "/works" },
@@ -14,16 +17,17 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ja_JP",
   },
-};
+}); }
 
-export default function WorksPage() {
+export default async function WorksPage() {
+  const works = await getPublishedWorks();
   return (
-    <>
+    <PublishedPage slug="common">
       <Header />
       <main id="main" className="flex flex-1 flex-col">
-        <WorksIndex />
+        <WorksIndex works={works} />
       </main>
       <Footer />
-    </>
+    </PublishedPage>
   );
 }

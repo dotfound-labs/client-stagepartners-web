@@ -28,7 +28,8 @@ function PhotoStack({ shots }: { shots: Shot[] }) {
         >
           <Image
             src={shot.file}
-            alt=""
+            alt={shot.alt ?? ""}
+        unoptimized={shot.file.startsWith("/api/media/")}
             fill
             sizes="(min-width: 1024px) 46vw, 100vw"
             className="object-cover"

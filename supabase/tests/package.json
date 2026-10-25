@@ -1,0 +1,11 @@
+{
+  "name": "stagepartners-cms-db-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node cms.test.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.11"
+  }
+}

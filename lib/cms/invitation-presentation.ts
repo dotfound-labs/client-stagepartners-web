@@ -1,0 +1,1 @@
+export function invitationPresentation(enabled:boolean){return enabled?{label:"招待メールを送信",notice:"この操作で入力したメールアドレスに招待メールを送信します。宛先と付与する権限を確認してください。"}:{label:"招待を予約（メール送信なし）",notice:"メール送信は無効です。招待予約だけを保存し、メールは送信しません。"};}

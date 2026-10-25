@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { Flip } from "gsap/Flip";
 import { scrollTriggerDefaults, prefersReducedMotion, drawLine } from "@/lib/animations";
-import { CATEGORY_LABEL, WORKS, formatWorkDate, getWork, workImage, type WorkCategory } from "@/content/works";
+import { CATEGORY_LABEL, WORKS, formatWorkDate, getWork, workImage, type WorkCategory, type Work } from "@/content/works";
 
 if (typeof window !== "undefined") gsap.registerPlugin(Flip);
 
@@ -23,7 +23,7 @@ const TABS: { value: Filter; label: string }[] = [
   { value: "facility", label: CATEGORY_LABEL.facility },
 ];
 
-export default function WorksIndex() {
+export default function WorksIndex({ works = WORKS }: { works?: Work[] }) {
   const [filter, setFilter] = useState<Filter>("all");
   const gridRef = useRef<HTMLUListElement>(null);
 
@@ -75,7 +75,7 @@ export default function WorksIndex() {
     });
   };
 
-  const shown = WORKS.filter((w) => filter === "all" || w.category === filter);
+  const shown = works.filter((w) => filter === "all" || w.category === filter);
 
   return (
     <div ref={rootRef}>
@@ -134,8 +134,8 @@ export default function WorksIndex() {
                   {tab.label}
                   <span className="font-latin text-[10px] opacity-60">
                     {tab.value === "all"
-                      ? WORKS.length
-                      : WORKS.filter((w) => w.category === tab.value).length}
+                      ? works.length
+                      : works.filter((w) => w.category === tab.value).length}
                   </span>
                 </button>
               </li>
@@ -163,6 +163,7 @@ export default function WorksIndex() {
                 >
                   <Image
                     src={workImage(work, work.cover)}
+ unoptimized={work.cover.startsWith("/api/media/")}
                     alt={`${work.title}の施工実績`}
                     fill
                     sizes="(min-width: 1024px) 32vw, (min-width: 640px) 48vw, 100vw"

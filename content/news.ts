@@ -42,6 +42,9 @@
 export type NewsCategory = "info" | "works" | "instagram";
 
 export type NewsPost = {
+  firstPublishedAt?: string | null;
+  contentUpdatedAt?: string | null;
+  sourceUrl?: string;
   /** URLになる。半角英数とハイフンのみ。CMS側でも一意になるよう担保すること。 */
   slug: string;
   /** 公開日。ISO 8601(YYYY-MM-DD)で持ち、表示形式は formatNewsDate() に寄せる。 */

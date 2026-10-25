@@ -35,7 +35,8 @@ function Cell({
     <figure className="media relative aspect-[3/2] w-full overflow-hidden bg-[#161513]">
       <Image
         src={workImage(work, shot.file)}
-        alt=""
+        alt={shot.alt ?? ""}
+        unoptimized={shot.file.startsWith("/api/media/")}
         fill
         sizes="(min-width: 1024px) 46vw, 100vw"
         className="object-cover"

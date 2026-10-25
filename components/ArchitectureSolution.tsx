@@ -1,7 +1,10 @@
 "use client";
+import CmsAnchor from "@/components/CmsLink";
+import CmsText from "@/components/CmsText";
 
-import Image from "next/image";
-import Link from "next/link";
+
+import Image from "@/components/CmsImage";
+import Link from "@/components/CmsLink";
 import { useScopedGsap, gsap, SplitText } from "@/hooks/useGsap";
 import {
   scrollTriggerDefaults,
@@ -106,7 +109,7 @@ function StepList({ steps, tone }: { steps: Step[]; tone: "dark" | "light" }) {
           }`}
       />
 
-      {steps.map((step, i) => (
+      <CmsText>{steps.map((step, i) => (
         <li
           key={step.title}
           data-step
@@ -119,7 +122,7 @@ function StepList({ steps, tone }: { steps: Step[]; tone: "dark" | "light" }) {
               : "border border-line bg-paper text-ink-muted"
               }`}
           >
-            {String(i + 1).padStart(2, "0")}
+            <CmsText>{String(i + 1).padStart(2, "0")}</CmsText>
           </span>
 
           <div data-step-body>
@@ -127,28 +130,26 @@ function StepList({ steps, tone }: { steps: Step[]; tone: "dark" | "light" }) {
               className={`font-display text-base font-normal sm:text-lg ${dark ? "text-on-dark" : "text-ink"
                 }`}
             >
-              {step.title}
+              <CmsText>{step.title}</CmsText>
             </h4>
             <p
               className={`mt-3 whitespace-pre-line text-sm leading-relaxed ${dark ? "text-on-dark/60" : "text-ink-muted"
                 }`}
             >
-              {step.body}
+              <CmsText>{step.body}</CmsText>
             </p>
           </div>
 
-          {i < steps.length - 1 && (
+          <CmsText>{i < steps.length - 1 && (
             <span
               data-step-arrow
               aria-hidden
               className={`absolute bottom-2 left-[1.125rem] -translate-x-1/2 font-latin text-sm leading-none ${dark ? "text-on-dark/45" : "text-ink/35"
                 }`}
-            >
-              ↓
-            </span>
-          )}
+            ><CmsText>{"↓"}</CmsText></span>
+          )}</CmsText>
         </li>
-      ))}
+      ))}</CmsText>
     </ol>
   );
 }
@@ -316,20 +317,14 @@ export default function ArchitectureSolution() {
             data-hero-eyebrow
             className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-on-dark/70 sm:text-[11px]"
           >
-            <span aria-hidden className="inline-block h-px w-10 bg-on-dark/40" />
-            ARCHITECTURE SOLUTIONS
-          </p>
+            <span aria-hidden className="inline-block h-px w-10 bg-on-dark/40" /><CmsText>{"ARCHITECTURE SOLUTIONS"}</CmsText></p>
 
           <h1
             data-hero-title
             className="t-heading mt-7 font-display font-normal text-on-dark"
-          >
-            建築ソリューション
-          </h1>
+          ><CmsText>{"建築ソリューション"}</CmsText></h1>
 
-          <p data-hero-lead className="t-note mt-6 max-w-xl text-on-dark/80">
-            店舗・オフィス等の新規出店から、住まいの改修、建てた後の維持管理まで。図面を引くところから引き渡した先まで、一社で受けます。
-          </p>
+          <p data-hero-lead className="t-note mt-6 max-w-xl text-on-dark/80"><CmsText>{"店舗・オフィス等の新規出店から、住まいの改修、建てた後の維持管理まで。図面を引くところから引き渡した先まで、一社で受けます。"}</CmsText></p>
         </div>
       </section>
 
@@ -339,9 +334,9 @@ export default function ArchitectureSolution() {
         className="w-full border-b border-line bg-stone px-6 py-6 sm:px-10 lg:px-16 xl:px-24"
       >
         <ul className="mx-auto flex max-w-[1520px] flex-wrap items-center gap-x-8 gap-y-3">
-          {SECTIONS.map((section) => (
+          <CmsText>{SECTIONS.map((section) => (
             <li key={section.id} data-nav-item>
-              <a
+              <CmsAnchor
                 href={`#${section.id}`}
                 className="group inline-flex items-center gap-2 text-xs text-ink-muted transition-colors hover:text-ink"
               >
@@ -349,10 +344,10 @@ export default function ArchitectureSolution() {
                   aria-hidden
                   className="inline-block h-px w-4 bg-ink/30 transition-all duration-300 group-hover:w-7 group-hover:bg-ink"
                 />
-                {section.label}
-              </a>
+                <CmsText>{section.label}</CmsText>
+              </CmsAnchor>
             </li>
-          ))}
+          ))}</CmsText>
         </ul>
       </nav>
 
@@ -369,41 +364,31 @@ export default function ArchitectureSolution() {
                 data-rule
                 aria-hidden
                 className="inline-block h-px w-10 bg-ink/25"
-              />
-              SCOPE
-            </p>
+              /><CmsText>{"SCOPE"}</CmsText></p>
             <h2
               data-fade
               className="t-heading-tight mt-7 font-display font-normal text-ink"
-            >
-              対応する工事
-            </h2>
+            ><CmsText>{"対応する工事"}</CmsText></h2>
           </div>
 
           <div>
-            <p data-fade className="t-note max-w-2xl text-ink-muted">
-              店舗・オフィス等の新規出店は、デザインから施工まで一貫してお引き受けします。壁紙の張り替えやエアコンの交換といった一日で終わる工事から、フロアをまるごと変える大型リニューアルまで扱います。業種が変われば必要な設備も動線も変わるので、図面はいつも一から引き直します。
-            </p>
-            <p data-fade className="t-note mt-5 max-w-2xl text-ink-muted">
-              住まいも同じです。二世帯住宅への間取り変更、マンションのリノベーション。家族の人数が変われば、必要な部屋の数も位置も変わります。
-            </p>
+            <p data-fade className="t-note max-w-2xl text-ink-muted"><CmsText>{"店舗・オフィス等の新規出店は、デザインから施工まで一貫してお引き受けします。壁紙の張り替えやエアコンの交換といった一日で終わる工事から、フロアをまるごと変える大型リニューアルまで扱います。業種が変われば必要な設備も動線も変わるので、図面はいつも一から引き直します。"}</CmsText></p>
+            <p data-fade className="t-note mt-5 max-w-2xl text-ink-muted"><CmsText>{"住まいも同じです。二世帯住宅への間取り変更、マンションのリノベーション。家族の人数が変われば、必要な部屋の数も位置も変わります。"}</CmsText></p>
 
             <p
               data-fade
               className="mt-10 font-latin text-[11px] tracking-[0.25em] text-ink-muted"
-            >
-              INDUSTRIES
-            </p>
+            ><CmsText>{"INDUSTRIES"}</CmsText></p>
             <ul data-trade-list className="mt-5 flex flex-wrap gap-2.5">
-              {TRADES.map((trade) => (
+              <CmsText>{TRADES.map((trade) => (
                 <li
                   key={trade}
                   data-trade
                   className="border border-line px-4 py-2 text-xs text-ink/80"
                 >
-                  {trade}
+                  <CmsText>{trade}</CmsText>
                 </li>
-              ))}
+              ))}</CmsText>
             </ul>
           </div>
         </div>
@@ -421,35 +406,21 @@ export default function ArchitectureSolution() {
               data-rule
               aria-hidden
               className="inline-block h-px w-10 bg-on-dark/25"
-            />
-            STORE DESIGN
-          </p>
+            /><CmsText>{"STORE DESIGN"}</CmsText></p>
           <h2
             data-fade
             className="t-heading-tight mt-7 font-display font-normal"
-          >
-            店舗設計・施工
-          </h2>
+          ><CmsText>{"店舗設計・施工"}</CmsText></h2>
 
           <div className="mt-8 max-w-3xl">
-            <p data-fade className="t-note text-on-dark/65">
-              私たちは、店舗デザインのプロフェッショナルとして、お客様のブランドやアイデンティティを反映させながら、魅力的で機能的な空間を創り出します。内装工事では高品質な施工を心がけ、営繕管理では施設を持続可能な状態に保ちます。そして、新しい店舗をお探しの方には、適切な空き店舗の提案も行います。
-            </p>
-            <p data-fade className="t-note mt-5 text-on-dark/65">
-              テナント施設を紹介し、作り、守ることで、店舗設計における三拍子が揃ったスペシャリストとして、お客様のビジネス成功に向けて全力でサポートします。私たちは、お客様とともに成長し、繁栄する未来を築くために、真摯かつ専門的なサービスを提供いたします。
-            </p>
+            <p data-fade className="t-note text-on-dark/65"><CmsText>{"私たちは、店舗デザインのプロフェッショナルとして、お客様のブランドやアイデンティティを反映させながら、魅力的で機能的な空間を創り出します。内装工事では高品質な施工を心がけ、営繕管理では施設を持続可能な状態に保ちます。そして、新しい店舗をお探しの方には、適切な空き店舗の提案も行います。"}</CmsText></p>
+            <p data-fade className="t-note mt-5 text-on-dark/65"><CmsText>{"テナント施設を紹介し、作り、守ることで、店舗設計における三拍子が揃ったスペシャリストとして、お客様のビジネス成功に向けて全力でサポートします。私たちは、お客様とともに成長し、繁栄する未来を築くために、真摯かつ専門的なサービスを提供いたします。"}</CmsText></p>
 
             <h3
               data-fade
               className="mt-16 border-t border-on-dark/15 pt-10 font-display text-xl font-normal sm:text-2xl"
-            >
-              店舗ができるまで
-            </h3>
-            <p data-fade className="t-note mt-4 text-on-dark/60">
-              ご相談から引き渡しまで、六つの段階を踏みます。
-              <br />
-              どの段階でも図面と見積もりをご覧いただき、合意してから次へ進みます。
-            </p>
+            ><CmsText>{"店舗ができるまで"}</CmsText></h3>
+            <p data-fade className="t-note mt-4 text-on-dark/60"><CmsText>{"ご相談から引き渡しまで、六つの段階を踏みます。"}</CmsText><br /><CmsText>{"どの段階でも図面と見積もりをご覧いただき、合意してから次へ進みます。"}</CmsText></p>
 
             <StepList steps={FLOW} tone="dark" />
           </div>
@@ -482,25 +453,17 @@ export default function ArchitectureSolution() {
                 data-rule
                 aria-hidden
                 className="inline-block h-px w-10 bg-ink/25"
-              />
-              MAINTENANCE
-            </p>
+              /><CmsText>{"MAINTENANCE"}</CmsText></p>
             <h2
               data-fade
               className="t-heading-tight mt-7 font-display font-normal text-ink"
-            >
-              施設営繕
-            </h2>
-            <p data-fade className="t-note mt-8 max-w-xl text-ink-muted">
-              施設はお客様の重要な財産です。その価値を守るために、定期的な点検、必要な補修、継続的なメンテナンスを実施いたします。私たちは、高い専門性と信頼性をもって、お客様の施設を確実に管理し、持続可能な状態を維持します。
-            </p>
+            ><CmsText>{"施設営繕"}</CmsText></h2>
+            <p data-fade className="t-note mt-8 max-w-xl text-ink-muted"><CmsText>{"施設はお客様の重要な財産です。その価値を守るために、定期的な点検、必要な補修、継続的なメンテナンスを実施いたします。私たちは、高い専門性と信頼性をもって、お客様の施設を確実に管理し、持続可能な状態を維持します。"}</CmsText></p>
 
             <h3
               data-fade
               className="mt-14 border-t border-line pt-10 font-display text-xl font-normal text-ink sm:text-2xl"
-            >
-              施設営繕の内容
-            </h3>
+            ><CmsText>{"施設営繕の内容"}</CmsText></h3>
 
             <StepList steps={MAINTENANCE} tone="light" />
           </div>
@@ -520,29 +483,19 @@ export default function ArchitectureSolution() {
                 data-rule
                 aria-hidden
                 className="inline-block h-px w-10 bg-ink/25"
-              />
-              VACANCY SUPPORT
-            </p>
+              /><CmsText>{"VACANCY SUPPORT"}</CmsText></p>
             <h2
               data-fade
               className="t-heading-tight mt-7 font-display font-normal text-ink"
-            >
-              空きテナントでお困りのオーナー様へ
-            </h2>
-            <p data-fade className="t-note mt-8 max-w-xl text-ink-muted">
-              空き店舗の修繕や改修により、ビルの価値を高め、魅力的な賃貸スペースに変貌させることが可能です。私たちは、これらのプロセスに関する豊富な経験と専門知識を持ち、改修後は不動産事業のノウハウを活かして事業者の募集をサポートします。特に、借り手が集まらないビルのオーナー様にとって、このサービスは大きな助けとなります。
-            </p>
-            <p data-fade className="t-note mt-5 max-w-xl text-ink-muted">
-              私たちは、ビルの魅力を引き出し、適切なテナントの選定や効果的なマーケティング戦略を提供します。空きスペースの有効活用はオーナー様の収益向上に直結し、私たちはそのお手伝いを致します。空き店舗にお困りのビルオーナー様は、ぜひお気軽にご相談ください。専門的なチームが全力でサポートし、ビジネスの成功をサポートいたします。
-            </p>
+            ><CmsText>{"空きテナントでお困りのオーナー様へ"}</CmsText></h2>
+            <p data-fade className="t-note mt-8 max-w-xl text-ink-muted"><CmsText>{"空き店舗の修繕や改修により、ビルの価値を高め、魅力的な賃貸スペースに変貌させることが可能です。私たちは、これらのプロセスに関する豊富な経験と専門知識を持ち、改修後は不動産事業のノウハウを活かして事業者の募集をサポートします。特に、借り手が集まらないビルのオーナー様にとって、このサービスは大きな助けとなります。"}</CmsText></p>
+            <p data-fade className="t-note mt-5 max-w-xl text-ink-muted"><CmsText>{"私たちは、ビルの魅力を引き出し、適切なテナントの選定や効果的なマーケティング戦略を提供します。空きスペースの有効活用はオーナー様の収益向上に直結し、私たちはそのお手伝いを致します。空き店舗にお困りのビルオーナー様は、ぜひお気軽にご相談ください。専門的なチームが全力でサポートし、ビジネスの成功をサポートいたします。"}</CmsText></p>
 
             <Link
               data-fade
               href="/business/real-estate"
               className="group mt-9 inline-flex items-center gap-3 text-xs font-medium tracking-[0.18em] text-ink transition-opacity hover:opacity-60"
-            >
-              不動産ソリューションを見る
-              <span
+            ><CmsText>{"不動産ソリューションを見る"}</CmsText><span
                 aria-hidden
                 className="inline-block h-px w-9 bg-ink transition-all duration-300 group-hover:w-12"
               />
@@ -573,35 +526,23 @@ export default function ArchitectureSolution() {
           <p
             data-fade
             className="t-body max-w-xl font-display font-light text-on-dark/90"
-          >
-            仕上がりは、実際の現場でご覧ください。
-          </p>
+          ><CmsText>{"仕上がりは、実際の現場でご覧ください。"}</CmsText></p>
 
           <div data-fade className="mt-9">
             <Link
               href="/works"
               className="group inline-flex items-center gap-3 bg-on-dark px-8 py-4 text-xs font-medium tracking-[0.2em] text-navy transition-colors duration-300 hover:bg-navy-mid hover:text-on-dark"
-            >
-              施工実績を見る
-              <span
+            ><CmsText>{"施工実績を見る"}</CmsText><span
                 aria-hidden
                 className="transition-transform duration-300 group-hover:translate-x-1"
-              >
-                →
-              </span>
+              ><CmsText>{"→"}</CmsText></span>
             </Link>
           </div>
 
-          <p data-fade className="t-note mt-10 text-on-dark/55">
-            工事の規模や費用の目安については、
-            <Link
+          <p data-fade className="t-note mt-10 text-on-dark/55"><CmsText>{"工事の規模や費用の目安については、"}</CmsText><Link
               href="/contact"
               className="underline underline-offset-4 transition-colors hover:text-on-dark"
-            >
-              お問い合わせ
-            </Link>
-            からご相談ください。
-          </p>
+            ><CmsText>{"お問い合わせ"}</CmsText></Link><CmsText>{"からご相談ください。"}</CmsText></p>
         </div>
       </section>
     </div>

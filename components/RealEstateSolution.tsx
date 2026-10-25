@@ -1,7 +1,10 @@
 "use client";
+import CmsAnchor from "@/components/CmsLink";
+import CmsText from "@/components/CmsText";
 
-import Image from "next/image";
-import Link from "next/link";
+
+import Image from "@/components/CmsImage";
+import Link from "@/components/CmsLink";
 import { useScopedGsap, gsap, SplitText } from "@/hooks/useGsap";
 import {
   scrollTriggerDefaults,
@@ -110,7 +113,7 @@ function StepList({ steps, tone }: { steps: Step[]; tone: "dark" | "light" }) {
           }`}
       />
 
-      {steps.map((step, i) => (
+      <CmsText>{steps.map((step, i) => (
         <li
           key={step.title}
           data-step
@@ -123,7 +126,7 @@ function StepList({ steps, tone }: { steps: Step[]; tone: "dark" | "light" }) {
               : "border border-line bg-paper text-ink-muted"
               }`}
           >
-            {String(i + 1).padStart(2, "0")}
+            <CmsText>{String(i + 1).padStart(2, "0")}</CmsText>
           </span>
 
           <div data-step-body className="pt-1">
@@ -131,25 +134,23 @@ function StepList({ steps, tone }: { steps: Step[]; tone: "dark" | "light" }) {
               className={`font-display text-base font-normal sm:text-lg ${dark ? "text-on-dark" : "text-ink"
                 }`}
             >
-              {step.title}
+              <CmsText>{step.title}</CmsText>
             </h4>
             <p className={`t-note mt-3 ${dark ? "text-on-dark/60" : "text-ink-muted"}`}>
-              {step.body}
+              <CmsText>{step.body}</CmsText>
             </p>
           </div>
 
-          {i < steps.length - 1 && (
+          <CmsText>{i < steps.length - 1 && (
             <span
               data-step-arrow
               aria-hidden
               className={`absolute left-[1.125rem] bottom-[1.35rem] -translate-x-1/2 font-latin text-xs ${dark ? "text-on-dark/45" : "text-ink/35"
                 }`}
-            >
-              ↓
-            </span>
-          )}
+            ><CmsText>{"↓"}</CmsText></span>
+          )}</CmsText>
         </li>
-      ))}
+      ))}</CmsText>
     </ol>
   );
 }
@@ -294,19 +295,11 @@ export default function RealEstateSolution() {
             data-hero-eyebrow
             className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-on-dark/70 sm:text-[11px]"
           >
-            <span aria-hidden className="inline-block h-px w-10 bg-on-dark/40" />
-            REAL ESTATE SOLUTIONS
-          </p>
+            <span aria-hidden className="inline-block h-px w-10 bg-on-dark/40" /><CmsText>{"REAL ESTATE SOLUTIONS"}</CmsText></p>
 
-          <h1 data-hero-title className="t-heading mt-7 font-display font-normal text-on-dark">
-            不動産ソリューション
-          </h1>
+          <h1 data-hero-title className="t-heading mt-7 font-display font-normal text-on-dark"><CmsText>{"不動産ソリューション"}</CmsText></h1>
 
-          <p data-hero-lead className="t-note mt-6 max-w-xl text-on-dark/80">
-            売買・賃貸の仲介から管理、買取・再販まで。建築部門を自社に持つ強みを活かし、
-            <br />
-            貸す・売る・活かすの判断からその先の手入れまでを一社でお引き受けします。
-          </p>
+          <p data-hero-lead className="t-note mt-6 max-w-xl text-on-dark/80"><CmsText>{"売買・賃貸の仲介から管理、買取・再販まで。建築部門を自社に持つ強みを活かし、"}</CmsText><br /><CmsText>{"貸す・売る・活かすの判断からその先の手入れまでを一社でお引き受けします。"}</CmsText></p>
         </div>
       </section>
 
@@ -316,9 +309,9 @@ export default function RealEstateSolution() {
         className="w-full border-b border-line bg-stone px-6 py-6 sm:px-10 lg:px-16 xl:px-24"
       >
         <ul className="mx-auto flex max-w-[1520px] flex-wrap items-center gap-x-8 gap-y-3">
-          {SECTIONS.map((section) => (
+          <CmsText>{SECTIONS.map((section) => (
             <li key={section.id} data-nav-item>
-              <a
+              <CmsAnchor
                 href={`#${section.id}`}
                 className="group inline-flex items-center gap-2 text-xs text-ink-muted transition-colors hover:text-ink"
               >
@@ -326,10 +319,10 @@ export default function RealEstateSolution() {
                   aria-hidden
                   className="inline-block h-px w-4 bg-ink/30 transition-all duration-300 group-hover:w-7 group-hover:bg-ink"
                 />
-                {section.label}
-              </a>
+                <CmsText>{section.label}</CmsText>
+              </CmsAnchor>
             </li>
-          ))}
+          ))}</CmsText>
         </ul>
       </nav>
 
@@ -343,33 +336,25 @@ export default function RealEstateSolution() {
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[180px_1fr] lg:gap-20">
             <div>
               <p className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-ink-muted sm:text-[11px]">
-                <span data-rule aria-hidden className="inline-block h-px w-10 bg-ink/25" />
-                SERVICE
-              </p>
-              <h2 data-fade className="t-heading-tight mt-7 font-display font-normal text-ink">
-                取り扱い業務
-              </h2>
+                <span data-rule aria-hidden className="inline-block h-px w-10 bg-ink/25" /><CmsText>{"SERVICE"}</CmsText></p>
+              <h2 data-fade className="t-heading-tight mt-7 font-display font-normal text-ink"><CmsText>{"取り扱い業務"}</CmsText></h2>
             </div>
 
             <div>
-              <p data-fade className="t-note max-w-2xl text-ink-muted">
-                住まいから事業用の物件まで、不動産に関わる業務を一通り扱います。
-                <br />
-                仲介して終わりではなく、貸した後の管理や、必要になったときの改修まで見据えてご提案します。
-              </p>
+              <p data-fade className="t-note max-w-2xl text-ink-muted"><CmsText>{"住まいから事業用の物件まで、不動産に関わる業務を一通り扱います。"}</CmsText><br /><CmsText>{"仲介して終わりではなく、貸した後の管理や、必要になったときの改修まで見据えてご提案します。"}</CmsText></p>
 
               <ul data-service-list className="mt-12 grid grid-cols-1 gap-px overflow-hidden border border-line bg-line sm:grid-cols-3">
-                {SERVICES.map((service) => (
+                <CmsText>{SERVICES.map((service) => (
                   <li key={service.title} data-service className="bg-paper p-7 sm:p-8">
                     <p className="font-latin text-[10px] tracking-[0.25em] text-ink-muted">
-                      {service.en}
+                      <CmsText>{service.en}</CmsText>
                     </p>
                     <h3 className="mt-4 font-display text-lg font-normal text-ink">
-                      {service.title}
+                      <CmsText>{service.title}</CmsText>
                     </h3>
-                    <p className="t-note mt-4 text-ink-muted">{service.body}</p>
+                    <p className="t-note mt-4 text-ink-muted"><CmsText>{service.body}</CmsText></p>
                   </li>
-                ))}
+                ))}</CmsText>
               </ul>
             </div>
           </div>
@@ -384,17 +369,11 @@ export default function RealEstateSolution() {
       >
         <div className="mx-auto max-w-[1520px]">
           <p className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-on-dark/50 sm:text-[11px]">
-            <span data-rule aria-hidden className="inline-block h-px w-10 bg-on-dark/25" />
-            FOR OWNERS
-          </p>
-          <h2 data-fade className="t-heading-tight mt-7 font-display font-normal">
-            オーナー様へ
-          </h2>
+            <span data-rule aria-hidden className="inline-block h-px w-10 bg-on-dark/25" /><CmsText>{"FOR OWNERS"}</CmsText></p>
+          <h2 data-fade className="t-heading-tight mt-7 font-display font-normal"><CmsText>{"オーナー様へ"}</CmsText></h2>
 
           <div className="mt-8 max-w-3xl">
-            <p data-fade className="t-note text-on-dark/65">
-              土地や建物をお持ちの方から特に多くいただくご相談は、次の三つです。いずれも「不動産だけ」「建築だけ」では答えが出ません。私たちは両方を自社で持っているため、貸し方の見直しと建物への手入れを同じテーブルで検討できます。
-            </p>
+            <p data-fade className="t-note text-on-dark/65"><CmsText>{"土地や建物をお持ちの方から特に多くいただくご相談は、次の三つです。いずれも「不動産だけ」「建築だけ」では答えが出ません。私たちは両方を自社で持っているため、貸し方の見直しと建物への手入れを同じテーブルで検討できます。"}</CmsText></p>
 
             <StepList steps={OWNER_POINTS} tone="dark" />
           </div>
@@ -423,15 +402,9 @@ export default function RealEstateSolution() {
 
           <div>
             <p className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-ink-muted sm:text-[11px]">
-              <span data-rule aria-hidden className="inline-block h-px w-10 bg-ink/25" />
-              FLOW
-            </p>
-            <h2 data-fade className="t-heading-tight mt-7 font-display font-normal text-ink">
-              ご相談の流れ
-            </h2>
-            <p data-fade className="t-note mt-8 max-w-xl text-ink-muted">
-              ご相談から成約まで、五つの段階を踏みます。現地確認とご提案までは費用をいただきません。方針が決まらないうちに契約を迫ることもありません。
-            </p>
+              <span data-rule aria-hidden className="inline-block h-px w-10 bg-ink/25" /><CmsText>{"FLOW"}</CmsText></p>
+            <h2 data-fade className="t-heading-tight mt-7 font-display font-normal text-ink"><CmsText>{"ご相談の流れ"}</CmsText></h2>
+            <p data-fade className="t-note mt-8 max-w-xl text-ink-muted"><CmsText>{"ご相談から成約まで、五つの段階を踏みます。現地確認とご提案までは費用をいただきません。方針が決まらないうちに契約を迫ることもありません。"}</CmsText></p>
 
             <StepList steps={FLOW} tone="light" />
           </div>
@@ -447,24 +420,16 @@ export default function RealEstateSolution() {
         <div className="mx-auto grid max-w-[1520px] grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_0.8fr] lg:gap-20">
           <div>
             <p className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-ink-muted sm:text-[11px]">
-              <span data-rule aria-hidden className="inline-block h-px w-10 bg-ink/25" />
-              PROPERTY SEARCH
-            </p>
-            <h2 data-fade className="t-heading-tight mt-7 font-display font-normal text-ink">
-              物件をお探しの方へ
-            </h2>
-            <p data-fade className="t-note mt-8 max-w-xl text-ink-muted">
-              現在お取り扱い中の物件は、不動産情報サイト「at home」に掲載しています。間取りや写真、周辺環境まで掲載していますので、まずはこちらをご覧ください。
-            </p>
-            <p data-fade className="t-note mt-5 max-w-xl text-ink-muted">
-              掲載されていない物件のご相談や、条件を決めてお探しすることも承ります。ご希望がお決まりでない段階でも構いませんので、お気軽にお問い合わせください。
-            </p>
+              <span data-rule aria-hidden className="inline-block h-px w-10 bg-ink/25" /><CmsText>{"PROPERTY SEARCH"}</CmsText></p>
+            <h2 data-fade className="t-heading-tight mt-7 font-display font-normal text-ink"><CmsText>{"物件をお探しの方へ"}</CmsText></h2>
+            <p data-fade className="t-note mt-8 max-w-xl text-ink-muted"><CmsText>{"現在お取り扱い中の物件は、不動産情報サイト「at home」に掲載しています。間取りや写真、周辺環境まで掲載していますので、まずはこちらをご覧ください。"}</CmsText></p>
+            <p data-fade className="t-note mt-5 max-w-xl text-ink-muted"><CmsText>{"掲載されていない物件のご相談や、条件を決めてお探しすることも承ります。ご希望がお決まりでない段階でも構いませんので、お気軽にお問い合わせください。"}</CmsText></p>
           </div>
 
           {/* at home の掲載ページへ。外部サイトなので新規タブで開き、
               rel="noopener" を付ける(target="_blank" の際の作法)。 */}
           <div data-fade>
-            <a
+            <CmsAnchor
               href="https://www.athome.co.jp/ahcb/aim.html"
               target="_blank"
               rel="noopener noreferrer"
@@ -479,17 +444,13 @@ export default function RealEstateSolution() {
                   className="object-contain p-6 transition-transform duration-500 group-hover:scale-[1.03] sm:p-8"
                 />
               </div>
-              <p className="mt-5 flex items-center gap-3 text-sm font-normal text-ink transition-opacity group-hover:opacity-60">
-                at homeで掲載物件を見る
-                <span
+              <p className="mt-5 flex items-center gap-3 text-sm font-normal text-ink transition-opacity group-hover:opacity-60"><CmsText>{"at homeで掲載物件を見る"}</CmsText><span
                   aria-hidden
                   className="inline-block h-px w-9 shrink-0 bg-ink transition-all duration-300 group-hover:w-12"
                 />
               </p>
-              <p className="mt-2 text-xs tracking-[0.05em] text-ink-muted">
-                外部サイト（at home）が新しいタブで開きます
-              </p>
-            </a>
+              <p className="mt-2 text-xs tracking-[0.05em] text-ink-muted"><CmsText>{"外部サイト（at home）が新しいタブで開きます"}</CmsText></p>
+            </CmsAnchor>
           </div>
         </div>
       </section>
@@ -500,28 +461,18 @@ export default function RealEstateSolution() {
         className="on-dark w-full bg-navy px-6 py-24 text-on-dark sm:px-10 lg:px-16 lg:py-28 xl:px-24"
       >
         <div className="mx-auto max-w-[1520px]">
-          <p data-fade className="t-body max-w-xl font-display font-light text-on-dark/90">
-            貸すか、売るか、手を入れて活かすか。
-            <br />
-            判断の材料からご一緒します。
-          </p>
+          <p data-fade className="t-body max-w-xl font-display font-light text-on-dark/90"><CmsText>{"貸すか、売るか、手を入れて活かすか。"}</CmsText><br /><CmsText>{"判断の材料からご一緒します。"}</CmsText></p>
 
           <div data-fade className="mt-9 flex flex-wrap items-center gap-4">
             <Link
               href="/contact"
               className="group inline-flex items-center gap-3 bg-on-dark px-8 py-4 text-xs font-medium tracking-[0.2em] text-navy transition-colors duration-300 hover:bg-navy-mid hover:text-on-dark"
-            >
-              お問い合わせ
-              <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
-                →
-              </span>
+            ><CmsText>{"お問い合わせ"}</CmsText><span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1"><CmsText>{"→"}</CmsText></span>
             </Link>
             <Link
               href="/business/architecture"
               className="inline-flex items-center gap-2.5 border border-on-dark/30 px-6 py-3.5 text-xs tracking-[0.12em] text-on-dark/80 transition-colors duration-300 hover:border-on-dark hover:text-on-dark"
-            >
-              建築ソリューションを見る
-            </Link>
+            ><CmsText>{"建築ソリューションを見る"}</CmsText></Link>
           </div>
         </div>
       </section>

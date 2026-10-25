@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import PublicationDates from "./PublicationDates";
+import InstagramImage from "./InstagramImage";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
 import { prefersReducedMotion, drawLine } from "@/lib/animations";
 import { NEWS_CATEGORY_LABEL, formatNewsDate, type NewsPost } from "@/content/news";
@@ -80,6 +82,7 @@ export default function NewsDetail({ post, prev, next }: Props) {
           >
             {post.title}
           </h1>
+          <PublicationDates firstPublishedAt={post.firstPublishedAt} contentUpdatedAt={post.contentUpdatedAt} />
         </div>
       </section>
 
@@ -91,7 +94,9 @@ export default function NewsDetail({ post, prev, next }: Props) {
             NEWS
           </p>
 
-          <div className="mt-12 space-y-6">
+          {post.sourceUrl && <InstagramImage slug={post.slug} alt={post.title}/>}
+          {post.sourceUrl && <p className="mt-8"><a href={post.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Instagramの元の投稿を見る ↗</a></p>}
+            <div className="mt-12 space-y-6">
             {post.body.map((paragraph, i) => (
               <p
                 key={i}

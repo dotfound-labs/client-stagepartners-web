@@ -1,8 +1,10 @@
 "use client";
+import CmsText from "@/components/CmsText";
+
 
 import { useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import Image from "@/components/CmsImage";
+import Link from "@/components/CmsLink";
 import { useScopedGsap, gsap, SplitText } from "@/hooks/useGsap";
 import { onStageReveal } from "@/lib/animations";
 
@@ -104,7 +106,7 @@ export default function Hero() {
     >
       {/* 全面に敷く背景画像(余白なし) */}
       <div data-hero-image className="absolute inset-0">
-        {[
+        <CmsText>{[
           { src: "/stagepartners-hero.jpg", position: "object-center" },
           { src: "/issekisancho.png", position: "object-center" },
           { src: "/real-estateimage1.png", position: "object-[60%_center]" },
@@ -119,7 +121,7 @@ export default function Hero() {
               className={`object-cover ${slide.position}`}
             />
           </div>
-        ))}
+        ))}</CmsText>
       </div>
       {/* 可読性のためのグラデーションオーバーレイ */}
       <div
@@ -132,50 +134,36 @@ export default function Hero() {
           data-hero-eyebrow
           className="flex items-center gap-4 font-latin text-[10px] tracking-[0.35em] text-on-dark/70 sm:text-[11px]"
         >
-          <span aria-hidden className="inline-block h-px w-10 bg-on-dark/40" />
-          REAL ESTATE &amp; ARCHITECTURE
-        </p>
+          <span aria-hidden className="inline-block h-px w-10 bg-on-dark/40" /><CmsText fieldId="text_579bb17d">{"REAL ESTATE & ARCHITECTURE"}</CmsText></p>
 
         <h1 className="mt-7 font-display font-normal text-on-dark">
           <span className="block overflow-hidden">
             <span
               data-hero-line
               className="block text-[clamp(2.25rem,7vw,4.25rem)] leading-[1.3] tracking-[-0.02em]"
-            >
-              挑戦する人が、
-            </span>
+            ><CmsText>{"挑戦する人が、"}</CmsText></span>
           </span>
           <span className="block overflow-hidden">
             <span
               data-hero-line
               className="block text-[clamp(2.25rem,7vw,4.25rem)] leading-[1.3] tracking-[-0.02em]"
-            >
-              輝ける場所を。
-            </span>
+            ><CmsText>{"輝ける場所を。"}</CmsText></span>
           </span>
         </h1>
 
         <p
           data-hero-sub
           className="mt-8 max-w-2xl text-sm font-normal leading-loose text-on-dark/85 sm:text-base"
-        >
-          不動産の仲介・管理から、建物のリフォーム・改修まで。
-          <br className="hidden sm:block" />
-          静岡・東京・神奈川を拠点に、オーナー様の資産の可能性を、一貫して引き出します。
-        </p>
+        ><CmsText>{"不動産の仲介・管理から、建物のリフォーム・改修まで。"}</CmsText><br className="hidden sm:block" /><CmsText>{"静岡・東京・神奈川を拠点に、オーナー様の資産の可能性を、一貫して引き出します。"}</CmsText></p>
 
         <div data-hero-cta className="mt-11">
           <Link
             href="/contact"
             className="group inline-flex items-center gap-3 bg-on-dark px-9 py-4 text-xs font-medium tracking-[0.2em] text-navy transition-colors duration-300 hover:bg-navy-mid hover:text-on-dark"
-          >
-            無料で相談する
-            <span
+          ><CmsText>{"無料で相談する"}</CmsText><span
               aria-hidden
               className="transition-transform duration-300 group-hover:translate-x-1"
-            >
-              →
-            </span>
+            ><CmsText>{"→"}</CmsText></span>
           </Link>
         </div>
       </div>
@@ -185,7 +173,7 @@ export default function Hero() {
         aria-hidden
         className="pointer-events-none absolute bottom-7 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 font-latin text-[10px] tracking-[0.35em] text-on-dark/80"
       >
-        <span className="inline-block">SCROLL</span>
+        <span className="inline-block"><CmsText>{"SCROLL"}</CmsText></span>
       </div>
     </section>
   );
