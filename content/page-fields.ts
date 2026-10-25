@@ -2467,7 +2467,7 @@ export const PAGE_TEMPLATES:Record<string,PageTemplate>={
         "value": "/tokushoho",
         "section": "components/Footer.tsx",
         "kind": "link"
-      },
+      },
       {
         "id": "common.seo_site_name",
         "label": "サイト名",
@@ -2485,7 +2485,7 @@ export const PAGE_TEMPLATES:Record<string,PageTemplate>={
       {
         "id": "common.seo_description",
         "label": "サイトの説明（検索結果・SNS共有）",
-        "value": "土地と建物に、次の価値を。STAGE PARTNERSは不動産の仲介・管理から建物のリフォームまで、オーナー様の資産の可能性を伴走して引き出すパートナーです。",
+        "value": "土地と建物に、次の価値を。STAGE PARTNERSは不動産の仲介・管理から建物のリフォームまで、オーナー様の資産の可能性を一貫して引き出すパートナーです。",
         "section": "SEO・サイト情報",
         "kind": "text"
       },

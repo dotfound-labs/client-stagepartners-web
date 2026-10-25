@@ -1,4 +1,4 @@
-import {getSiteSettings} from "@/lib/cms/site-metadata";
+import { getSiteSettings, publicPageMetadata } from "@/lib/cms/site-metadata";
 import PublishedPage from "@/components/PublishedPage";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!post) return {};
   const site=await getSiteSettings();
   const title = `${post.title} | お知らせ | ${site.siteName}`;
-  return {
+  return publicPageMetadata({
     title,
     description: post.excerpt,
     alternates: { canonical: `/news/${post.slug}` },
@@ -33,12 +33,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       description: post.excerpt,
       type: "article",
       locale: "ja_JP",
-      images:["/site-assets/og"],
-      siteName:site.siteName,
       publishedTime: post.firstPublishedAt ?? post.date,
       modifiedTime: post.contentUpdatedAt ?? undefined,
     },
-  };
+  });
 }
 
 export default async function NewsPostPage({ params }: Params) {

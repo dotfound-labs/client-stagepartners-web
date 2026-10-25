@@ -14,9 +14,10 @@ import News from "@/components/News";
 import Company from "@/components/Company";
 import Architecture from "@/components/ArchitectureSolution";
 import RealEstate from "@/components/RealEstateSolution";
+import SiteSettingsPreview from "./SiteSettingsPreview";
 import { PAGE_TEMPLATES } from "@/content/page-fields";
 export default async function PagePreview({slug,data}:{slug:string;data:PageData}) {
   const common = slug === "common" ? data : await getPageContent("common");
   const [works,news] = slug === "home" ? await Promise.all([getPublishedWorks(),getPublishedNews()]) : [[],[]];
-  return <PageFieldsProvider scope={slug} page={data} common={common}><Header />{slug === "home" ? <><Hero /><Message /><Challenges /><Business /><Strengths /><Works works={works.filter(w=>w.featured).slice(0,3)} /><News posts={news.slice(0,3)} /><ContactCta /></> : slug === "company" ? <Company /> : slug === "architecture" ? <Architecture /> : slug === "real-estate" ? <RealEstate /> : <section className="admin-app"><div className="admin-main"><h1>{data.title}</h1><p>各項目の内容確認（公開ページの配置は変更されません）</p>{PAGE_TEMPLATES[slug]?.fields.map(f=><article className="admin-card" key={f.id}><h2>{f.label}</h2><p className="admin-prewrap">{data.fields[f.id]??f.value}</p></article>)}</div></section>}<Footer /></PageFieldsProvider>;
+  return <PageFieldsProvider scope={slug} page={data} common={common}><Header />{slug === "home" ? <><Hero /><Message /><Challenges /><Business /><Strengths /><Works works={works.filter(w=>w.featured).slice(0,3)} /><News posts={news.slice(0,3)} /><ContactCta /></> : slug === "company" ? <Company /> : slug === "architecture" ? <Architecture /> : slug === "real-estate" ? <RealEstate /> : <section className="admin-app"><div className="admin-main"><h1>{data.title}</h1><p>各項目の内容確認（公開ページの配置は変更されません）</p>{slug === "common" && <SiteSettingsPreview data={data} />}{PAGE_TEMPLATES[slug]?.fields.map(f=><article className="admin-card" key={f.id}><h2>{f.label}</h2><p className="admin-prewrap">{data.fields[f.id]??f.value}</p></article>)}</div></section>}<Footer /></PageFieldsProvider>;
 }

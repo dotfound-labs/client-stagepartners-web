@@ -1,3 +1,4 @@
+import { getSiteSettings, publicPageMetadata } from "@/lib/cms/site-metadata";
 import PublishedPage from "@/components/PublishedPage";
 import { getPublishedWorks } from "@/lib/cms/public";
 import type { Metadata } from "next";
@@ -16,8 +17,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const works = await getPublishedWorks();
   const work = works.find(w => w.slug === slug);
   if (!work) return {};
-  const title = `${work.title}｜${work.type} | 施工実績 | STAGE PARTNERS`;
-  return {
+  const site = await getSiteSettings();
+  const title = `${work.title}｜${work.type} | 施工実績 | ${site.siteName}`;
+  return publicPageMetadata({
     title,
     description: work.summary,
     alternates: { canonical: `/works/${work.slug}` },
@@ -30,7 +32,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       locale: "ja_JP",
       images: [workImage(work, work.cover)],
     },
-  };
+  });
 }
 
 export default async function WorkPage({ params }: Params) {

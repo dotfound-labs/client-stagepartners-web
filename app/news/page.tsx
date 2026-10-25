@@ -1,3 +1,4 @@
+import { publicPageMetadata } from "@/lib/cms/site-metadata";
 import PublishedPage from "@/components/PublishedPage";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
@@ -5,12 +6,12 @@ import NewsIndex from "@/components/NewsIndex";
 import Footer from "@/components/Footer";
 import { getPublishedNews } from "@/lib/cms/public";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> { return publicPageMetadata({
   title: "お知らせ | STAGE PARTNERS",
   description:
     "STAGE PARTNERSからのお知らせ一覧です。新着情報・施工実績の公開・現場の様子などをお届けします。",
   alternates: { canonical: "/news" },
-};
+}); }
 
 /**
  * お知らせ一覧。

@@ -1,3 +1,4 @@
+import { publicPageMetadata } from "@/lib/cms/site-metadata";
 import PublishedPage from "@/components/PublishedPage";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
@@ -10,12 +11,12 @@ import Footer from "@/components/Footer";
 // 既存コンテンツを無断で削除せずこのページ自体は残してある。`/recruit`を
 // 正式導線として残すかどうかはCEO/クライアント判断待ち。
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> { return publicPageMetadata({
   alternates: { canonical: "/recruit" },
   title: "採用情報 | STAGE PARTNERS",
   description:
     "STAGE PARTNERSの採用情報ページです。募集要項は近日公開予定です。",
-};
+}); }
 
 export default function RecruitPage() {
   return (

@@ -1,6 +1,19 @@
-# SEO settings work in progress
+# SEO settings cloud continuation handoff
 
 Saved for continuation without access to the original PC. Do not merge or deploy production.
+
+## Cloud continuation checkpoint (2026-10-25 UTC)
+
+The dedicated SEO form is now wired into the editor, with initial-default disclosure, field limits, draft search/SNS/image previews, explicit saved/published status, and an image-picker close control. Existing hero/icon/logo assets remain the defaults; the original published description wording is retained.
+
+Child metadata now composes shared OGP/Twitter/icon settings rather than discarding images or retaining homepage share text. Preview noindex is enforced. Public uploaded-asset queries use only anon-granted columns; existing media_visible RLS handles deletion/private status, without expanding grants.
+
+Verified in cloud: lint, TypeScript, 45 unit/component tests (18 SEO), webpack build with isolated /tmp font fixtures for normal and Preview modes, 12 generated public pages' metadata and Preview noindex, and native transforms of the actual existing image files. No real secrets, user PC, hosted DB writes, external messages, production merge/deploy, or Search Console changes were used.
+
+Outstanding: actual browser and authenticated save/revisit/Storage checks, live font build, SQL regression (PGlite download HTTP 403), reviewed migration10 application by parent, and production checks after PC reconnect. See `docs/SEO-PUBLICATION-CHECKLIST.ja.md` for complete verified/pending/publication gates. Do not interpret local mocks as live validation.
+
+The newer cloud continuation supersedes the original WIP status below; original observations are retained as history.
+
 
 ## Implemented, not yet fully verified
 - Common settings editor now includes site name, search title/description, canonical origin and indexing preference; existing company identity is reused.

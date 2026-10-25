@@ -1,15 +1,16 @@
+import { publicPageMetadata } from "@/lib/cms/site-metadata";
 import PublishedPage from "@/components/PublishedPage";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Business from "@/components/Business";
 import Footer from "@/components/Footer";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> { return publicPageMetadata({
   alternates: { canonical: "/business" },
   title: "事業内容 | STAGE PARTNERS",
   description:
     "不動産ソリューションと建築ソリューション。2つの事業を一社でつなぐSTAGE PARTNERSの事業内容をご紹介します。",
-};
+}); }
 
 export default function BusinessPage() {
   return (
