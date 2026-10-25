@@ -1,3 +1,4 @@
+import {contactProvider} from "./contact-provider";
 // Never activate integrations implicitly in Vercel Preview.
 export function integrationEnabled(name:"INSTAGRAM_SYNC_ENABLED"|"CONTACT_INTAKE_ENABLED"){
  return process.env.VERCEL_ENV!=="preview"&&process.env[name]==="true";
@@ -7,4 +8,4 @@ export function safeInstagramImage(value:string){
 }
 
 export function instagramReady(){return integrationEnabled("INSTAGRAM_SYNC_ENABLED")&&(Boolean(process.env.INSTAGRAM_ACCESS_TOKEN)||(!process.env.VERCEL&&process.env.INSTAGRAM_TOKEN_STORE==="local-file")||(process.env.INSTAGRAM_TOKEN_STORE==="encrypted-db"&&/^[0-9a-f]{64}$/i.test(process.env.INSTAGRAM_TOKEN_ENCRYPTION_KEY??"")))&&Boolean(process.env.INSTAGRAM_API_VERSION)&&Boolean(process.env.CRON_SECRET)&&Boolean(process.env.SUPABASE_SECRET_KEY);}
-export function contactReady(){return integrationEnabled("CONTACT_INTAKE_ENABLED")&&Boolean(process.env.WEB3FORMS_SECRET_KEY?.startsWith("w3f_live_"))&&Boolean(process.env.WEB3FORMS_FORM_ID)&&Boolean(process.env.SUPABASE_SECRET_KEY);}
+export function contactReady(){return Boolean(contactProvider());}

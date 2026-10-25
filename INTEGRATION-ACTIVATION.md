@@ -2,7 +2,7 @@
 
 All activation flags default off. Vercel Preview forcibly disables contact intake
 and Instagram sync/image fetching even if flags are accidentally set. No cron
-schedule or cleanup task is installed by this branch. All seven migrations are applied. Existing applied files are unchanged.
+schedule or cleanup task is installed by this branch. All nine migrations are applied. Existing applied files are unchanged.
 
 ## Standard invite / recovery
 
@@ -42,23 +42,45 @@ on later fetches without republishing hidden content. Image proxy only returns
 published Instagram articles and allows official CDN hosts; failures show a
 source-link fallback. No posting back to Instagram.
 
-## Contact
+## Contact: standard and PRO options
 
-Approve the delivery provider, actual recipient, autoresponder behavior and all downstream integrations first. The existing
-Web3Forms adapter uses its documented server Submissions API (PRO feature):
-WEB3FORMS_SECRET_KEY with Create submissions permission and WEB3FORMS_FORM_ID,
-SUPABASE_SECRET_KEY and CONTACT_INTAKE_ENABLED=true are required. Server status
-controls whether the form is enabled. No real inquiry has been submitted.
-Service-only intake validates data, deduplicates request UUIDs, caps 3 submissions
-per email/hour and 100 total/hour. A honeypot supplements these caps. Privacy
-and provider processing disclosures must be confirmed before activation.
-No paid subscription or key has been acquired. This adapter must stay disabled
-until the provider, plan/cost and verified recipient are approved; it does not
-proxy the browser-only free submit endpoint.
-CMS receipt is durable before one notification attempt. Failure/timeout is
-shown to admins as unconfirmed and is never automatically retried; inspect
-provider delivery before any manual resend. These caps are basic abuse controls,
-not a claim of bot-proof production protection.
+The existing Web3Forms plan is unknown. Do not assume PRO or purchase a plan.
+WEB3FORMS_MODE=browser with WEB3FORMS_ACCESS_KEY uses the supported standard
+browser /submit route without requiring a PRO Secret API key. The access key is
+an intentionally public form identifier, returned only after CMS validation and
+receipt. Do not substitute a server Secret API key. Standard /submit is never
+proxied server-side: official documentation requires a paid plan and IP allowlist
+for server-side use.
+
+WEB3FORMS_MODE=server (the backward-compatible default) retains the optional
+PRO /v1/submissions API with WEB3FORMS_SECRET_KEY (WRITE permission) and
+WEB3FORMS_FORM_ID. Both modes need target SUPABASE_SECRET_KEY and explicit
+CONTACT_INTAKE_ENABLED=true. Preview remains disabled.
+
+CMS input validation, honeypot, UUID deduplication and per-email/global caps
+remain. Only the first receipt permits a notification attempt. The browser-mode
+client then sends directly to Web3Forms. The UI requires actual provider
+acceptance before reporting acceptance; DB persistence alone is not success.
+Provider refusal/timeout/malformed response reports saved-but-unconfirmed and
+blocks repeat submission. An uncertain receipt response can leave a DB record
+without a notification; the user is told to call rather than resend blindly.
+
+Standard browser mode cannot independently prove provider acceptance to the
+server. Admin notification status stays unconfirmed even if the browser observed
+acceptance. There is no browser-accessible success-report RPC. PRO mode records
+the provider submission ID. Neither acceptance means recipient delivery. No
+uncertain attempt is automatically retried.
+
+Before activation verify the existing form/plan, info@stagepartners.co.jp as
+recipient, notification settings, autoresponder, downstream integrations,
+allowed domains and CAPTCHA requirements. Existing mandatory CAPTCHA must be
+matched before enabling; no unapproved CAPTCHA service was added. The existing
+honeypot and provider spam checks remain, but CMS caps cannot prevent direct
+use of the intentionally public key at Web3Forms. These are basic abuse controls,
+not comprehensive bot/quota protection. Confirm processing disclosures and
+approve a real delivery test. No provider keys/settings or paid plan were changed.
+
+Official standard API: https://docs.web3forms.com/getting-started/api-reference
 
 ## Orphan upload cleanup (design only)
 
@@ -132,7 +154,7 @@ Official reference: https://developers.facebook.com/documentation/instagram-plat
 ## Publication dates (applied)
 
 Migration 20261025030912_cms_publication_dates is applied to stagepartners-cms.
-All eight applied migration bodies remain unchanged.
+All nine applied migration bodies remain unchanged.
 Existing publication times stay unknown; migration timestamps are never shown as
 original publication dates. New publications record first_published_at, retained
 across unpublish/republish. content_updated_at changes only when public content
@@ -151,7 +173,7 @@ this does not replace administrator upload UI E2E.
 ## Encrypted database token store (code complete, not activated)
 
 INSTAGRAM_TOKEN_STORE=encrypted-db supports Vercel Production. Preview is always
-blocked. The pending cms_encrypted_instagram_tokens migration creates one empty
+blocked. The applied cms_encrypted_instagram_tokens migration creates one empty
 private row, RLS, and a service-role-only RPC; it does not store credentials or
 enable syncing. No existing content or Auth membership changes.
 

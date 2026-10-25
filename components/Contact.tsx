@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import {submitContact,type ContactFields} from "@/lib/contact-submit";
 import CmsText, {useCmsText} from "@/components/CmsText";
 import Image from "next/image";
 import { useScopedGsap, gsap } from "@/hooks/useGsap";
@@ -12,6 +13,8 @@ type Status = "idle" | "sending" | "success" | "error";
 export default function Contact() {
   const cmsText=useCmsText();
   const [enabled,setEnabled]=useState(false);
+  const [saved,setSaved]=useState(false);
+  const inFlight=useRef(false);
   const submission=useRef<{id:string;payload:string}|null>(null);
   useEffect(()=>{fetch("/api/contact").then(r=>r.json()).then(data=>setEnabled(data.enabled===true)).catch(()=>setEnabled(false));},[]);
   const [status, setStatus] = useState<Status>("idle");
@@ -29,32 +32,24 @@ export default function Contact() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!enabled || status === "sending") return;
+    if (!enabled || inFlight.current || (status === "error" && saved)) return;
+    inFlight.current=true;setSaved(false);
     setStatus("sending");
 
     // Reactはハンドラが返った直後にcurrentTargetをnullへ戻すため、awaitを挟むと
     // 送信後には参照できない。同期のうちにform要素を掴んでおく。
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const fields={...Object.fromEntries(formData),website:formData.get("website")??""};
+    const fields=Object.fromEntries(["name","email","phone","inquiry_type","message","website"].map(key=>[key,String(formData.get(key)??"")])) as ContactFields;
     const payload=JSON.stringify(fields);
     if(submission.current?.payload!==payload)submission.current={id:crypto.randomUUID(),payload};
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({...fields,id:submission.current.id}),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setStatus("success");
-        form.reset(); submission.current=null;
-      } else {
-        setStatus("error");
-      }
-    } catch {
-      setStatus("error");
-    }
+      const result=await submitContact(fields,submission.current.id);
+      setSaved(result.saved);
+      if(result.accepted){setStatus("success");form.reset();submission.current=null;}
+      else setStatus("error");
+    } catch { setStatus("error"); }
+    finally {inFlight.current=false;}
   }
 
   return (
@@ -196,7 +191,7 @@ export default function Contact() {
             {!enabled && <p role="status" className="text-sm text-ink">フォームは現在準備中です。上記のお電話にてお問い合わせください。</p>}
             <button
               type="submit"
-              disabled={!enabled || status === "sending"}
+              disabled={!enabled || status === "sending" || (saved && status === "error")}
               className="mt-2 inline-flex items-center justify-center gap-3 bg-navy-mid px-11 py-4 text-xs font-medium tracking-[0.2em] text-on-dark transition-opacity hover:opacity-85 disabled:opacity-50"
             >
               {status === "sending" ? "送信中..." : "この内容で送信する"}
@@ -204,13 +199,13 @@ export default function Contact() {
             </button>
 
             {status === "success" && (
-              <p className="text-xs leading-relaxed text-ink">
-                お問い合わせありがとうございます。担当者より折り返しご連絡いたします。
+              <p role="status" className="text-xs leading-relaxed text-ink">
+                送信サービスがフォームを受け付けました。メールの到着を保証する表示ではありません。担当者からの連絡をお待ちください。
               </p>
             )}
             {status === "error" && (
-              <p className="text-xs leading-relaxed text-ink-muted">
-                送信に失敗しました。お手数ですが、お電話にてお問い合わせください。
+              <p role="alert" className="text-xs leading-relaxed text-ink-muted">
+                {saved ? "内容は受付済みですが、通知サービスの受付を確認できませんでした。二重送信を避けるため、お電話で受付状況をご確認ください。" : "送信結果を確認できませんでした。お手数ですが、お電話にてお問い合わせください。"}
               </p>
             )}
           </div>

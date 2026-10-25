@@ -122,8 +122,8 @@ test('Instagram encrypted envelope authenticates ciphertext and wrong keys fail 
 
 test('Instagram durable adapter saves ciphertext, sanitizes status and blocks Preview',async()=>{
  const require=createRequire(process.cwd()+"/package.json"),env:Record<string,string>={VERCEL:'1',VERCEL_ENV:'production',INSTAGRAM_TOKEN_STORE:'encrypted-db',INSTAGRAM_TOKEN_ENCRYPTION_KEY:'11'.repeat(32),SUPABASE_SECRET_KEY:'synthetic-server-config'};
- let ciphertext:string|null=null,calls=0,failCommit=false;
- const rpc=async(_name:string,args:{p_action:string;p_ciphertext:string})=>{calls++;if(args.p_action==='commit'){if(failCommit)return {data:null,error:{message:'fixture lease expired'}};ciphertext=args.p_ciphertext;}return {data:args.p_action==='claim'?{lease:'fixture-lease',ciphertext}:args.p_action==='read'?{ciphertext}:{},error:null};};
+ let ciphertext:string|null=null,calls=0,failCommit=false,failRelease=false;
+ const rpc=async(_name:string,args:{p_action:string;p_ciphertext:string})=>{calls++;if(args.p_action==='commit'){ciphertext=args.p_ciphertext;if(failCommit)return {data:null,error:{message:'fixture uncertain commit'}};}if(args.p_action==='release'&&failRelease)return {data:null,error:{message:'fixture release failure'}};return {data:args.p_action==='claim'?{lease:'fixture-lease',ciphertext}:args.p_action==='read'?{ciphertext}:{},error:null};};
  const modules:Record<string,unknown>={};
  const load=(file:string)=>{const exports:Record<string,unknown>={};vm.runInNewContext(ts.transpileModule(readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>n==='server-only'?{}:modules[n]??require(n),Buffer,Date,URL,AbortSignal,fetch,process:{env}});return exports;};
  modules['./instagram-token']=load('lib/cms/instagram-token.ts');modules['./instagram-token-crypto']=load('lib/cms/instagram-token-crypto.ts');modules['./trusted-server']={trustedServerClient:()=>({rpc})};modules['./instagram-token-file']={};
@@ -131,6 +131,49 @@ test('Instagram durable adapter saves ciphertext, sanitizes status and blocks Pr
  const token={accessToken:'synthetic-fixture-token',kind:'instagram-login-long-lived' as const,issuedAt:new Date(Date.now()-86400000).toISOString(),expiresAt:new Date(Date.now()+30*86400000).toISOString()};
  await store.saveInstagramConnection(token);expect(ciphertext).not.toContain(token.accessToken);expect((await store.storedInstagramToken()).token).toEqual(token);
  const metadata=await store.instagramTokenMetadata();expect(metadata).toEqual({state:'connected',expiresAt:token.expiresAt});expect(JSON.stringify(metadata)).not.toContain(token.accessToken);
- failCommit=true;expect(await store.saveInstagramConnection(token).then(()=>'',e=>e.message)).toBe('TOKEN_STORE_FAILED');
+ failCommit=true;expect(await store.saveInstagramConnection(token).then(()=>'',e=>e.message)).toBe('TOKEN_STORE_FAILED');expect((await store.instagramTokenMetadata()).state).toBe('connected');failCommit=false;failRelease=true;await store.saveInstagramConnection(token);expect((await store.instagramTokenMetadata()).state).toBe('connected');
  env.VERCEL_ENV='preview';const before=calls;expect(await store.instagramTokenMetadata()).toEqual({state:'unconnected',expiresAt:null});expect(await store.saveInstagramConnection(token).then(()=>'',e=>e.message)).toBe('STORE_UNAVAILABLE');expect((await store.storedInstagramToken()).token).toBeUndefined();expect(calls).toBe(before);
+});
+
+import {contactProvider} from '../lib/cms/contact-provider';
+import {submitContact} from '../lib/contact-submit';
+test('Web3Forms standard browser mode needs no PRO key and Preview stays disabled',()=>{
+ const env={CONTACT_INTAKE_ENABLED:'true',SUPABASE_SECRET_KEY:'sb_secret_fixture',WEB3FORMS_MODE:'browser',WEB3FORMS_ACCESS_KEY:'00000000-0000-4000-8000-000000000001'};
+ expect(contactProvider(env)).toEqual({mode:'browser',accessKey:env.WEB3FORMS_ACCESS_KEY});expect(contactProvider({...env,VERCEL_ENV:'preview'})).toBeNull();expect(contactProvider({...env,WEB3FORMS_ACCESS_KEY:''})).toBeNull();
+ expect(contactProvider({CONTACT_INTAKE_ENABLED:'true',SUPABASE_SECRET_KEY:'sb_secret_fixture',WEB3FORMS_SECRET_KEY:'w3f_live_fixture',WEB3FORMS_FORM_ID:'fixture'})).toMatchObject({mode:'server'});
+});
+test('Web3Forms browser pipeline never mistakes DB receipt for notification acceptance',async()=>{
+ const fields={name:'Fixture',email:'fixture@example.test',phone:'',inquiry_type:'Fixture',message:'Synthetic',website:''},id='00000000-0000-4000-8000-000000000002';
+ const start={success:false,saved:true,mode:'browser',attemptAllowed:true,accessKey:'00000000-0000-4000-8000-000000000001'};
+ let calls:string[]=[];let result=await submitContact(fields,id,async url=>{calls.push(String(url));return calls.length===1?Response.json(start):Response.json({success:true});});
+ expect(result).toEqual({accepted:true,saved:true});expect(calls).toEqual(['/api/contact','https://api.web3forms.com/submit']);
+ calls=[];result=await submitContact(fields,id,async url=>{calls.push(String(url));return calls.length===1?Response.json(start):Response.json({success:false},{status:429});});expect(result).toEqual({accepted:false,saved:true});
+ calls=[];result=await submitContact(fields,id,async url=>{calls.push(String(url));return Response.json({success:false,saved:true,notification:'unconfirmed'},{status:409});});expect(result.accepted).toBe(false);expect(calls).toHaveLength(1);
+ calls=[];result=await submitContact(fields,id,async url=>{calls.push(String(url));if(calls.length===2)throw Error('fixture timeout');return Response.json(start);});expect(result).toEqual({accepted:false,saved:true});
+ result=await submitContact(fields,id,async()=>Response.json({success:false,saved:true,notification:'uncertain'},{status:202}));expect(result.accepted).toBe(false);
+ result=await submitContact(fields,id,async()=>Response.json({success:true,saved:true,notification:'accepted'}));expect(result.accepted).toBe(true);
+});
+test('Web3Forms API validates, suppresses repeat attempts and reports PRO failures honestly',async()=>{
+ const require=createRequire(process.cwd()+"/package.json"),exports:Record<string,unknown>={};let provider:ReturnType<typeof contactProvider>={mode:'browser',accessKey:'00000000-0000-4000-8000-000000000001'},fresh=true,sends=0,rpcCalls=0;
+ const mods:Record<string,unknown>={'@/lib/cms/request-body':{limitedText:async(r:Request)=>r.text()},'@/lib/cms/csrf':{sameOrigin:()=>true},'@/lib/cms/integration-config':{contactReady:()=>Boolean(provider)},'@/lib/cms/contact-provider':{contactProvider:()=>provider},'@/lib/cms/trusted-server':{trustedServerClient:()=>({rpc:async(name:string)=>{rpcCalls++;return {data:name==='cms_receive_inquiry'?fresh:null,error:null};}})}};
+ vm.runInNewContext(ts.transpileModule(readFileSync('app/api/contact/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>mods[n]??require(n),Response,Request,AbortSignal,TextEncoder,fetch:async()=>{sends++;return Response.json({success:false},{status:500});},process:{env:{}}});
+ const post=exports.POST as (r:Request)=>Promise<Response>,fields={id:'00000000-0000-4000-8000-000000000002',name:'Fixture',email:'fixture@example.test',phone:'',inquiry_type:'Fixture',message:'Synthetic',website:''};
+ const request=(value:unknown)=>new Request('https://fixture.example/api/contact',{method:'POST',body:JSON.stringify(value)});
+ let response=await post(request(fields));expect(await response.json()).toMatchObject({success:false,saved:true,mode:'browser',attemptAllowed:true});expect(sends).toBe(0);
+ fresh=false;response=await post(request(fields));expect(response.status).toBe(409);expect(sends).toBe(0);
+ const before=rpcCalls;response=await post(request({...fields,website:'spam'}));expect(response.status).toBe(400);expect(rpcCalls).toBe(before);
+ fresh=true;provider={mode:'server',secret:'w3f_live_fixture',formId:'fixture'};response=await post(request(fields));expect(response.status).toBe(202);expect(await response.json()).toEqual({success:false,saved:true,notification:'uncertain'});expect(sends).toBe(1);
+ provider=null;response=await post(request(fields));expect(response.status).toBe(503);expect(sends).toBe(1);
+});
+
+test('Instagram OAuth rejects mismatched state, replay, revoked owner and uncertain persistence',async()=>{
+ const require=createRequire(process.cwd()+"/package.json"),exports:Record<string,unknown>={},jar=new Map<string,string>();let revoked=false,failSave=false,exchanges=0,saves=0;
+ const mods:Record<string,unknown>={'next/headers':{cookies:async()=>({get:(name:string)=>jar.has(name)?{value:jar.get(name)}:undefined,set:(name:string,value:string)=>jar.set(name,value),delete:({name}:{name:string})=>jar.delete(name)})},'next/server':{NextResponse:{redirect:(url:URL)=>new Response(null,{status:307,headers:{Location:url.href}})}},'@/lib/cms/server':{requireIdentity:async()=>{if(revoked)throw Error('fixture revoked');return {identity:{id:'fixture-owner',owner:true},client:{rpc:async()=>({error:null})}};}},'@/lib/cms/csrf':{sameOrigin:()=>true},'@/lib/cms/instagram-oauth':{instagramOAuthConfig:()=>({appId:'123',redirect:'https://fixture.example/api/admin/instagram/oauth'}),exchangeInstagramCode:async()=>{exchanges++;return {accountId:'123',username:'aim_architecture',token:{accessToken:'synthetic-oauth-token'}};}},'@/lib/cms/instagram-token-store':{saveInstagramConnection:async()=>{saves++;if(failSave)throw Error('fixture uncertain write');}}};
+ vm.runInNewContext(ts.transpileModule(readFileSync('app/api/admin/instagram/oauth/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>mods[n]??require(n),Buffer,Response,URL,URLSearchParams});
+ const post=exports.POST as (r:Request)=>Promise<Response>,get=exports.GET as (r:Request)=>Promise<Response>,base='https://fixture.example/api/admin/instagram/oauth';
+ const start=async()=>new URL((await (await post(new Request(base,{method:'POST'}))).json()).url).searchParams.get('state')!;
+ let state=await start();expect((await get(new Request(base+'?state='+('0'.repeat(64))+'&code=fixture'))).status).toBe(400);expect(exchanges).toBe(0);
+ state=await start();expect((await get(new Request(base+'?state='+state+'&code=fixture'))).status).toBe(307);expect(exchanges).toBe(1);expect(saves).toBe(1);expect((await get(new Request(base+'?state='+state+'&code=fixture'))).status).toBe(400);expect(exchanges).toBe(1);
+ state=await start();revoked=true;expect((await get(new Request(base+'?state='+state+'&code=fixture'))).status).toBe(400);expect(exchanges).toBe(1);
+ revoked=false;state=await start();failSave=true;const failed=await get(new Request(base+'?state='+state+'&code=fixture'));expect(failed.status).toBe(400);expect(await failed.text()).not.toContain('synthetic-oauth-token');
 });

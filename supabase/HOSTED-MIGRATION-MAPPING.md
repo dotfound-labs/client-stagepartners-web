@@ -26,5 +26,9 @@ here. Before future migrations, verify the exact project and current hosted list
 
 Migration 8 is applied. Its local Git blob was verified as
 e4d8959bf7c93a6d18d79d0ed8a7daf231da986c before the filename-only rename.
-All eight applied bodies are immutable. The encrypted-token migration remains
-pending review/application and does not enable any external integration.
+All eight applied bodies are immutable. The encrypted-token migration is also applied and does not enable any external integration.
+
+| 20261025031957 | 20261025031031 | cms_encrypted_instagram_tokens |
+
+Migration 9 body Git blob 3dd4ec9471be7417966f9846c3d15e10c6d08b98 was
+verified before its filename-only rename. No credentials were populated.
