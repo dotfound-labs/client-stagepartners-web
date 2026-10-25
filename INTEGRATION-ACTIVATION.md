@@ -220,3 +220,10 @@ Delivery failure does not invalidate password saving, so the UI makes no email-d
 claim. Use the native notification alone to avoid duplicate completion emails.
 Sources: https://supabase.com/docs/guides/auth/auth-email-templates and
 https://github.com/supabase/auth/blob/master/internal/api/user.go (UserUpdate).
+
+Contact notifications use the fixed Japanese subject and Japanese field names
+through the standard browser submission payload; no custom HTML template or paid
+plan is required for this implementation. Optional company name is saved at the
+start of the CMS inquiry message and sent as a separate labeled notification field.
+Provider-controlled surrounding text/branding may remain in English; verify the
+actual received message before promising an entirely Japanese email.

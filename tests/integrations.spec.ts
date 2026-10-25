@@ -137,6 +137,7 @@ test('Instagram durable adapter saves ciphertext, sanitizes status and blocks Pr
 
 import {contactProvider} from '../lib/cms/contact-provider';
 import {submitContact} from '../lib/contact-submit';
+import * as contactNotification from '../lib/contact-notification';
 test('Web3Forms standard browser mode needs no PRO key and Preview stays disabled',()=>{
  const env={CONTACT_INTAKE_ENABLED:'true',SUPABASE_SECRET_KEY:'sb_secret_fixture',WEB3FORMS_MODE:'browser',WEB3FORMS_ACCESS_KEY:'00000000-0000-4000-8000-000000000001'};
  expect(contactProvider(env)).toEqual({mode:'browser',accessKey:env.WEB3FORMS_ACCESS_KEY});expect(contactProvider({...env,VERCEL_ENV:'preview'})).toBeNull();expect(contactProvider({...env,WEB3FORMS_ACCESS_KEY:''})).toBeNull();
@@ -155,7 +156,7 @@ test('Web3Forms browser pipeline never mistakes DB receipt for notification acce
 });
 test('Web3Forms API validates, suppresses repeat attempts and reports PRO failures honestly',async()=>{
  const require=createRequire(process.cwd()+"/package.json"),exports:Record<string,unknown>={};let provider:ReturnType<typeof contactProvider>={mode:'browser',accessKey:'00000000-0000-4000-8000-000000000001'},fresh=true,sends=0,rpcCalls=0;
- const mods:Record<string,unknown>={'@/lib/cms/request-body':{limitedText:async(r:Request)=>r.text()},'@/lib/cms/csrf':{sameOrigin:()=>true},'@/lib/cms/integration-config':{contactReady:()=>Boolean(provider)},'@/lib/cms/contact-provider':{contactProvider:()=>provider},'@/lib/cms/trusted-server':{trustedServerClient:()=>({rpc:async(name:string)=>{rpcCalls++;return {data:name==='cms_receive_inquiry'?fresh:null,error:null};}})}};
+ const mods:Record<string,unknown>={'@/lib/contact-notification':contactNotification,'@/lib/cms/request-body':{limitedText:async(r:Request)=>r.text()},'@/lib/cms/csrf':{sameOrigin:()=>true},'@/lib/cms/integration-config':{contactReady:()=>Boolean(provider)},'@/lib/cms/contact-provider':{contactProvider:()=>provider},'@/lib/cms/trusted-server':{trustedServerClient:()=>({rpc:async(name:string)=>{rpcCalls++;return {data:name==='cms_receive_inquiry'?fresh:null,error:null};}})}};
  vm.runInNewContext(ts.transpileModule(readFileSync('app/api/contact/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,{exports,require:(n:string)=>mods[n]??require(n),Response,Request,AbortSignal,TextEncoder,fetch:async()=>{sends++;return Response.json({success:false},{status:500});},process:{env:{}}});
  const post=exports.POST as (r:Request)=>Promise<Response>,fields={id:'00000000-0000-4000-8000-000000000002',name:'Fixture',email:'fixture@example.test',phone:'',inquiry_type:'Fixture',message:'Synthetic',website:''};
  const request=(value:unknown)=>new Request('https://fixture.example/api/contact',{method:'POST',body:JSON.stringify(value)});
@@ -176,4 +177,16 @@ test('Instagram OAuth rejects mismatched state, replay, revoked owner and uncert
  state=await start();expect((await get(new Request(base+'?state='+state+'&code=fixture'))).status).toBe(307);expect(exchanges).toBe(1);expect(saves).toBe(1);expect((await get(new Request(base+'?state='+state+'&code=fixture'))).status).toBe(400);expect(exchanges).toBe(1);
  state=await start();revoked=true;expect((await get(new Request(base+'?state='+state+'&code=fixture'))).status).toBe(400);expect(exchanges).toBe(1);
  revoked=false;state=await start();failSave=true;const failed=await get(new Request(base+'?state='+state+'&code=fixture'));expect(failed.status).toBe(400);expect(await failed.text()).not.toContain('synthetic-oauth-token');
+});
+
+
+test('Web3Forms Japanese notification preserves fields and reply address without HTML templates',async()=>{
+ const fields={name:'動作確認',company:'テスト会社',email:'fixture@example.test',phone:'',inquiry_type:'その他',message:'動作確認です。返信不要です。',website:''};
+ let delivery:Record<string,unknown>={};let calls=0;
+ const fetcher=(async(_url:unknown,init?:RequestInit)=>{calls++;if(calls===1)return Response.json({saved:true,mode:'browser',attemptAllowed:true,accessKey:'00000000-0000-4000-8000-000000000001'});delivery=JSON.parse(String(init?.body));return Response.json({success:true});}) as typeof fetch;
+ expect(await submitContact(fields,'fixture-id',fetcher)).toEqual({accepted:true,saved:true});
+ expect(delivery).toMatchObject({subject:'【STAGE PARTNERS】ホームページにお問い合わせがありました','氏名':fields.name,'会社名':fields.company,'メールアドレス':fields.email,'電話番号':'記載なし','お問い合わせ内容':fields.message,replyto:fields.email});
+ expect(delivery).not.toHaveProperty('ccemail');expect(delivery).not.toHaveProperty('webhook');
+ expect(contactNotification.storedInquiryMessage(fields)).toBe('会社名：テスト会社\n\n'+fields.message);
+ expect(contactNotification.storedInquiryMessage({...fields,company:''})).toBe(fields.message);
 });

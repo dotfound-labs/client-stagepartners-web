@@ -40,7 +40,7 @@ export default function Contact() {
     // 送信後には参照できない。同期のうちにform要素を掴んでおく。
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const fields=Object.fromEntries(["name","email","phone","inquiry_type","message","website"].map(key=>[key,String(formData.get(key)??"")])) as ContactFields;
+    const fields=Object.fromEntries(["name","company","email","phone","inquiry_type","message","website"].map(key=>[key,String(formData.get(key)??"")])) as ContactFields;
     const payload=JSON.stringify(fields);
     if(submission.current?.payload!==payload)submission.current={id:crypto.randomUUID(),payload};
     try {
@@ -133,6 +133,11 @@ export default function Contact() {
                 required
                 className="mt-2 w-full border-b border-line bg-transparent py-2.5 text-sm text-ink outline-none transition-colors focus:border-foreground"
               />
+            </label>
+
+            <label className="block">
+              <span className="text-xs font-medium tracking-[0.1em] text-ink-muted">会社名（任意）</span>
+              <input type="text" name="company" autoComplete="organization" maxLength={200} className="mt-2 w-full border-b border-line bg-transparent py-2.5 text-sm text-ink outline-none transition-colors focus:border-foreground" />
             </label>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
