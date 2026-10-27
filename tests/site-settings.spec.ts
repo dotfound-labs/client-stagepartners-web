@@ -1,5 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {readFileSync} from 'node:fs';
+import {join} from 'node:path';
 import {createRequire} from 'node:module';
 import vm from 'node:vm';
 import ts from 'typescript';
@@ -25,6 +26,8 @@ const common=(fields:Record<string,string>={},images?:model.PageData['images']):
 test('SEO settings preserve existing defaults and normalize only valid published values',()=>{
  expect(settings.resolveSiteSettings()).toEqual(settings.SITE_DEFAULTS);
  expect(settings.SITE_DEFAULTS.siteName).toBe('STAGE PARTNERS');
+ expect(settings.SITE_DEFAULTS.title).toBe('株式会社STAGE PARTNERS｜ステージパートナーズ');
+ expect(PAGE_TEMPLATES.common.fields.find(field=>field.id==='common.seo_title')?.value).toBe(settings.SITE_DEFAULTS.title);
  expect(settings.SITE_DEFAULTS.url).toBe('https://www.stagepartners.co.jp');
  const result=settings.resolveSiteSettings(common({'common.seo_site_name':' 新サイト名 ','common.seo_title':' 新タイトル ','common.seo_description':' 新しい説明 ','common.seo_url':'https://Example.test/','common.seo_indexing':'noindex'}));
  expect(result).toMatchObject({siteName:'新サイト名',title:'新タイトル',description:'新しい説明',url:'https://example.test',indexing:'noindex'});
@@ -120,7 +123,7 @@ test('SEO asset routes normalize existing defaults with private-data-safe respon
  const route=assetRoute({env:{VERCEL_ENV:'preview'}});
  for(const [slot,width,height,mime,file] of [['icon',512,512,'image/png','icon.png'],['og',1200,630,'image/jpeg','stagepartners-hero.jpg'],['logo',160,120,'image/png','logo-color-footer.png']] as const){
   const response=await route.get(slot);expect(response.status).toBe(200);expect(response.headers.get('Content-Type')).toBe(mime);expect(response.headers.get('Cache-Control')).toBe('no-store');expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');expect(response.headers.get('X-Robots-Tag')).toContain('noindex');
-  const metadata=await sharp(Buffer.from(await response.arrayBuffer())).metadata();expect(metadata).toMatchObject({width,height});expect(route.calls.reads.at(-1)).toBe(process.cwd()+'/public/'+file);
+  const metadata=await sharp(Buffer.from(await response.arrayBuffer())).metadata();expect(metadata).toMatchObject({width,height});expect(route.calls.reads.at(-1)).toBe(join(process.cwd(),'public',file));
  }
  expect(route.calls.tables).toEqual([]);expect(route.calls.downloads).toEqual([]);
 });
@@ -173,7 +176,7 @@ test('SEO settings UI discloses unsaved defaults and enforces field-specific inp
  expect(html).toContain('入力 → 下書き保存 → プレビュー → 公開');
  expect(html).toMatch(/type="url"[^>]*maxLength="253"[^>]*value="https:\/\/www.stagepartners.co.jp"/i);
  expect(html).toMatch(/maxLength="100"[^>]*value="STAGE PARTNERS"/i);
- expect(html).toMatch(/maxLength="200"[^>]*value="STAGE PARTNERS \| 株式会社ステージパートナーズ"/i);
+ expect(html).toMatch(/maxLength="200"[^>]*value="株式会社STAGE PARTNERS｜ステージパートナーズ"/i);
  expect(html).toMatch(/textarea[^>]*maxLength="500"/i);
  expect(html).toContain('常に検索対象外');expect(mutations).toBe(0);
  const filled=Object.fromEntries(PAGE_TEMPLATES.common.fields.filter(field=>field.id.startsWith('common.seo_')).map(field=>[field.id,field.value]));
