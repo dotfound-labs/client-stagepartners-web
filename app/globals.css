@@ -64,6 +64,8 @@ body {
 }
 
 html {
+  /* Keep the layout width unchanged when PageLoader temporarily locks scrolling. */
+  scrollbar-gutter: stable;
   scroll-behavior: smooth;
   /* 固定ヘッダーにアンカー先が隠れないようにする */
   scroll-padding-top: 5.5rem;

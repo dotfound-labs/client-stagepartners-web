@@ -2478,7 +2478,7 @@ export const PAGE_TEMPLATES:Record<string,PageTemplate>={
       {
         "id": "common.seo_title",
         "label": "検索結果の基本タイトル",
-        "value": "STAGE PARTNERS | 株式会社ステージパートナーズ",
+        "value": "株式会社STAGE PARTNERS｜ステージパートナーズ",
         "section": "SEO・サイト情報",
         "kind": "text"
       },
